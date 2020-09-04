@@ -1,0 +1,48 @@
+a{
+	outline: none;
+}
+a:hover{
+	text-decoration: none;
+}
+body{
+	background-image: url(../img/bg.png);
+	background-repeat: repeat-x;
+	background-position: bottom;
+	height: 100vh;
+}
+#language{
+	margin-top: 0px;
+	right: 16px;
+	z-index: 1;
+}
+#language ul li{
+	list-style: none;
+	display: inline-block;
+}
+#language a{
+	background:#ededed;
+	color: #666;
+	font-size: 12px;
+	padding: 5px;
+}
+#language a:hover{
+	background: #86b986;
+	color: #fff;
+}
+#header{
+	margin: auto; 
+}
+#header img{
+	max-width: 200px;
+	margin-top: 20px;
+}
+.title{
+	margin-top: 100px;
+	margin-bottom: 30px;
+}
+#footer img{
+	width: 300px;
+	background: rgba(255,255,255,0.8);
+	padding: 20px;
+	border-radius: 2px;
+}

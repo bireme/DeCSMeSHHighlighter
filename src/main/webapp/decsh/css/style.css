@@ -1,0 +1,101 @@
+body{
+	background-image: url(../img/bg.png);
+	background-repeat: repeat-x;
+	background-position: bottom;
+	height: 100vh;
+	background-attachment: fixed;
+}
+a{
+	outline: none;
+}
+#header{
+	margin: auto; 
+	position: relative;
+	padding-bottom: 20px;
+}
+#header img{
+	max-width: 200px;
+	margin-top: 20px;
+}
+#filter{
+	background: #669966;
+	border-bottom: 5px solid #4e7952;
+	color: #fff;
+	padding: 10px;
+}
+.padding1{
+	padding: 20px 0;
+}
+#footer{
+	padding-bottom: 10px;
+}
+#footer .container{
+	background: rgba(255,255,255,0.9);
+	border:1px solid #ddd;
+	border-radius: 5px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+#logoDeCS img{
+	height: 50px;
+	margin: 10px;
+}
+#logoBireme{
+	text-align: right;
+}
+#logoBireme img{
+	height: 50px;
+	margin: 10px;
+}
+#footerTermos{
+	font-size: 12px;
+}
+#language{
+	float: right;
+	margin-top: 0px;
+	position: absolute;
+	right: 16px;
+	z-index: 1;
+}
+#language ul li{
+	list-style: none;
+	display: inline-block;
+}
+#language a{
+	background:#4e7952;
+	color: #fff;
+	font-size: 12px;
+	padding: 5px;
+}
+#language a:hover{
+	background: #86b986;
+}
+#btDisclaimer{
+	position: absolute;
+	right: 15px; bottom: 10px;
+	z-index: 10;
+}
+/************* Breakpoint *************/
+@media (max-width: 768px){
+	#header{
+		text-align: center;
+	}
+	#language{
+		float: none;
+		margin-top: 0px;
+		position: sticky;
+		right: auto;
+		width: 100%;
+	}
+	#footer{
+		padding: 20px; 
+		text-align: center;
+	}
+	#footer img{width: 100%; height: auto; text-align: center;}
+}
+/*correções svg Internet Explorer Edge*/
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+	img[src$=".svg"]{
+		width: 100%; 
+	}
+}

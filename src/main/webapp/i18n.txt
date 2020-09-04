@@ -1,0 +1,70 @@
+
+# ============================================================================
+# DeCS Highlighter Servlet
+# ============================================================================
+
+Main Content|Main content|Contenido principal|Conteúdo principal|Contenu principal
+Menu|Menu|Menú|Menu|Menu
+Search|Search|Búsqueda|Pesquisa|Recherche
+Footer|Footer|Pie de página|Rodapé|Bas de page
+High Contrast|High contrast|Alto contraste|Alto contraste|Contraste élevé
+Accessibility|Accessibility|Accesibilidad|Acessibilidade|Accessibilité
+Disclaimer|Notice: This service uses a computer program to identify DeCS/MeSH terms from words in the title and abstract. The identified terms do not reflect automatic indexing and should not be used indiscriminately, as it does not replace the process of reading and analyzing the indexing professional.|Aviso: Este servicio utiliza un programa informático para identificar términos DeCS/MeSH a partir de palabras en el título y el resumen. Los términos identificados no reflejan la indexación automática y no deben usarse indiscriminadamente, ya que no reemplaza el proceso de lectura y análisis del profesional de indexación.|Aviso: Este serviço utiliza um programa de computador para identificar termos DeCS/MeSH a partir de palavras do título e resumo. Os termos identificados não refletem uma indexação automática e não devem ser utilizados indiscriminadamente, pois não substitui o processo de leitura e análise do profissional indexador.|Remarque: Ce service utilise un programme informatique pour identifier les termes DeCS/MeSH à partir des mots du titre et du résumé. Les termes identifiés ne reflètent pas l'indexation automatique et ne doivent pas être utilisés sans discernement, car ils ne remplacent pas le processus de lecture et d'analyse du professionnel de l'indexation.
+Input text language|Input text language|Idioma de entrada de texto|Idioma do texto de entrada|Langue du texte d'entrée
+Output terms language|Output terms language|Idioma de términos de salida|Idioma dos termos de saída|Langue des termes de sortie
+Types of terms|Types of terms|Tipos de términos|Tipos de termos|Types de termes
+I don't know|I don't know|No lo sé|Eu não sei|Je ne sais pas
+English|English|Inglés|Inglês|Anglais
+Spanish|Spanish|Español|Espanhol|Espagnol
+Portuguese|Portuguese|Portugués|Português|Portugais
+French|French|Francés|Francês|Français
+The same found in the text|The same found in the text|Lo mismo encontrado en el texto|O mesmo encontrado no texto|La même chose trouvée dans le texte
+Main headings|Main headings|Descriptores de asunto|Descritores de assunto|Descripteurs
+Qualifiers|Qualifiers|Calificadores|Qualificadores|Qualificatifs
+Entry terms|Entry terms|Términos alternativos|Termos alternativos|Termes alternatifs
+Publication types|Publication types|Tipos de publicación|Tipos de publicação|Types de publication
+Check tags|Check tags|Precodificados|Pré-codificados|Précodifié
+Geographics|Geographics|Denominaciones geográficas|Denominações geográficas|Lieux géographiques
+Your text|Your text|Tu texto|Seu texto|Ton texte
+Terms found|Terms found|Términos encontrados|Termos encontrados|Termes trouvés
+Search|Search|Buscar|Procurar|Chercher
+Clear|Clear|Limpiar|Limpar|Nettoyer
+Terms and conditions of use|Terms and conditions of use|Términos y condiciones de uso|Termos e Condições de Uso|Termes et conditions d'utilisation
+Privacy policy|Privacy policy|Política de privacidad|Política de Privacidade|Politique de confidentialité
+
+# ============================================================================
+# DeCS Mesh Highlighter Servlet
+# ============================================================================
+
+DeCS/MeSH Highlighter identifies terms in your submitted text (abstract or manuscript)|DeCS/MeSH Highlighter identifies terms in your submitted text (abstract or manuscript)|DeCS/MeSH Highlighter identifica términos en el texto enviado (resumen o manuscrito)|DeCS/MeSH Highlighter identifica os termos em seu texto enviado (resumo ou manuscrito)|DeCS/MeSH Highlighter identifie les termes dans votre texte soumis (résumé ou manuscrit)
+SIMPLE|SIMPLE|SENCILLA|SIMPLES|FACILE
+ADVANCED|ADVANCED|AVANZADA|AVANÇADA|AVANCÉE
+Answer the following questions|Answer the following questions|Responda las siguientes preguntas|Responda às seguintes perguntas|Répondez aux questions suivantes
+Which is the input text language|Which is the input text language|Cuál es el idioma del texto de entrada|Qual é o idioma do texto de entrada|Quelle est la langue du texte d'entrée
+Select|Select|Seleccione|Selecione|Sélectionner
+Your text|Your text|Tu texto|Seu texto|Ton texte
+Next|Next|Próximo|Próximo|Prochain
+Which is the desired output terms language|Which is the desired output terms language|¿Cuál es el lenguaje de términos de salida deseado|Qual é a linguagem dos termos de saída desejada|Quelle est la langue des termes de sortie souhaitée
+Do you want to use advanced filters|Do you want to use advanced filters|¿Quieres utilizar filtros avanzados|Você quer usar filtros avançados|Voulez-vous utiliser des filtres avancés
+No, proceed with the identification of DeCS/MeSH terms|No, proceed with the identification of DeCS/MeSH terms|No, proceda con la identificación de los términos DeCS/MeSH|Não, prossiga com a identificação dos termos do DeCS/MeSH|Non, procédez à l'identification des termes DeCS/MeSH
+Yes, go to them|Yes, go to them|Sí, ve a ellas|Sim, vá até eles|Oui, allez vers eux
+Which types of terms do you want to identify|Which types of terms do you want to identify|¿Qué tipo de términos quieres identificar|Quais tipos de termos você deseja identificar|Quels types de termes souhaitez-vous identifier
+
+# ============================================================================
+# DeCS Highlighter Site Servlet
+# ============================================================================
+
+Automatically find all DeCS/MeSH terms in your document|Automatically find all DeCS/MeSH terms in your document|Encuentre automáticamente todos los términos DeCS/MeSH en su documento|Localize automaticamente todos os termos DeCS/MeSH presentes em seu documento|Rechercher automatiquement tous les termes DeCS/MeSH dans votre document
+Try it now|Try it now|Pruebalo ahora|Tente agora|Essayez-le maintenant
+How to use|How to use|Cómo utilizar|Como usar|Comment utiliser
+Select your Text|Select your text|Seleccione su texto|Selecione o seu texto|Sélectionnez votre texte
+Paste your Text|Paste your text|Pega tu texto|Cole o seu texto|Collez votre texte
+View your result|View your result|Ver su resultado|Veja o seu resultado|Afficher votre résultat
+Why use DeCS/MeSH Highlighter|Why use DeCS/MeSH Highlighter|Por qué utilizar DeCS/MeSH Highlighter|Por que usar o DeCS/MeSH Highlighter|Pourquoi utiliser le DeCS/MeSH Highlighter
+Technical Features|Technical Features|Características técnicas|Características técnicas|Caractéristiques techniques
+How does DeCS/MeSH Highlighter find terms|How does DeCS/MeSH Highlighter find terms|¿Cómo DeCS/MeSH Highlighter encuentra los términos|Como o DeCS/MeSH Highlighter localiza os termos|Comment le DeCS/MeSH Highlighter trouve-t-il les termes
+Is DeCS/MeSH Highlighter free to use|Is DeCS/MeSH Highlighter free to use|¿Es DeCS/MeSH Highlighter de uso gratuito|O DeCS/MeSH Highlighter é de uso gratuito|L'utilisation du DeCS/MeSH Highlighter est-elle gratuite
+Who are the main users of DeCS/MeSH Highlighter|Who are the main users of DeCS/MeSH Highlighter|¿Quiénes son los principales usuarios de DeCS/MeSH Highlighter|Quais são os principais usuários do DeCS/MeSH Highlighter|Qui sont les principaux utilisateurs de DeCS/MeSH Highlighter
+How often is the DeCS/MeSH thesaurus updated|How often is the DeCS/MeSH thesaurus updated|¿Con qué frecuencia se actualiza el tesauro DeCS/MeSH|Com que frequência o tesauro DeCS/MeSH é atualizado|À quelle fréquence le thésaurus DeCS/MeSH est-il mis à jour
+How do I find DeCS/MeSH terms in many documents|How do I find DeCS/MeSH terms in many documents|¿Cómo encuentro términos DeCS/MeSH en muchos documentos|Como fazer a localização de termos DeCS/MeSH em muitos documentos|Comment trouver les termes DeCS/MeSH dans de nombreux documents
+Check out the beta version of the new DeCS/MeSH website|Check out the beta version of the new DeCS/MeSH website|Consulte la versión beta del nuevo sitio web DeCS/MeSH|Confira a versão beta do novo site DeCS/MeSH|Découvrez la version bêta du nouveau site Web DeCS/MeSH

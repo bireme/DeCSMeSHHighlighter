@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <display-name>DeCS Highlighter</display-name>
+
+    <context-param>
+        <description>DeCS database directory</description>
+        <param-name>DECS_PATH</param-name>
+        <param-value>/home/javaapps/sbt-projects/DeCSHighlighter/decs/decs</param-value>
+        <!--param-value>decs/decs</param-value-->
+    </context-param>
+
+    <servlet>
+        <servlet-name>DMHSiteServlet</servlet-name>
+        <servlet-class>org.bireme.dmh.DMHSiteServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>DMHServlet</servlet-name>
+        <servlet-class>org.bireme.dmh.DMHServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>DMHWizardServlet</servlet-name>
+        <servlet-class>org.bireme.dmh.DMHWizardServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DMHSiteServlet</servlet-name>
+        <url-pattern>/dmhs</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DMHServlet</servlet-name>
+        <url-pattern>/dmh</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DMHWizardServlet</servlet-name>
+        <url-pattern>/dmhw</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>
