@@ -98,12 +98,13 @@ class DMHWizardServlet extends HttpServlet {
         document.getElementById("text1").value = "";
         document.getElementById("select1").value = "";
         document.getElementById("select2").value = "";
-        document.getElementById('main_headings').checked = false;
-        document.getElementById('qualifiers').checked = false;
-        document.getElementById('entry_terms').checked = false;
-        document.getElementById('publication_types').checked = false;
-        document.getElementById('check_tags').checked = false;
-        document.getElementById('geographics').checked = false;
+        document.getElementById('main_headings').checked = true;
+        document.getElementById('qualifiers').checked = true;
+        document.getElementById('entry_terms').checked = true;
+        document.getElementById('publication_types').checked = true;
+        document.getElementById('check_tags').checked = true;
+        document.getElementById('geographics').checked = true;
+        document.getElementById('geographics').checked = true;
     }
 
     function submitPage(plang, useAllTermTypes, leaveWizard) {
@@ -199,41 +200,70 @@ class DMHWizardServlet extends HttpServlet {
 
         form.submit();
     }
+
+    function submitPageToSite(plang) {
+        var pageLang = """" + language + """";
+        var language;
+        if (plang === "") language = pageLang;
+        else language = plang;
+
+        var formS = document.createElement("form");
+        formS.setAttribute("method", "post");
+        formS.setAttribute("action", "dmhs");
+
+        var hiddenFieldLang = document.createElement("input");
+        hiddenFieldLang.setAttribute("type", "hidden");
+        hiddenFieldLang.setAttribute("name", "lang");
+        hiddenFieldLang.setAttribute("value", language);
+        formS.appendChild(hiddenFieldLang);
+
+        document.body.appendChild(formS);
+
+        formS.submit();
+     }
 </script>
 
 <section id="barAccessibility">
-   <div class="container">
-      <div class="row">
-         <div class="col-md-6" id="accessibilityTutorial">
-            <!-- <a href="#main_container" tabindex="1" role="button">Conteúdo Principal <span class="hiddenMobile">1</span></a>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" id="accessibilityTutorial">
+               <!--
+               <a href="#main_container" tabindex="1" role="button">""" + i18n.translate("Main Content", language) + """ <span class="hiddenMobile">1</span></a>
                <a href="#nav" tabindex="2" role="button">Menu <span class="hiddenMobile">2</span></a>
-               <a href="#fieldSearch" tabindex="3" id="accessibilitySearch" role="button">Busca <span class="hiddenMobile">3</span></a>
-               <a href="#footer" tabindex="4" role="button">Rodapé <span class="hiddenMobile">4</span></a> -->
-         </div>
-         <div class="col-md-6" id="accessibilityFontes">
-            <a href="#!" id="fontPlus"  tabindex="5" aria-hidden="true">+A</a>
-            <a href="#!" id="fontNormal"  tabindex="6" aria-hidden="true">A</a>
-            <a href="#!" id="fontLess"  tabindex="7" aria-hidden="true">-A</a>
-            <a href="#!" id="contraste"  tabindex="8" aria-hidden="true"><i class="fas fa-adjust"></i> """ + i18n.translate("High Contrast", language) + """</a>
-            <a href="https://politicas.bireme.org/accesibilidad/""" + (if (language.equals("fr")) "en" else language) + """" role="button" id="accebilidade" tabindex="9" target="_blank" title='""" + i18n.translate("Accessibility", language) + """'><i class="fas fa-wheelchair"></i></a>
-         </div>
-      </div>
-   </div>
-</section>
-<header id="header" class="text-center">
-    <div id="language">
-		    <a href="#" onclick='submitPage("en", false, false);'>English</a>
-        <a href="#" onclick='submitPage("es", false, false);'>Español</a>
-        <a href="#" onclick='submitPage("pt", false, false);'>Português</a>
-        <a href="#" onclick='submitPage("fr", false, false);'>Français</a>
+               <a href="#fieldSearch" tabindex="3" id="accessibilitySearch" role="button">""" + i18n.translate("Search", language) + """ <span class="hiddenMobile">3</span></a>
+               <a href="#footer" tabindex="4" role="button">""" + i18n.translate("Footer", language) + """ <span class="hiddenMobile">4</span></a>
+                -->
+            </div>
+            <div class="col-md-6" id="accessibilityFontes">
+                <a href="#!" id="fontPlus"  tabindex="5" aria-hidden="true">+A</a>
+                <a href="#!" id="fontNormal"  tabindex="6" aria-hidden="true">A</a>
+                <a href="#!" id="fontLess"  tabindex="7" aria-hidden="true">-A</a>
+                <a href="#!" id="contraste"  tabindex="8" aria-hidden="true"><i class="fas fa-adjust"></i> """ + i18n.translate("High Contrast", language) + """</a>
+                <a href="https://politicas.bireme.org/accesibilidad/""" + (if (language.equals("fr")) "en" else language) + """" role="button" id="accebilidade" tabindex="9" target="_blank" title='""" + i18n.translate("Accessibility", language) + """'><i class="fas fa-wheelchair"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<header id="header">
+		<div class="container">
+		    <div class="row" style="position: relative;">
+				    <div id="language">
+                <a href="#" onclick='submitPage("en", false);'>English</a>
+                <a href="#" onclick='submitPage("es", false);'>Español</a>
+                <a href="#" onclick='submitPage("pt", false);'>Português</a>
+                <a href="#" onclick='submitPage("fr", false);'>Français</a>
+				    </div>
+				    <div class="col-12" id="logoDeCS">
+					      <a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo.svg" alt="" class="imgBlack"></a>
+				    </div>
+		    </div>
 		</div>
-    <img src="wizardDeCSH/img/logo.png" alt="" class="imgBlack">
-    <hr>
 </header>
 <div class="container">
     <div class="row">
         <div class="col-md-4">
-            <h3 class="title">""" + i18n.translate("DeCS/MeSH Highlighter identifies terms in your submitted text (abstract or manuscript)", language) + """.</h3>
+            <h3 class="title">""" + i18n.translate("Choose one of the options below to identify the DeCS/MeSH terms in your text", language) + """.</h3>
             <div class="btn-group">
                 <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success">""" + i18n.translate("SIMPLE", language) + """</a>
                 <a href="#" class="btn btn-lg btn-outline-success" onclick='submitPage("""" + language + """", false, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
@@ -244,14 +274,25 @@ class DMHWizardServlet extends HttpServlet {
         </div>
     </div>
 </div>
-<footer id="footer" class="text-center">
-    <img src="http://logos.bireme.org/img/""" + language + """/v_bir_color.svg" style="width: 300px;" alt="">
+<footer id="footer" class="padding1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <b>DeCS/MeSH Highlighter</b> <br>
+                <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
+					      <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
+            </div>
+            <div class="col-md-7 text-right">
+                <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid">
+            </div>
+        </div>
+    </div>
 </footer>
 <div class="modal fade bd-example-modal-lg " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header wizardModalTitle">
-                <h4 class="text-center" >""" + i18n.translate("DeCS/MeSH Highlighter identifies terms in your submitted text (abstract or manuscript)", language) + """. <br> <small>""" + i18n.translate("Answer the following questions", language) + """!</small></h4>
+                <h4 class="text-center" >""" + i18n.translate("Choose one of the options below to identify the DeCS/MeSH terms in your text", language) + """. <br> <small>""" + i18n.translate("Answer the following questions", language) + """:</small></h4>
             </div>
             <!-- Etapa1 -->
             <div class="modal-body wizardModalBody" id="etapa1">
@@ -265,7 +306,7 @@ class DMHWizardServlet extends HttpServlet {
                 </div>
                 <div id="e1" class="row marginTB1">
                     <div class="col-md-12">
-                        <h5 class="text-center">""" + i18n.translate("Which is the input text language", language) + """?</h5>
+                        <h5 class="text-center">""" + i18n.translate("What is the language of your text", language) + """?</h5>
                     </div>
                     <div class="col-12">
                         <select name="" id="select1" class="form-control wizardColor">
@@ -283,7 +324,7 @@ class DMHWizardServlet extends HttpServlet {
             <div class="modal-body wizardModalBody collapse" id="etapa2">
                 <div>
                     <ul id="wizard">
-                        <li><a href="#!" class="bc1">""" + i18n.translate("Which is the input text language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc1">""" + i18n.translate("What is the language of your text", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone3"></i><i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone2"></i><i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone2"></i></li>
@@ -291,7 +332,7 @@ class DMHWizardServlet extends HttpServlet {
                 </div>
                 <div id="e1" class="row marginTB1">
                     <div class="col-md-12">
-                        <h5 class="text-center">""" + i18n.translate("Your text", language) + """</h5>
+                        <h5 class="text-center">""" + i18n.translate("Paste your text below", language) + """</h5>
                     </div>
                     <div class="col-12 marginTB1">
                         <textarea name="" id="text1" cols="30" rows="10" class="form-control"></textarea>
@@ -305,15 +346,15 @@ class DMHWizardServlet extends HttpServlet {
             <div class="modal-body wizardModalBody collapse" id="etapa3">
                 <div>
                     <ul id="wizard">
-                        <li><a href="#!" class="bc1">""" + i18n.translate("Which is the input text language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
-                        <li><a href="#!" class="bc2">""" + i18n.translate("Your text", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc1">""" + i18n.translate("What is the language of your text", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc2">""" + i18n.translate("Paste your text below", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone3"></i><i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone2"></i></li>
                     </ul>
                 </div>
                 <div id="e1" class="row marginTB1">
                     <div class="col-md-12">
-                        <h5 class="text-center">""" + i18n.translate("Which is the desired output terms language", language) + """?</h5>
+                        <h5 class="text-center">""" + i18n.translate("In what language do you want to see the DeCS/MeSH terms", language) + """?</h5>
                     </div>
                     <div class="col-12">
                         <select name="" id="select2" class="form-control wizardColor2">
@@ -331,9 +372,9 @@ class DMHWizardServlet extends HttpServlet {
             <div class="modal-body wizardModalBody collapse" id="etapa4">
                 <div>
                     <ul id="wizard">
-                        <li><a href="#!" class="bc1">""" + i18n.translate("Which is the input text language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
-                        <li><a href="#!" class="bc2">""" + i18n.translate("Your text", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
-                        <li><a href="#!" class="bc3">""" + i18n.translate("Which is the desired output terms language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc1">""" + i18n.translate("What is the language of your text", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc2">""" + i18n.translate("Paste your text below", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc3">""" + i18n.translate("In what language do you want to see the DeCS/MeSH terms", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
                         <li><i class="fas fa-circle icone3"></i></li>
                     </ul>
                 </div>
@@ -367,9 +408,9 @@ class DMHWizardServlet extends HttpServlet {
             <div class="modal-body wizardModalBody collapse" id="etapa5">
                 <div>
                     <ul id="wizard">
-                        <li><a href="#!" class="bc1">""" + i18n.translate("Which is the input text language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
-                        <li><a href="#!" class="bc2">""" + i18n.translate("Your text", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
-                        <li><a href="#!" class="bc3">""" + i18n.translate("Which is the desired output terms language", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc1">""" + i18n.translate("What is the language of your text", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc2">""" + i18n.translate("Paste your text below", language) + """</a> <i class="fas fa-chevron-right icone "></i></li>
+                        <li><a href="#!" class="bc3">""" + i18n.translate("In what language do you want to see the DeCS/MeSH terms", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li>
                         <li><a href="#!" class="bc4">""" + i18n.translate("Do you want to use advanced filters", language) + """?</a></li>
                         <!--li><a href="#!" class="bc4">""" + i18n.translate("Which types of terms do you want to identify", language) + """?</a> <i class="fas fa-chevron-right icone "></i></li-->
                     </ul>

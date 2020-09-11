@@ -108,6 +108,7 @@ class DMHServlet extends HttpServlet {
 <html lang="""" + language + """">
 <head>
 	<meta charset="UTF-8">
+  <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>DeCS</title>
 	<link rel="stylesheet" href="decsh/css/bootstrap.min.css">
@@ -178,7 +179,7 @@ class DMHServlet extends HttpServlet {
         }
         termTypesStr = termTypesStr + termTypes[i];
       }
-//alert("TermTypesStr=" + termTypesStr);
+
 			var hiddenField4 = document.createElement("input");
 			hiddenField4.setAttribute("type", "hidden");
 			hiddenField4.setAttribute("name", "termTypes");
@@ -195,6 +196,27 @@ class DMHServlet extends HttpServlet {
 
       form.submit();
 		}
+
+    function submitPageToSite(plang) {
+        var pageLang = """" + language + """";
+        var language;
+        if (plang === "") language = pageLang;
+        else language = plang;
+
+        var formS = document.createElement("form");
+        formS.setAttribute("method", "post");
+        formS.setAttribute("action", "dmhs");
+
+        var hiddenFieldLang = document.createElement("input");
+        hiddenFieldLang.setAttribute("type", "hidden");
+        hiddenFieldLang.setAttribute("name", "lang");
+        hiddenFieldLang.setAttribute("value", language);
+        formS.appendChild(hiddenFieldLang);
+
+        document.body.appendChild(formS);
+
+        formS.submit();
+    }
 	</script>
 
 	<section id="barAccessibility">
@@ -226,31 +248,19 @@ class DMHServlet extends HttpServlet {
           <a href="#" onclick='submitPage("pt");'>Português</a>
           <a href="#" onclick='submitPage("fr");'>Français</a>
 				</div>
-        <div id="btDisclaimer">
-				    <a class="btn btn-sm btn-outline-success" data-toggle="collapse" href="#disclaimer" role="button" aria-expanded="false" aria-controls="disclaimer">
-			      <i class="fas fa-exclamation-triangle"></i>
-  			    </a>
-				</div>
 				<div class="col-12">
-					<img src="decsh/img/logo.svg" alt="" class="imgBlack">
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo.svg" alt="" class="imgBlack"></a>
 				</div>
 			</div>
 		</div>
 	</header>
-  <div class="container collapse" id="disclaimer">
-		  <div class="alert alert-warning alert-dismissible fade show" role="alert">
-			   <strong><i class="fas fa-exclamation-triangle"></i></strong> """ + i18n.translate("Disclaimer", language) + """
-			   <button type="button" class="close" data-toggle="collapse" href="#disclaimer" role="button" aria-expanded="false" aria-controls="disclaimer">
-				    <span aria-hidden="true">&times;</span>
-			   </button>
-		  </div>
-	</div>
+
 	<section id="filter">
 		<div class="container">
 			<div class="row">
 
 				<div class="form-group col-md-4">
-					<label for="">""" + i18n.translate("Input text language", language) + """:</label>
+					<label for="">""" + i18n.translate("Language of your text", language) + """:</label>
 					<select name="" id="inputTextLanguage" class="form-control">
 						<option value="" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option>
 						<option value="en" """ + (if (inputLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
@@ -260,7 +270,7 @@ class DMHServlet extends HttpServlet {
 					</select>
 				</div>
 				<div class="form-group col-md-4">
-					<label for="">""" + i18n.translate("Output terms language", language) + """:</label>
+					<label for="">""" + i18n.translate("Language of localized terms", language) + """:</label>
 					<select name="" id="outputTextLanguage" class="form-control">
             <option value="" """ + (if (outLang.equals("Same of the text")) "selected=\"\"" else "") + """>""" + i18n.translate("The same found in the text", language) + """</option>
 						<option value="en" """ + (if (outLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
@@ -284,12 +294,13 @@ class DMHServlet extends HttpServlet {
 
 		</div>
 	</section>
+
 	<main id="main_container" class="padding1">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-8">
 					<div class="form-group">
-						<label for="">""" + i18n.translate("Your text", language) + """</label>
+						<label for="">""" + i18n.translate("Paste your text below", language) + """</label>
 						<textarea name="" id="inputFullText" cols="30" rows="10" class="form-control">""" + inputText + """</textarea>
 					</div>
 				</div>
@@ -299,6 +310,7 @@ class DMHServlet extends HttpServlet {
 						<textarea name="" id="outputTerms" cols="30" rows="10" class="form-control">""" + descriptors.mkString("\n") + """</textarea>
 					</div>
 				</div>
+
 				<div class="col-md-12">
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<!-- <button type="button" class="btn btn-success" title="Setting"><i class="fas fa-sliders-h"></i></button> -->
@@ -310,33 +322,39 @@ class DMHServlet extends HttpServlet {
 		</div>
 	</main>
 
-	<footer id="footer">
-		<div class="container">
-			<div class="row">
-				<div class="col-6" id="logoDeCS">
-					<img src="decsh/img/logo.svg" alt="" class="imgBlack">
-				</div>
-				<div class="col-6" id="logoBireme">
-					<img src="http://logos.bireme.org/img/""" + language + """/v_bir_color.svg" alt="" class="imgBlack">
-				</div>
+  <div class="container">
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			<div id="disclaimer">
+				<p><strong><i class="fas fa-exclamation-triangle"></i></strong>  """ + i18n.translate("Notice", language) + """</p>
 			</div>
-			<hr>
-			<div class="row" id="footerTermos">
-				<div class="col-md-12 text-center">
-					<a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a> |
-					<a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
-				</div>
-			</div>
+			<button type="button" class="btDisclaimer">
+				<span class="acordionIcone fas fa-angle-down" style="font-size: 25px;"></span>
+			</button>
+			<div class="disclaimerTransparente"></div>
 		</div>
-	</footer>
+	</div>
 
-  <!--script src="decsh/js/jquery-3.5.0.min.js"></script-->
+  <footer id="footer" class="padding1">
+      <div class="container">
+          <div class="row">
+              <div class="col-md-5">
+                  <b>DeCS/MeSH Highlighter</b> <br>
+                  <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
+                  <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
+              </div>
+              <div class="col-md-7 text-right">
+                  <img src="http://logos.bireme.org/img/\"\"\" + language + \"\"\"/h_bir_white.svg" alt="" class="img-fluid">
+              </div>
+          </div>
+      </div>
+  </footer>
+
   <script src="decsh/js/jquery-3.4.1.min.js"></script>
-  <script src="decsh/js/bootstrap.bundle.min.js"></script>
-  <!--script src="decsh/js/bootstrap.bundle.min.js"></script-->
-  <script src="decsh/js/bootstrap-select.js"></script>
-  <script src="decsh/js/cookie.js"></script>
-  <script src="decsh/js/accessibility.js"></script>
+	<script src="decsh/js/bootstrap.bundle.min.js"></script>
+	<script src="decsh/js/bootstrap-select.js"></script>
+	<script src="decsh/js/cookie.js"></script>
+	<script src="decsh/js/accessibility.js"></script>
+	<script src="decsh/js/main.js"></script>
 </body>
 </html>
 """

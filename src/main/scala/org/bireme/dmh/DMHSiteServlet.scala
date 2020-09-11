@@ -155,17 +155,12 @@ class DMHSiteServlet extends HttpServlet {
             <div class="row">
                <div class="col-md-12 text-center" id="textTop">
                   <h1>""" + i18n.translate("Automatically find all DeCS/MeSH terms in your document", language) + """.</h1>
-                  <!--a href="dmhw?lang=""" + language + """" target="_blank" class="btn btn-lg btn-outline-warning">""" + i18n.translate("Try it now", language) + """</a-->
-                  <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-outline-warning">""" + i18n.translate("Try it now", language) + """</a>
-               </div>
-               <div class="col-md-6">
-                  <img src="siteDeCSh/img/meninos.png" alt="">
                </div>
             </div>
          </div>
       </header>
       <section class="padding1" id="howToSection">
-         <div class="container" id="boxUse">
+         <div class="container" id="boxUse">View your result
             <div class="row" id="howTo">
                <div class="col-12">
                   <h3 class=" text-center">""" + i18n.translate("How to use", language) + """?</h3>
@@ -175,24 +170,27 @@ class DMHSiteServlet extends HttpServlet {
                   <img src="siteDeCSh/img/copy.svg" alt="">
                   <div class="howToText">
                      <b>""" + i18n.translate("Select your Text", language) + """</b>
-                     <p>Selecione o texto no qual deseja localizar os termos DeCS/MeSH.</p>
+                     <p>""" + i18n.translate("Select the text in which you want to find the DeCS/MeSH terms", language) + """.</p>
                   </div>
                </div>
                <div class="col-md-4">
                   <img src="siteDeCSh/img/paste.svg" alt="">
                   <div class="howToText">
                      <b>""" + i18n.translate("Paste your Text", language) + """</b>
-                     <p>Entre com o texto selecionado na página da aplicação.</p>
+                     <p>""" + i18n.translate("Enter the selected text on the application page", language) + """.</p>
                   </div>
                </div>
                <div class="col-md-4">
                   <img src="siteDeCSh/img/result.svg" alt="">
                   <div class="howToText">
                      <b>""" + i18n.translate("View your result", language) + """</b>
-                     <p>Obtenha instantaneamente a lista de termos DeCS/MeSH localizados.</p>
+                     <p>""" + i18n.translate("Get the list of localized DeCS/MeSH terms instantly", language) + """.</p>
                   </div>
                </div>
             </div>
+         </div>
+         <div class="text-center">
+            <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-warning">""" + i18n.translate("Try it now", language) + """</a>
          </div>
       </section>
       <section class="padding1" id="why">
@@ -201,7 +199,7 @@ class DMHSiteServlet extends HttpServlet {
                <div class="col-md-12">
                   <h2 class="title1 text-center">""" + i18n.translate("Why use DeCS/MeSH Highlighter", language) + """?</h2>
                   <hr class="default_divider default_divider2">
-                  <p>Determinar as palavras-chave que descrevam de maneira resumida o seu texto costuma ser uma tarefa trabalhosa e sujeita a erros. O uso de termos pertencentes ao vocabuário controlado DeCS/MeSH proporciona uma maneira precisa e profissional de descrever um texto na área da saúde. O DeCS/MeSH highlighter é uma aplicação que proporciona a determinação de uma maneira simples e automática os termos DeCS/MeSH a partir de um texto eletrônico auxiliando na tarefa de determinação das palavras-chave que podem descrever seu texto. Com suas interfaces simples e avançada permite seu uso por pessoas sem nenhuma experiência assim como por profissionais na área de indexação de documentos.</p>
+                  <p>""" + i18n.translate("Determining the keywords", language) + """</p>
                   <br>
                </div>
             </div>
@@ -223,12 +221,12 @@ class DMHSiteServlet extends HttpServlet {
                   </ul>
                   <div class="tab-content" id="featureContent">
                      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <p>A interface básica do DeCS/MeSH Highlighter através de um mecanismo de ajuda, guia de maneira simples o usuário iniciante, no processo de localização dos termos DeCS/MeSH do texto de entrada. A localização dos termos DeCS/MeSH será feita independentemente do tipo de termo encontrado, isto é, se é um descritor, qualificador, sinônimo, etc.</p>
+                        <p>""" + i18n.translate("The basic DeCS/MeSH Highlighter interface", language) + """</p>
                         <!--a href="dmhw?lang=""" + language + """" target="_blank" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a-->
                         <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a>
                      </div>
                      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <p>A interface avançada do DeCS/MeSH Highlighter é destinada aos usuários que se sentem mais confortáveis com os tipos de termos presentes no vocabulário DeCS/MesH, permitindo ao mesmo que em uma única interface tenha todo o controle e agilidade no processo de localização dos termos no texto de entrada.</p>
+                        <p>""" + i18n.translate("The advanced interface of DeCS/MeSH Highlighter", language) + """</p>
                         <!--a href="dmhw?lang=""" + language + """" target="_blank" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a-->
                         <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a>
                      </div>
@@ -257,7 +255,7 @@ class DMHSiteServlet extends HttpServlet {
                         </div>
                         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              O DeCS/MeSH Highlighter percorre cada palavra do texto a ser analizado procurando por termos do thesauro DeCS/MeSH. Uma vez que tenha encontrado algum termo, analisa se o mesmo pertence aos tipos de termos desejados previamente seleciondos pelo usuário. Caso pertença, adiciona o termo encontrado na lista de saída de termos.
+                              """ + i18n.translate("DeCS/MeSH Highlighter goes through each word", language) + """
                            </div>
                         </div>
                      </div>
@@ -271,7 +269,7 @@ class DMHSiteServlet extends HttpServlet {
                         </div>
                         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              Sim, o uso do DeCSMeSH Highlighter é gratuito. Você pode utilizá-lo quantas vezes desejar sem ter que pagar nada por isso.
+                              """ + i18n.translate("Yes, using DeCS/MeSH Highlighter is free", language) + """
                            </div>
                         </div>
                      </div>
@@ -285,7 +283,7 @@ class DMHSiteServlet extends HttpServlet {
                         </div>
                         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              Dois usuários típicos da ferramenta são: o autor de artigos bibliográfico que no processo de solicitação de publicação é requerido fornecer palavras-chave que descrevam o conteúdo de seu artigo. O outro usuário típico é o publisher que ao receber uma solicitação de publicação de artigo utiliza a ferramenta como auxiliar no processo de checagem da relevância das palavras-chaves fornecidas para a descrição do conteúdo do artigo.
+                              """ + i18n.translate("Three typical users of the tool are", language) + """
                            </div>
                         </div>
                      </div>
@@ -299,7 +297,7 @@ class DMHSiteServlet extends HttpServlet {
                         </div>
                         <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              O thesauro DeCS/MesH é atualizado uma vez ao ano, sendo que sua liberação é feita logo no ínicio de cada ano.
+                              """ + i18n.translate("The DeCS/MesH thesaurus is updated once a year, and it is released at the beginning of each year.", language) + """
                            </div>
                         </div>
                      </div>
@@ -307,13 +305,27 @@ class DMHSiteServlet extends HttpServlet {
                         <div class="card-header" id="headingFive">
                            <h2 class="mb-0">
                               <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                              """ + i18n.translate("How do I find DeCS/MeSH terms in many documents", language) + """?
+                              """ + i18n.translate("How do I highlight the DeCS/MeSH terms on my web pages", language) + """?
                               </button>
                            </h2>
                         </div>
                         <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              O DeCS/MeSH Higlighter possui um serviço web associado que permite a localização de termos DeCS/MeSH feito através de processamento em lotes de documentos. Para saber mais entre em contato conosco no endereço: decsmeshhighligter@XXXXX.org
+                             """ + i18n.translate("Your web pages", language) + """
+                           </div>
+                        </div>
+                     </div>
+                     <div class="card">
+                        <div class="card-header" id="headingSix">
+                           <h2 class="mb-0">
+                              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                              """ + i18n.translate("How do I find DeCS/MeSH terms in many documents", language) + """?
+                              </button>
+                           </h2>
+                        </div>
+                        <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionFAQ">
+                           <div class="card-body">
+                              """ + i18n.translate("Your documents may have the terms DeCS/MeSH highlighted", language) + """
                            </div>
                         </div>
                      </div>
@@ -327,7 +339,7 @@ class DMHSiteServlet extends HttpServlet {
             <div class="row">
                <div class="col-md-8 col-lg-6 text-center" id="siteDeCS">
                   <h1>
-                     <a href="https://beta.decs.bvsalud.org/""" + language + """" class="" target="_blank">""" + i18n.translate("Check out the beta version of the new DeCS/MeSH website", language) + """.</a>
+                     <a href="https://beta.decs.bvsalud.org/""" + (if (language.equals("pt")) "" else language) + """" class="" target="_blank">""" + i18n.translate("Access the DeCS/MeSH website", language) + """.</a>
                   </h1>
                </div>
                <div class="col-md-4 col-lg-6 text-center">
@@ -336,20 +348,22 @@ class DMHSiteServlet extends HttpServlet {
             </div>
          </div>
       </section>
+
       <footer id="footer" class="padding1">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-5">
-              <b>DeCS/MeSH Highlighter</b> <br>
-              <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a> |
-					    <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
-            </div>
-            <div class="col-md-7 text-right">
-              <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid">
-            </div>
+          <div class="container">
+              <div class="row">
+                  <div class="col-md-5">
+                      <b>DeCS/MeSH Highlighter</b> <br>
+                      <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
+                      <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
+                  </div>
+                  <div class="col-md-7 text-right">
+                      <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid">
+                  </div>
+              </div>
           </div>
-        </div>
-    </footer>
+      </footer>
+
       <script src="siteDeCSh/js/jquery-3.5.1.min.js"></script>
       <script src="siteDeCSh/js/bootstrap.min.js"></script>
       <script src="siteDeCSh/js/cookie.js"></script>

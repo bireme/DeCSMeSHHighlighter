@@ -1,15 +1,15 @@
 #barAccessibility{
-	background: #ededed; /*Cor da barra*/
-	color: #333;
+	background: #4e7952; /*Cor da barra*/
+	color: #fff;
 	padding: 6px 0;
 	font-size: 12px;
 }
 #barAccessibility a{
-	color: #333;
+	color: #fff;
 	text-decoration: none;
 }
 #barAccessibility a:hover{
-	color: #999;
+	color: #ddd;
 }
 #accessibilityFontes{
 	text-align: right;

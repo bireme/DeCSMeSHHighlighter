@@ -1,0 +1,132 @@
+body{
+	background-image: url(../img/bg.png);
+	background-repeat: repeat-x;
+	background-position: bottom;
+	height: 100vh;
+	background-attachment: fixed;
+}
+a{
+	outline: none;
+}
+#header{
+	margin: auto; 
+	position: relative;
+	padding-bottom: 20px;
+}
+#header img{
+	max-width: 200px;
+	margin-top: 20px;
+}
+#filter{
+	background: #669966;
+	border-bottom: 5px solid #4e7952;
+	color: #fff;
+	padding: 10px;
+}
+.padding1{
+	padding: 20px 0;
+}
+#footer{
+	padding-bottom: 10px;
+}
+#footer .container{
+	background: rgba(255,255,255,0.9);
+	border:1px solid #ddd;
+	border-radius: 5px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+#logoDeCS img{
+	height: 50px;
+	margin: 10px;
+}
+#logoBireme{
+	text-align: right;
+}
+#logoBireme img{
+	height: 50px;
+	margin: 10px;
+}
+#footerTermos{
+	font-size: 12px;
+}
+#language{
+	float: right;
+	margin-top: 0px;
+	position: absolute;
+	right: 16px;
+	z-index: 1;
+}
+#language ul li{
+	list-style: none;
+	display: inline-block;
+}
+#language a{
+	background:#4e7952;
+	color: #fff;
+	font-size: 12px;
+	padding: 5px;
+}
+#language a:hover{
+	background: #86b986;
+}
+#disclaimer{
+	position: relative;
+	height: 60px;
+	overflow: hidden;
+	padding-bottom: 15px;
+}
+.disclaimer{
+	height: auto!important;
+}
+.disclaimerTransparente{
+	background-image: linear-gradient(rgba(255, 243, 205,0),rgba(255, 243, 205,.8),#fff3cd);
+	min-height: 60px;
+	width: 95%;
+	position: absolute;
+	bottom: 0;
+	z-index: 10;
+	text-align: center;
+	cursor: pointer;
+}
+.btDisclaimer{
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: .75rem 1.25rem;
+	color: inherit;
+	appearance: none;
+	background-color: transparent;
+	border: none;
+	outline: none;
+}
+.btDisclaimer:hover{
+	color: #333;
+}
+.btDisclaimer:focus{
+	outline: none;
+}
+/************* Breakpoint *************/
+@media (max-width: 768px){
+	#header{
+		text-align: center;
+	}
+	#language{
+		float: none;
+		margin-top: 0px;
+		position: sticky;
+		right: auto;
+		width: 100%;
+	}
+	#footer{
+		padding: 20px; 
+		text-align: center;
+	}
+	#footer img{width: 100%; height: auto; text-align: center;}
+}
+/*correções svg Internet Explorer Edge*/
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+	img[src$=".svg"]{
+		width: 100%; 
+	}
+}

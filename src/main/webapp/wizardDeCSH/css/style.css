@@ -10,8 +10,23 @@ body{
 	background-position: bottom;
 	height: 100vh;
 }
+#header{
+	margin: auto; 
+	position: relative;
+	border-bottom: 1px solid #ddd;
+}
+#header img{
+	max-width: 200px;
+	margin-top: 10px;
+}
+#logoDeCS img{
+	height: 100px;
+	margin: 10px;
+}
 #language{
+	float: right;
 	margin-top: 0px;
+	position: absolute;
 	right: 16px;
 	z-index: 1;
 }
@@ -20,29 +35,69 @@ body{
 	display: inline-block;
 }
 #language a{
-	background:#ededed;
-	color: #666;
+	background:#4e7952;
+	color: #fff;
 	font-size: 12px;
 	padding: 5px;
 }
 #language a:hover{
 	background: #86b986;
-	color: #fff;
-}
-#header{
-	margin: auto; 
-}
-#header img{
-	max-width: 200px;
-	margin-top: 20px;
 }
 .title{
 	margin-top: 100px;
 	margin-bottom: 30px;
 }
+#footer{
+	background-color: #669966;
+	color: #fff;
+	margin-top: 60px;
+	padding: 30px 0; 
+}
+#footer a{
+	color: #fff;
+}
+#footer a:hover{
+	color: #ddd;
+}
 #footer img{
-	width: 300px;
-	background: rgba(255,255,255,0.8);
-	padding: 20px;
-	border-radius: 2px;
+	max-width: 500px;
+}
+/************* Breakpoint *************/
+@media (max-width: 992px){
+	#footer img{
+		width: 80%;
+		text-align: center;
+		margin-top: 20px;
+	}
+}
+@media (max-width: 768px){
+	#header{
+		text-align: center;
+	}
+	#language{
+		float: none;
+		margin-top: 0px;
+		position: sticky;
+		right: auto;
+		width: 100%;
+	}
+	.btn-group{
+		margin-left: 20px;
+	}
+	.title{
+		margin-top: 30px;
+		text-align: center;
+		font-size: 30px;
+	}
+	#footer{
+		padding: 20px; 
+		text-align: center;
+	}
+	#footer img{width: 100%; height: auto; text-align: center;}
+}
+/*correções svg Internet Explorer Edge*/
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+	img[src$=".svg"]{
+		width: 100%; 
+	}
 }
