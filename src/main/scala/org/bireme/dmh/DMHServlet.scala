@@ -343,7 +343,7 @@ class DMHServlet extends HttpServlet {
                   <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
               </div>
               <div class="col-md-7 text-right">
-                  <img src="http://logos.bireme.org/img/\"\"\" + language + \"\"\"/h_bir_white.svg" alt="" class="img-fluid">
+                  <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid">
               </div>
           </div>
       </div>
