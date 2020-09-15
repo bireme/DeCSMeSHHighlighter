@@ -312,6 +312,10 @@ class DMHSiteServlet extends HttpServlet {
                         <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionFAQ">
                            <div class="card-body">
                              """ + i18n.translate("Your web pages", language) + """
+                             <br/><br/>
+                             <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
+                             <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%20HighLighter&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """</a>
+                             <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
                            </div>
                         </div>
                      </div>
@@ -326,6 +330,11 @@ class DMHSiteServlet extends HttpServlet {
                         <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionFAQ">
                            <div class="card-body">
                               """ + i18n.translate("Your documents may have the terms DeCS/MeSH highlighted", language) + """
+                              <br/><br/>
+                              <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
+                              <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%20HighLighter&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS/MeSH Highlighter Online Service", language) + """</a>
+                              <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
+                           </div>
                            </div>
                         </div>
                      </div>
@@ -370,6 +379,16 @@ class DMHSiteServlet extends HttpServlet {
       <script src="siteDeCSh/js/accessibility.js"></script>
       <script src="siteDeCSh/js/aos.js"></script>
       <script src="siteDeCSh/js/main.js"></script>
+
+      <!-- livezilla.net PLACE SOMEWHERE IN BODY -->
+      <!-- PASS THRU DATA OBJECT -->
+      <script type="text/javascript">
+      var lz_data = {overwrite:false,language:'en', textlink:true};
+      </script>
+      <!-- PASS THRU DATA OBJECT -->
+
+      <div id="lvztr_de9" style="display:none"></div><script id="lz_r_scr_74aeee9c36e59281529443e9e1a975d3" type="text/javascript" defer>lz_code_id="74aeee9c36e59281529443e9e1a975d3";var script = document.createElement("script");script.async=true;script.type="text/javascript";var src = "//contacto.bvsalud.org/server.php?rqst=track&output=jcrpt&operator=morimarc&group=DeCSMeSH%20HighLighter&hg=Pw__&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&nse="+Math.random();script.src=src;document.getElementById('lvztr_de9').appendChild(script);</script>
+      <!-- livezilla.net PLACE SOMEWHERE IN BODY -->
    </body>
 </html>
     """
