@@ -91,7 +91,7 @@ class DMHSiteServlet extends HttpServlet {
       <meta name="Keywords" content="">
       <meta name="Description" content="">
       <meta name="Author" content="">
-      <title>DeCS Highlighter</title>
+      <title>DeCSMeSH Highlighter - Site</title>
       <link rel="stylesheet" href="siteDeCSh/css/aos.css">
       <link rel="stylesheet" href="siteDeCSh/css/bootstrap.min.css">
       <link rel="stylesheet" href="siteDeCSh/css/fontawesome/css/all.css">

@@ -120,7 +120,7 @@ class DMHServlet extends HttpServlet {
 	<meta charset="UTF-8">
   <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>DeCS</title>
+	<title>DeCSMeSH Highlighter - Advanced</title>
 	<link rel="stylesheet" href="decsh/css/bootstrap.min.css">
 	<link rel="stylesheet" href="decsh/css/fontawesome/css/all.css">
 	<link rel="stylesheet" href="decsh/css/bootstrap-select.css">
