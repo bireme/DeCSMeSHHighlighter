@@ -77,8 +77,9 @@ class DMHServlet extends HttpServlet {
 //println(s"==>termTypes=$termTypes")
       val inputText: String = Option(request.getParameter("inputText")).map(_.trim)
         .map(_.replaceAll("[«»]", "")).getOrElse("")
+      val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
-                             .map(l => if (l.isEmpty) "en" else l).getOrElse("en")
+        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val config = Config(
         scanLang = inputLang, outLang, termTypes.contains("Main headings"), termTypes.contains("Entry terms"),
         termTypes.contains("Qualifiers"), termTypes.contains("Publication types"), termTypes.contains("Check tags"),
@@ -95,6 +96,20 @@ class DMHServlet extends HttpServlet {
       case Success(_) => ()
       case Failure(ex) => response.sendError(500, ex.getMessage)
     }
+  }
+
+  /**
+    *
+    * @param request HttpServletRequest object
+    * @return the desired input/output language according to the request header Accept-Language
+    */
+  private def getHeaderLang(request: HttpServletRequest): String = {
+    val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
+    val langs = header.split(",|;")
+
+    langs.find {
+      lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
+    }.getOrElse("pt")
   }
 
   private def getHtml(inputLang: String,

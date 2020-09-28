@@ -15,61 +15,76 @@ import javax.servlet.{ServletConfig, ServletContext}
 import scala.util.{Failure, Success, Try}
 
 class DMHSiteServlet extends HttpServlet {
-    var i18n: I18N = _
+  var i18n: I18N = _
 
-    /**
-      * Do initial web app configuration
-      * @param config servlet config object
-      */
-    override def init(config: ServletConfig): Unit = {
-      super.init(config)
+  /**
+    * Do initial web app configuration
+    * @param config servlet config object
+    */
+  override def init(config: ServletConfig): Unit = {
+    super.init(config)
 
-      val context: ServletContext = config.getServletContext
-      val i18nIS: InputStream = context.getResourceAsStream("/i18n.txt")
+    val context: ServletContext = config.getServletContext
+    val i18nIS: InputStream = context.getResourceAsStream("/i18n.txt")
 
-      i18n = new I18N(i18nIS)
+    i18n = new I18N(i18nIS)
 
-      println("DMHSiteServlet is listening ...")
+    println("DMHSiteServlet is listening ...")
+  }
+
+  /**
+    * Process get http requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  override def doGet(request: HttpServletRequest,
+                     response: HttpServletResponse): Unit = processRequest(request, response)
+
+  /**
+    * Process post http requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  override def doPost(request: HttpServletRequest,
+                      response: HttpServletResponse): Unit = processRequest(request, response)
+
+  /**
+    *  Process get or post requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  private def processRequest(request: HttpServletRequest,
+                             response: HttpServletResponse): Unit = {
+    response.setCharacterEncoding("utf-8")
+
+    Try {
+      val headerLang: String = getHeaderLang(request)
+      val language: String = Option(request.getParameter("lang")).map(_.trim)
+        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
+//println(s"headerLang=$headerLang language=$language")
+      val outputText: String = getHtml(language)
+      val out: PrintWriter = response.getWriter
+      out.println(outputText)
+      out.flush()
+    } match {
+      case Success(_) => ()
+      case Failure(ex) => response.sendError(500, ex.getMessage)
     }
+  }
 
-    /**
-      * Process get http requisition
-      * @param request http request object
-      * @param response http response object
-      */
-    override def doGet(request: HttpServletRequest,
-                       response: HttpServletResponse): Unit = processRequest(request, response)
+  /**
+    *
+    * @param request HttpServletRequest object
+    * @return the desired input/output language according to the request header Accept-Language
+    */
+  private def getHeaderLang(request: HttpServletRequest): String = {
+    val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
+    val langs = header.split(",|;")
 
-    /**
-      * Process post http requisition
-      * @param request http request object
-      * @param response http response object
-      */
-    override def doPost(request: HttpServletRequest,
-                        response: HttpServletResponse): Unit = processRequest(request, response)
-
-    /**
-      *  Process get or post requisition
-      * @param request http request object
-      * @param response http response object
-      */
-    private def processRequest(request: HttpServletRequest,
-                               response: HttpServletResponse): Unit = {
-      response.setCharacterEncoding("utf-8")
-
-      Try {
-        val language: String = Option(request.getParameter("lang")).map(_.trim)
-          .map(l => if (l.isEmpty) "en" else l).getOrElse("en")
-//println(s"par_lang=${request.getParameter("lang")} language=$language")
-        val outputText: String = getHtml(language)
-        val out: PrintWriter = response.getWriter
-        out.println(outputText)
-        out.flush()
-      } match {
-        case Success(_) => ()
-        case Failure(ex) => response.sendError(500, ex.getMessage)
-      }
-    }
+    langs.find {
+      lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
+    }.getOrElse("pt")
+  }
 
   private def getHtml(language: String): String = {
     """

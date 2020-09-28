@@ -61,8 +61,9 @@ class DMHWizardServlet extends HttpServlet {
     response.setCharacterEncoding("utf-8")
 
     Try {
+      val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
-        .map(l => if (l.isEmpty) "en" else l).getOrElse("en")
+        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val outputText: String = getHtml(language)
 
       val out: PrintWriter = response.getWriter
@@ -72,6 +73,20 @@ class DMHWizardServlet extends HttpServlet {
       case Success(_) => ()
       case Failure(ex) => response.sendError(500, ex.getMessage)
     }
+  }
+
+  /**
+    *
+    * @param request HttpServletRequest object
+    * @return the desired input/output language according to the request header Accept-Language
+    */
+  private def getHeaderLang(request: HttpServletRequest): String = {
+    val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
+    val langs = header.split(",|;")
+
+    langs.find {
+      lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
+    }.getOrElse("pt")
   }
 
   private def getHtml(language: String): String = {
