@@ -174,7 +174,7 @@ class DMHSiteServlet extends HttpServlet {
                   <a href="#" onclick='submitPage("fr", false);'>Français</a>
                </div>
                <div id="brand" class="col-md-12 text-center">
-                  <img src="siteDeCSh/img/logo.svg" alt="DeCSMeshHiglighter">
+                  <img src="siteDeCSh/img/logo-""" + language + """.svg" alt="DeCSMeshHiglighter">
                </div>
             </div>
             <div class="row">

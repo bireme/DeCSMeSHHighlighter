@@ -2,10 +2,10 @@ name := "DeCSMeshHighlighter"
 
 version := "0.1"
 
-scalaVersion := "2.13.3"
+scalaVersion := "2.13.4"
 
 val servletApiVersion = "4.0.1" //"3.0.1"
-val luceneVersion = "8.6.2" //"8.5.1"
+val luceneVersion = "8.7.0"  //8.6.2"
 val scalaTestVersion = "3.3.0-SNAP2" //"3.2.0-M2"
 
 libraryDependencies ++= Seq(

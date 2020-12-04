@@ -280,7 +280,7 @@ class DMHWizardServlet extends HttpServlet {
                 <a href="#" onclick='submitPage("fr", false);'>Français</a>
 				    </div>
 				    <div class="col-12" id="logoDeCS">
-					      <a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo.svg" alt="" class="imgBlack"></a>
+					      <a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
 				    </div>
 		    </div>
 		</div>

@@ -105,7 +105,7 @@ class DMHServlet extends HttpServlet {
     */
   private def getHeaderLang(request: HttpServletRequest): String = {
     val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
-    val langs = header.split(",|;")
+    val langs: Array[String] = header.split(",|;")
 
     langs.find {
       lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
@@ -274,7 +274,7 @@ class DMHServlet extends HttpServlet {
           <a href="#" onclick='submitPage("fr");'>Français</a>
 				</div>
 				<div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo.svg" alt="" class="imgBlack"></a>
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSH/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
 				</div>
 			</div>
 		</div>
