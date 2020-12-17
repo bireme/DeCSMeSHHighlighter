@@ -2,7 +2,7 @@ name := "DeCSMeshHighlighter"
 
 version := "0.1"
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.4" //"2.13.0"
 
 val servletApiVersion = "4.0.1" //"3.0.1"
 val luceneVersion = "8.7.0"  //8.6.2"

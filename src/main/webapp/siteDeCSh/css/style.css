@@ -162,6 +162,10 @@ a:hover{
 #siteDeCS a:hover{
 	color: #86b986;
 }
+.card-body{
+background:#658c67;
+    padding: 20px 40px;
+}
 /************* Breakpoint *************/
 @media (max-width: 992px){
 	#footer img{
