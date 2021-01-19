@@ -94,7 +94,7 @@ class DMHServlet extends HttpServlet {
       out.flush()
     } match {
       case Success(_) => ()
-      case Failure(ex) => response.sendError(500, ex.getMessage)
+      case Failure(_) => response.sendError(500, "Oops, an internal error occurred. Sorry for the inconvenience.")
     }
   }
 
