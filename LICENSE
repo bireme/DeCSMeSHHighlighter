@@ -1,4 +1,4 @@
-DeCSMeSHHighlighter License
+DeCSMeSHFinder License
 
 NOTICE TO USER: Please read this Software License carefully. By using all or any
 portion of this Software, you accept all the terms and conditions of this License, and
@@ -6,7 +6,7 @@ recognize that this License is as enforceable as any written negotiated document
 you.
 
 The Pan American Health Organization and its affiliates (“PAHO”) hold all intellectual
-property rights in the DeCSMeSHHighlighter Software. By means of this License PAHO will grant you
+property rights in the DeCSMeSHFinder Software. By means of this License PAHO will grant you
 permission to use the Software only in accordance with the terms and conditions set forth
 herein.
 
@@ -27,7 +27,7 @@ Software. Software may not be used to promote licensees activities, products or 
 any printed materials or electronic documentation accompanying the use of the software,
 as follows:
 
- DeCSMeSHHighlighter © Pan American Health Organization, 2020.
+ DeCSMeSHFinder© Pan American Health Organization, 2020.
 
 5. Copies. You may convey unmodified copies of the Software’s source code as you
 receive it, in any medium, provided that you distribute it under the terms of this License
@@ -56,13 +56,13 @@ Software License unless otherwise indicated in writing by PAHO. PAHO reserves th
 to provide Updates to this Software on amended terms as it sees fit. User shall be
 responsible for installing the latest version of the software.
 
-9. Open Source Software: Certain components of the DeCSMeSHHighlighter Software may be subject to
+9. Open Source Software: Certain components of the DeCSMeSHFinder Software may be subject to
 a license that permits end users to modify these portions and redistribute its modifications
 (“Open Source software”). Use, modification and redistribution of the Open Source
 software is governed solely by the terms and conditions of the applicable Open Source
 License. A list of the Open Source Softwares and the applicable Open Source licenses
 including relevant code can be obtained at
-https://github.com/bireme/DeCSMeSHHighlighter/blob/master/COPYRIGHT.md
+https://github.com/bireme/DeCSMeSHFinder/blob/master/COPYRIGHT.md
 
 10. Disclaimer. PAHO disclaims any and all implied warranties or conditions, including
 any implied warranty of title, non-infringement, merchantability or fitness for a particular
