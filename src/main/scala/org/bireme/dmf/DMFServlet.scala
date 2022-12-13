@@ -7,10 +7,10 @@
 
 package org.bireme.dmf
 
-import java.io.{InputStream, PrintWriter}
+import jakarta.servlet.{ServletConfig, ServletContext}
+import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 
-import javax.servlet.{ServletConfig, ServletContext}
-import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
 
 import scala.util.{Failure, Success, Try}
@@ -19,8 +19,8 @@ import scala.util.{Failure, Success, Try}
   * DeCSMeshHigligther Servlet
   */
 class DMFServlet extends HttpServlet {
-  var highlighter: Highlighter = _
-  var i18n: I18N = _
+  private var highlighter: Highlighter = _
+  private var i18n: I18N = _
 
   /**
     * Do initial web app configuration

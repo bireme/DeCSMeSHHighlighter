@@ -7,11 +7,10 @@
 
 package org.bireme.dmf
 
+import jakarta.servlet.{ServletConfig, ServletContext}
+import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+
 import java.io.{InputStream, PrintWriter}
-
-import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import javax.servlet.{ServletConfig, ServletContext}
-
 import scala.util.{Failure, Success, Try}
 
 class DMFSiteServlet extends HttpServlet {
