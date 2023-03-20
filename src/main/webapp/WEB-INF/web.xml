@@ -5,8 +5,8 @@
     <context-param>
         <description>DeCS database directory</description>
         <param-name>DECS_PATH</param-name>
-        <param-value>/home/javaapps/sbt-projects/DeCSHighlighter/decs/decs</param-value>
-        <!--param-value>decs/decs</param-value-->
+        <!--param-value>/home/javaapps/sbt-projects/DeCSHighlighter/decs/decs</param-value-->
+        <param-value>decs/decs</param-value>
     </context-param>
 
     <servlet>
