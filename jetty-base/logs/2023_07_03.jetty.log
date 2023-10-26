@@ -1,0 +1,10 @@
+2023-07-03 16:20:41.294:INFO :oejs.Server:main: jetty-11.0.14; built: 2023-02-22T23:41:48.575Z; git: 4601fe8dd805ce75b69c64466c115a162586641b; jvm 11.0.18+10
+2023-07-03 16:20:41.323:INFO :oejdp.ScanningAppProvider:main: Deployment monitor [file:///home/javaapps/sbt-projects/DeCSMeSHHighlighter/jetty-base/webapps/]
+2023-07-03 16:20:42.011:INFO :oejw.StandardDescriptorProcessor:main: NO JSP Support for /decsmeshfinder, did not find org.eclipse.jetty.jsp.JettyJspServlet
+2023-07-03 16:20:42.017:INFO :oejss.DefaultSessionIdManager:main: Session workerName=node0
+DMFSiteServlet is listening ...
+DMFServlet is listening ...
+DMFWizardServlet is listening ...
+2023-07-03 16:20:53.450:INFO :oejsh.ContextHandler:main: Started o.e.j.w.WebAppContext@22f59fa{DeCS/MeSH Finder,/decsmeshfinder,file:///tmp/jetty-0_0_0_0-9190-decsmeshfinder_war-_decsmeshfinder-any-8428021715370021365/webapp/,AVAILABLE}{/home/javaapps/sbt-projects/DeCSMeSHHighlighter/jetty-base/webapps/decsmeshfinder.war}
+2023-07-03 16:20:53.461:INFO :oejs.AbstractConnector:main: Started ServerConnector@7003e590{HTTP/1.1, (http/1.1)}{0.0.0.0:9190}
+2023-07-03 16:20:53.462:INFO :oejs.Server:main: Started Server@1e6a3214{STARTING}[11.0.14,sto=5000] @12583ms

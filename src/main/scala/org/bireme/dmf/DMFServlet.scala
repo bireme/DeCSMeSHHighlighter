@@ -85,7 +85,7 @@ class DMFServlet extends HttpServlet {
         termTypes.contains("Qualifiers"), termTypes.contains("Publication types"), termTypes.contains("Check tags"),
         termTypes.contains("Geographics")
       )
-      val descriptors: (String, Seq[(Int, Int, String, String, String)], Seq[String]) =
+      val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[String]) =
         highlighter.highlight("«", "»", inputText, config)
       val outputText: String = getHtml(inputLang.getOrElse("All languages"), outLang.getOrElse("Same of the text"),
         termTypes, descriptors._1, descriptors._3, language)

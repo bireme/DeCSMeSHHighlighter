@@ -2,11 +2,11 @@ name := "DeCSMeSHFinder"
 
 version := "1.0"
 
-scalaVersion := "2.13.11" //"2.13.4"
+scalaVersion := "2.13.12" //"2.13.11"
 
 val jakartaServletApiVersion = "6.0.0"
 val jakartaWsRsVersion= "3.1.0"
-val luceneVersion = "9.7.0" //"9.4.2"
+val luceneVersion = "9.8.0" //"9.7.0"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
 
 libraryDependencies ++= Seq(

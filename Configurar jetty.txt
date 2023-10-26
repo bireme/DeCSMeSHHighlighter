@@ -1,0 +1,12 @@
+$ export JETTY_HOME=/path/to/jetty-home
+$ mkdir /path/to/jetty-base
+$ cd /path/to/jetty-base
+$ java -jar $JETTY_HOME/start.jar --add-module=server,http,servlet,deploy,console-capture
+
+#Em jetty-base
+  1) Copiar o diretório decs
+  2) em webapps, copiar o arquivo *.war
+
+#Para listar todos os módulos
+java -jar $JETTY_HOME/start.jar --list-modules=*
+
