@@ -9,6 +9,18 @@
         <param-value>decs/decs</param-value>
     </context-param>
 
+    <context-param>
+        <description>Annif base url </description>
+        <param-name>ANNIF_BASE_URL</param-name>
+        <param-value>http://annif.teste.bireme.br:5000/</param-value>
+    </context-param>
+
+    <context-param>
+        <description>Annif project identifier</description>
+        <param-name>ANNIF_PROJECT_ID</param-name>
+        <param-value>omikuji-decs</param-value>
+    </context-param>
+
     <servlet>
         <servlet-name>DMFSiteServlet</servlet-name>
         <servlet-class>org.bireme.dmf.DMFSiteServlet</servlet-class>

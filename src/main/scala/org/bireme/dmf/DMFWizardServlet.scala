@@ -93,16 +93,7 @@ class DMFWizardServlet extends HttpServlet {
 <!DOCTYPE html>
 <html lang="""" + language + """">
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <!--script async src="https://www.googletagmanager.com/gtag/js?id=UA-39600115-37"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-39600115-37');
-    </script-->
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-DBPY4Q6HT8"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -177,43 +168,15 @@ class DMFWizardServlet extends HttpServlet {
 
         var termTypesStr = "";
         if (useAllTermTypes) {
-            termTypesStr = termTypesStr + "Main headings|Qualifiers|Entry terms|Publication types|Check tags|Geographics";
+            termTypesStr += "Descriptors|Qualifiers";
         } else {
             if (document.getElementById('main_headings').checked) {
-                termTypesStr = termTypesStr + "Main headings"
+              if (termTypesStr !== "") { termTypesStr += "|"; }
+              termTypesStr += "Descriptors";
             }
             if (document.getElementById('qualifiers').checked) {
-                if (termTypesStr.length > 0) {
-                    termTypesStr = termTypesStr + "|"
-                }
-                termTypesStr = termTypesStr + "Qualifiers"
-            }
-            if (document.getElementById('entry_terms').checked) {
-                if (termTypesStr.length > 0) {
-                    termTypesStr = termTypesStr + "|"
-                }
-                termTypesStr = termTypesStr + "Entry terms"
-            }
-            if (document.getElementById('publication_types').checked) {
-                if (termTypesStr.length > 0) {
-                    termTypesStr = termTypesStr + "|"
-                }
-                termTypesStr = termTypesStr + "Publication types"
-            }
-            if (document.getElementById('check_tags').checked) {
-                if (termTypesStr.length > 0) {
-                    termTypesStr = termTypesStr + "|"
-                }
-                termTypesStr = termTypesStr + "Check tags"
-            }
-            if (document.getElementById('geographics').checked) {
-                if (termTypesStr.length > 0) {
-                    termTypesStr = termTypesStr + "|"
-                }
-                termTypesStr = termTypesStr + "Geographics"
-            }
-            if (termTypesStr.length == 0) {
-                termTypesStr = termTypesStr + "Main headings"
+              if (termTypesStr !== "") { termTypesStr += "|"; }
+              termTypesStr += "Qualifiers";
             }
         }
 //alert("TermTypesStr=" + termTypesStr);
@@ -297,9 +260,15 @@ class DMFWizardServlet extends HttpServlet {
     <div class="row">
         <div class="col-md-4">
             <h3 class="title">""" + i18n.translate("Choose one of the options below to identify the DeCS/MeSH terms in your text", language) + """.</h3>
-            <div class="btn-group">
+            <!--div class="btn-group">
                 <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success">""" + i18n.translate("SIMPLE", language) + """</a>
-                <a href="#" class="btn btn-lg btn-outline-success" onclick='submitPage("""" + language + """", false, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
+                <a href="#" class="btn btn-lg btn-outline-success" onclick='submitPage("""" + language + """", true, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
+            </div-->
+            <div class="btn-group">
+              <!-- Botão SIMPLE -->
+              <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success" id="simpleButton">""" + i18n.translate("SIMPLE", language) + """</a>
+              <!-- Botão ADVANCED -->
+              <a href="#" class="btn btn-lg btn-outline-success" id="advancedButton" onclick='submitPage("""" + language + """", true, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
             </div>
         </div>
         <div class="col-md-8">
@@ -457,7 +426,7 @@ class DMFWizardServlet extends HttpServlet {
                             <div class="col-md-6 marginTB1">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="main_headings">
-                                    <label class="custom-control-label" for="main_headings">""" + i18n.translate("Main headings", language) + """</label>
+                                    <label class="custom-control-label" for="main_headings">""" + i18n.translate("Descriptors", language) + """</label>
                                 </div>
                             </div>
                             <div class="col-md-6 marginTB1">
@@ -466,7 +435,7 @@ class DMFWizardServlet extends HttpServlet {
                                     <label class="custom-control-label" for="qualifiers">""" + i18n.translate("Qualifiers", language) + """</label>
                                 </div>
                             </div>
-                            <div class="col-md-6 marginTB1">
+                            <!--div class="col-md-6 marginTB1">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="entry_terms">
                                     <label class="custom-control-label" for="entry_terms">""" + i18n.translate("Entry terms", language) + """</label>
@@ -489,7 +458,7 @@ class DMFWizardServlet extends HttpServlet {
                                     <input type="checkbox" class="custom-control-input" id="geographics">
                                     <label class="custom-control-label" for="geographics">""" + i18n.translate("Geographics", language) + """</label>
                                 </div>
-                            </div>
+                            </div-->
                         </div>
                         <div class="modal-footer">
                             <a href="#" class="btn btn-success" onclick='submitPage("""" + language + """", false, true)'>""" + i18n.translate("Search", language) + """</a>
@@ -500,6 +469,39 @@ class DMFWizardServlet extends HttpServlet {
         </div>
     </div>
 </div>
+
+<script>
+  // Captura o clique no botão SIMPLE
+  document.getElementById('simpleButton').addEventListener('click', function() {
+      // Verifica se o Google Analytics está disponível
+      if (typeof gtag === 'function') {
+          // Envia o evento para o Google Analytics
+          gtag('event', 'button_click', {
+              'event_category': 'interaction',
+              'event_label': 'SIMPLE', // Nome do botão
+              'value': 'simple_button_click' // Pode ser qualquer valor ou nome descritivo
+          });
+      } else {
+          console.error('Google Analytics não está disponível.');
+      }
+  });
+
+  // Captura o clique no botão ADVANCED
+  document.getElementById('advancedButton').addEventListener('click', function() {
+      // Verifica se o Google Analytics está disponível
+      if (typeof gtag === 'function') {
+          // Envia o evento para o Google Analytics
+          gtag('event', 'button_click', {
+              'event_category': 'interaction',
+              'event_label': 'ADVANCED', // Nome do botão
+              'value': 'advanced_button_click' // Pode ser qualquer valor ou nome descritivo
+          });
+      } else {
+          console.error('Google Analytics não está disponível.');
+      }
+  });
+</script>
+
 <script src="wizardDeCSF/js/jquery-3.3.1.min.js"></script>
 <script src="wizardDeCSF/js/bootstrap.min.js"></script>
 <script src="wizardDeCSF/js/cookie.js"></script>
