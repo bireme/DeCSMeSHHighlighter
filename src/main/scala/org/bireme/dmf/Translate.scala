@@ -18,11 +18,10 @@ class Translate(decsPath: String) {
   private val parser: StandardQueryParser = new StandardQueryParser()
 
   def translate(terms: Seq[String],
-                inLang: String,
                 outLang: String): Either[String, Seq[String]] = {
     Try {
-      if (!inLang.equals("en") && !inLang.equals("es") && !inLang.equals("pt") && !inLang.equals("fr"))
-        throw new IllegalArgumentException(s"Invalid language: $inLang")
+      if (!outLang.equals("en") && !outLang.equals("es") && !outLang.equals("pt") && !outLang.equals("fr"))
+        throw new IllegalArgumentException(s"Invalid language: $outLang")
 
       terms.foldLeft(Seq[String]()) {
         case (seq, term) =>
@@ -73,7 +72,7 @@ object Translate extends App {
 
   Seq("en", "es", "pt", "fr") foreach {
     lang =>
-      trans.translate(terms, "pt", lang) match {
+      trans.translate(terms, lang) match {
         case Right(translated) =>
           println(s"\nlang=$lang")
           println(s"terms     =$terms")

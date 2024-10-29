@@ -117,7 +117,7 @@ class DMFServlet extends HttpServlet {
       out.flush()
     } match {
       case Success(_) => ()
-      case Failure(_) => response.sendError(500, "Oops, an internal error occurred. Sorry for the inconvenience.")
+      case Failure(exception) => response.sendError(500, s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.toString}")
     }
   }
 
@@ -127,12 +127,13 @@ class DMFServlet extends HttpServlet {
     val annifTerms: Seq[String] = annifSuggestions.map(y => y.map(x => x.term)) match {
       case Right(terms) => inputLang match {
         case Some(iLang) =>
+          val iLang2: String = if (iLang.equals("All languages")) "pt" else iLang
           val outLang: String = outputLang match {
-            case Some(oLang) => if (oLang.equals("Same of the text")) iLang else oLang
+            case Some(oLang) => if (oLang.equals("Same of the text")) iLang2 else oLang
             case None => iLang
           }
-          if (iLang.equals("All languages")) terms
-          else translate.translate(terms, iLang, outLang) match {
+
+          translate.translate(terms, outLang) match {
             case Right(translated) => translated
             case Left(_) => terms
           }
@@ -151,7 +152,7 @@ class DMFServlet extends HttpServlet {
     buffer.append(s"=== ${i18n.translate("Extracted descriptors", language)} ===")
     descriptors.foreach(descr => buffer.append(s"\\n$descr"))
 
-    buffer.append(s"\\n\\n=== ${i18n.translate("Descriptors identified by AI", language)} ===")
+    buffer.append(s"\\n\\n=== ${i18n.translate("Terms identified by AI", language)} ===")
     annifTerms.foreach(term => buffer.append(s"\\n$term"))
     buffer.toString()
   }
@@ -437,7 +438,7 @@ class DMFServlet extends HttpServlet {
 				<div class="form-group col-md-4">
 					<label for="">""" + i18n.translate("Language of your text", language) + """:</label>
 					<select name="" id="inputTextLanguage" class="form-control">
-						<option value="" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option>
+						<option value="All languages" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option>
 						<option value="en" """ + (if (inputLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
 						<option value="es" """ + (if (inputLang.equals("es")) "selected=\"\"" else "") + """>""" + i18n.translate("Spanish", language) + """</option>
 						<option value="pt" """ + (if (inputLang.equals("pt")) "selected=\"\"" else "") + """>""" + i18n.translate("Portuguese", language) + """</option>
@@ -447,7 +448,7 @@ class DMFServlet extends HttpServlet {
 				<div class="form-group col-md-4">
 					<label for="">""" + i18n.translate("Language of the terms", language) + """:</label>
 					<select name="" id="outputTextLanguage" class="form-control">
-            <option value="" """ + (if (outLang.equals("Same of the text")) "selected=\"\"" else "") + """>""" + i18n.translate("The same found in the text", language) + """</option>
+            <option value="Same of the text" """ + (if (outLang.equals("Same of the text")) "selected=\"\"" else "") + """>""" + i18n.translate("The same found in the text", language) + """</option>
 						<option value="en" """ + (if (outLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
 						<option value="es" """ + (if (outLang.equals("es")) "selected=\"\"" else "") + """>""" + i18n.translate("Spanish", language) + """</option>
 						<option value="pt" """ + (if (outLang.equals("pt")) "selected=\"\"" else "") + """>""" + i18n.translate("Portuguese", language) + """</option>
