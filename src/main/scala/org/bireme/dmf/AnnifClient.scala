@@ -10,7 +10,7 @@ import scala.collection.mutable
 
 case class AnnifSuggestion(
   label: String,
-  notation: String,
+  notation: Option[String],   // notation can be null
   score: Float,
   uri: String
 )
@@ -46,11 +46,12 @@ class AnnifClient(baseAnnifUrl: String) {
       .header("Accept", "application/json")
       .body(formData.toMap)
       .response(asJson[AnnifResponse])
+
     val response1: Response[Either[sttp.client4.ResponseException[String,io.circe.Error], AnnifResponse]] =
       request1.send(HttpURLConnectionBackend())
 
     response1.body match {
-      case Left(error) => Left(error.toString)
+      case Left(error) => Left(error.toString.replaceAll("\'", "").replaceAll("\"", "\'"))
       case Right(annifResponse) =>
         Right(annifResponse.results.map(suggestion => Suggestion(term=suggestion.label, score=suggestion.score)))
     }

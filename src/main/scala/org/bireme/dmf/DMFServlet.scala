@@ -24,7 +24,9 @@ class DMFServlet extends HttpServlet {
   private var translate: Translate = _
   private var i18n: I18N = _
   private var annifBaseUrl: String = _
-  private var annifProjectId: String = _
+  private var annifProjectId_pt: String = _
+  private var annifProjectId_es: String = _
+  private var annifProjectId_en: String = _
 
   /*
   private val yellowSquare = "\uD83D\uDFE8"  // Quadrado Amarelo
@@ -50,7 +52,10 @@ class DMFServlet extends HttpServlet {
     translate = new Translate(decsPath)
     i18n = new I18N(i18nIS)
     annifBaseUrl = context.getInitParameter("ANNIF_BASE_URL")
-    annifProjectId = context.getInitParameter("ANNIF_PROJECT_ID")
+    //annifProjectId = context.getInitParameter("ANNIF_PROJECT_ID")
+    annifProjectId_pt = context.getInitParameter("ANNIF_PROJECT_PT_ID")
+    annifProjectId_es = context.getInitParameter("ANNIF_PROJECT_ES_ID")
+    annifProjectId_en = context.getInitParameter("ANNIF_PROJECT_EN_ID")
 
     println("DMFServlet is listening ...")
   }
@@ -83,13 +88,17 @@ class DMFServlet extends HttpServlet {
     response.setContentType("text/html;charset=UTF-8")
 
     Try {
+      val isFirstLoad: Boolean = Option(request.getParameter("isFirstLoad")).map(_.trim) match {
+        case Some(value) => value.toBoolean
+        case None => true
+      }
       val inputLang: Option[String] = Option(request.getParameter("inputLang")).map(_.trim)
         .flatMap(par => if (par.isEmpty) None else Some(par))
       val outLang: Option[String] = Option(request.getParameter("outLang")).map(_.trim)
         .flatMap(par => if (par.isEmpty) None else Some(par))
       val termTypes: Seq[String] = Option(request.getParameter("termTypes")).map(_.trim)
         .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers"))
-      val inputText: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+      val inputText: String = Option(request.getParameter("inputText")).map(it => removeUnderlines(it.trim)).getOrElse("")
       val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
         .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
@@ -101,17 +110,22 @@ class DMFServlet extends HttpServlet {
         scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
       )
       val descriptors: (String, Seq[(Int, Int, String, String, String)], Seq[(String,Int)]) =
-        highlighter.highlight("«", "»", removeUnderlines(inputText), config)
+        highlighter.highlight("«", "»", inputText, config)
         //highlighter.highlight(inputText, config)
       val annif: AnnifClient = new AnnifClient(annifBaseUrl)
-      val annifSuggestions: Either[String, Seq[Suggestion]] = annif.getSuggestions(annifProjectId, inputText)
+      val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
+        case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText)
+        case Some("es") => annif.getSuggestions(annifProjectId_es, inputText)
+        case Some("en") => annif.getSuggestions(annifProjectId_en, inputText)
+        case _ => Right(Seq[Suggestion]())
+      }
       val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
       val descr: Seq[String] = descriptors._3.map(_._1)
       val termsText: String = descr.mkString("\n")
       val annifText: String = annifTerms.mkString("\n")
       val exportText: String = getExportTermsText(descr, annifTerms, language)
       val outputText: String = getHtml(inputLang.getOrElse("All languages"), outLang.getOrElse("Same of the text"),
-        termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifText, exportText, useFrequencySort)
+        termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifText, exportText, useFrequencySort, isFirstLoad)
       val out: PrintWriter = response.getWriter
       out.println(outputText)
       out.flush()
@@ -199,7 +213,16 @@ class DMFServlet extends HttpServlet {
                       language: String,
                       annifText: String,
                       exportText: String,
-                      useFrequencySort: Boolean): String = {
+                      useFrequencySort: Boolean,
+                      isFirstLoad: Boolean): String = {
+    val warningMessage: String = language match {
+      case "en" => "Find ideal descriptors with DeCS Finder IA.\nSimplify the indexing of your texts with artificial intelligence. DeCS Finder IA, developed by BIREME, identifies DeCS/MeSH descriptors for your content quickly and precisely.\nTry it now and boost your search!"
+      case "es" => "Encuentre los descriptores ideales con DeCS Finder IA.\nSimplifique la indización de sus textos con inteligencia artificial. DeCS Finder IA, desarrollado por BIREME, identifica descriptores DeCS/MeSH para su contenido de forma rápida y precisa.\n¡Pruébelo ahora y potencie su búsqueda!"
+      case "pt" => "Encontre descritores ideais com o DeCS Finder IA.\nSimplifique a indexação dos seus textos com inteligência artificial. O DeCS Finder IA, desenvolvido pela BIREME, identifica os descritores DeCS/MeSH para o seu conteúdo, de forma rápida e precisa.\nExperimente agora e potencialize sua pesquisa!"
+      case "fr" => "Trouvez les descripteurs idéaux avec DeCS Finder IA.\nSimplifiez l'indexation de vos textes grâce à l'intelligence artificielle. DeCS Finder IA, développé par BIREME, identifie rapidement et précisément les descripteurs DeCS/MeSH de vos contenus.\nEssayez-le maintenant et boostez votre recherche!"
+      case _ => "Find ideal descriptors with DeCS Finder IA.\nSimplify the indexing of your texts with artificial intelligence. DeCS Finder IA, developed by BIREME, identifies DeCS/MeSH descriptors for your content quickly and precisely.\nTry it now and boost your search!"
+    }
+
     """
 <!DOCTYPE html>
 <html lang="""" + language + """">
@@ -265,7 +288,7 @@ class DMFServlet extends HttpServlet {
 		}
 
 		function submitPage(plang, tOrder) {
-  //alert("Entrando no submitPage()");
+     //alert("Entrando no submitPage()");
      var inputText = document.getElementById("inputFullText").value;
      var inputLang = document.getElementById("inputTextLanguage").value;
      var outputLang = document.getElementById("outputTextLanguage").value;
@@ -338,6 +361,12 @@ class DMFServlet extends HttpServlet {
       hiddenField6.setAttribute("type", "hidden");
       hiddenField6.setAttribute("name", "frequencySort");
       hiddenField6.setAttribute("value", useFreqSort);
+      form.appendChild(hiddenField6);
+
+      var hiddenField7 = document.createElement("input");
+      hiddenField6.setAttribute("type", "hidden");
+      hiddenField6.setAttribute("name", "isFirstLoad");
+      hiddenField6.setAttribute("value", "false");
       form.appendChild(hiddenField6);
 
       document.body.appendChild(form);
@@ -534,21 +563,21 @@ class DMFServlet extends HttpServlet {
               <i class="fas fa-comment"></i>
             </button>
             <!--button type="button" class="btn btn-success" style="background-color: red; margin-top: 1px;" title='""" + i18n.translate("Warning", language) + """' onclick='abrirModal()'-->
-            <button type="button" class="btn btn-success" style="background-color: red; margin-top: 1px;" title='""" + i18n.translate("Warning", language) + """'
+            <!--button type="button" class="btn btn-success" style="background-color: red; margin-top: 1px;" title='""" + i18n.translate("Warning", language) + """'
                 onclick='abrirModal(); gtag("event", "button_click", {
                 "event_category": "button", "event_label": "Warning Button"
               });'>
               <i class="fas fa-exclamation-triangle"></i>
-            </button>
+            </button-->
           </div>
         </div>
 
-        <div id="modal">
+        <!--div id="modal">
           <div id="modal-content">
             <p><strong><i class="fas fa-exclamation-triangle"></i></strong>  """ + i18n.translate("Notice", language) + """</p>
             <button id="close-btn" onclick="fecharModal()">OK</button>
           </div>
-        </div>
+        </div-->
 
       </div>
 		</div>
@@ -588,7 +617,7 @@ class DMFServlet extends HttpServlet {
   </footer>
 
   <script>
-        // Captura o evento de mudança no select
+          // Captura o evento de mudança no select
         document.getElementById('inputTextLanguage').addEventListener('change', function() {
             // Obtém o valor selecionado
             var selectedLanguage = this.value;
@@ -604,6 +633,9 @@ class DMFServlet extends HttpServlet {
             } else {
                 console.error('Google Analytics não está disponível.');
             }
+            // Resubmit pagina para atualizar a mudança da lingua
+            submitPage("", "")
+
         });
     </script>
 
@@ -624,6 +656,8 @@ class DMFServlet extends HttpServlet {
             } else {
                 console.error('Google Analytics não está disponível.');
             }
+            // Resubmit pagina para atualizar a mudança da lingua
+            submitPage("", "")
         });
     </script>
 
@@ -644,8 +678,24 @@ class DMFServlet extends HttpServlet {
           } else {
               console.error('Google Analytics não está disponível.');
           }
+          // Resubmit pagina para atualizar a mudança da lingua
+          submitPage("", "")
       });
   </script>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">DeCS Finder IA</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">""" + warningMessage + """</div>
+      </div>
+    </div>
+  </div>
 
   <script src="decsf/js/jquery-3.4.1.min.js"></script>
 	<script src="decsf/js/bootstrap.bundle.min.js"></script>
@@ -653,6 +703,13 @@ class DMFServlet extends HttpServlet {
 	<script src="decsf/js/cookie.js"></script>
 	<script src="decsf/js/accessibility.js"></script>
 	<script src="decsf/js/main.js"></script>
+
+  """ + (if (isFirstLoad) { """
+  <script>
+    $(document).ready(function () {
+      $('#myModal').modal('show');
+    });
+  </script>""" }) + """
 </body>
 </html>
     """

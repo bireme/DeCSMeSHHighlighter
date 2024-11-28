@@ -16,9 +16,21 @@
     </context-param>
 
     <context-param>
-        <description>Annif project identifier</description>
-        <param-name>ANNIF_PROJECT_ID</param-name>
+        <description>Annif project identifier - Portuguese</description>
+        <param-name>ANNIF_PROJECT_PT_ID</param-name>
         <param-value>omikuji-decs</param-value>
+    </context-param>
+
+    <context-param>
+        <description>Annif project identifier - Spanish</description>
+        <param-name>ANNIF_PROJECT_ES_ID</param-name>
+        <param-value>omikuji-decs-es</param-value>
+    </context-param>
+
+    <context-param>
+        <description>Annif project identifier - English</description>
+        <param-name>ANNIF_PROJECT_EN_ID</param-name>
+        <param-value>omikuji-decs-en</param-value>
     </context-param>
 
     <servlet>
