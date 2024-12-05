@@ -21,6 +21,7 @@ import scala.util.{Failure, Success, Try}
   */
 class DMFServlet extends HttpServlet {
   private var highlighter: Highlighter = _
+  private var markPrefSuffix: MarkPrefSuffix = _
   private var translate: Translate = _
   private var i18n: I18N = _
   private var annifBaseUrl: String = _
@@ -46,9 +47,11 @@ class DMFServlet extends HttpServlet {
 
     val context: ServletContext = config.getServletContext
     val decsPath:String = context.getInitParameter("DECS_PATH")
+    val decsPrefSufPath:String = context.getInitParameter("DECS_PREFSUF_PATH")
     val i18nIS: InputStream = context.getResourceAsStream("/i18n.txt")
 
     highlighter = new Highlighter(decsPath)
+    markPrefSuffix = new MarkPrefSuffix(decsPrefSufPath)
     translate = new Translate(decsPath)
     i18n = new I18N(i18nIS)
     annifBaseUrl = context.getInitParameter("ANNIF_BASE_URL")
@@ -110,13 +113,14 @@ class DMFServlet extends HttpServlet {
         scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
       )
       val descriptors: (String, Seq[(Int, Int, String, String, String)], Seq[(String,Int)]) =
-        highlighter.highlight("«", "»", inputText, config)
+        highlighter.highlight(markPrefSuffix.prefSuffix(_,_, language=language), inputText, config)
+        //highlighter.highlight("«", "»", inputText, config)
         //highlighter.highlight(inputText, config)
       val annif: AnnifClient = new AnnifClient(annifBaseUrl)
       val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
-        case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText)
-        case Some("es") => annif.getSuggestions(annifProjectId_es, inputText)
-        case Some("en") => annif.getSuggestions(annifProjectId_en, inputText)
+        case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText, limit=Some(15))
+        case Some("es") => annif.getSuggestions(annifProjectId_es, inputText, limit=Some(15))
+        case Some("en") => annif.getSuggestions(annifProjectId_en, inputText, limit=Some(15))
         case _ => Right(Seq[Suggestion]())
       }
       val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
@@ -124,7 +128,7 @@ class DMFServlet extends HttpServlet {
       val termsText: String = descr.mkString("\n")
       val annifText: String = annifTerms.mkString("\n")
       val exportText: String = getExportTermsText(descr, annifTerms, language)
-      val outputText: String = getHtml(inputLang.getOrElse("All languages"), outLang.getOrElse("Same of the text"),
+      val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
         termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifText, exportText, useFrequencySort, isFirstLoad)
       val out: PrintWriter = response.getWriter
       out.println(outputText)
@@ -278,18 +282,47 @@ class DMFServlet extends HttpServlet {
             margin-top: 10px;
         }
     </style>
+
+    <style>
+      #textWithTooltips{
+        display: block;
+        width: 100%;
+        height: 200px;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        overflow-x: auto;
+      }
+      #textWithTooltips:focus-visible {
+        background-color: #fff;
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+      }
+      #textWithTooltips a{
+        cursor: pointer;
+      }
+    </style>
 </head>
 <body>
 	<script type="text/javascript">
 		function clearTextAreas() {
-			document.getElementById("inputFullText").value = "";
+			document.getElementById("textWithTooltips").textContent = "";
 			document.getElementById("outputTerms").value = "";
       document.getElementById("outputAnnifTerms").value = "";
 		}
 
 		function submitPage(plang, tOrder) {
      //alert("Entrando no submitPage()");
-     var inputText = document.getElementById("inputFullText").value;
+     var inputText = document.getElementById("textWithTooltips").textContent;
+     //alert("textWithTooltips=" + document.getElementById("textWithTooltips").textContent);
      var inputLang = document.getElementById("inputTextLanguage").value;
      var outputLang = document.getElementById("outputTextLanguage").value;
 
@@ -409,17 +442,6 @@ class DMFServlet extends HttpServlet {
           saveAs(blob, fileName + ".txt");
         }
     }
-
-    // Função para abrir a caixa de diálogo
-    function abrirModal() {
-        document.getElementById("modal").style.display = "flex";
-    }
-
-    // Função para fechar a caixa de diálogo
-    function fecharModal() {
-        document.getElementById("modal").style.display = "none";
-    }
-
 	</script>
 
 	<section id="barAccessibility">
@@ -467,7 +489,7 @@ class DMFServlet extends HttpServlet {
 				<div class="form-group col-md-4">
 					<label for="">""" + i18n.translate("Language of your text", language) + """:</label>
 					<select name="" id="inputTextLanguage" class="form-control">
-						<option value="All languages" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option>
+						<!--option value="All languages" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option-->
 						<option value="en" """ + (if (inputLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
 						<option value="es" """ + (if (inputLang.equals("es")) "selected=\"\"" else "") + """>""" + i18n.translate("Spanish", language) + """</option>
 						<option value="pt" """ + (if (inputLang.equals("pt")) "selected=\"\"" else "") + """>""" + i18n.translate("Portuguese", language) + """</option>
@@ -503,7 +525,9 @@ class DMFServlet extends HttpServlet {
              i18n.translate("Paste your text below", language) + """:
           </label>
           <div style="display: flex; align-items: flex-start;">
-            <textarea name="" id="inputFullText" cols="30" rows="7" class="form-control">""" + inputText + """</textarea>
+            <div id="textWithTooltips" class="p-3 border rounded" contenteditable="true">""" + inputText + """</div>
+            <!--textarea name="" id="textWithTooltips" cols="30" rows="7" class="form-control"></textarea-->
+
             <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
               <!--button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """' onclick='submitPage("", "")'-->
               <button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """'
@@ -562,23 +586,8 @@ class DMFServlet extends HttpServlet {
               });'>
               <i class="fas fa-comment"></i>
             </button>
-            <!--button type="button" class="btn btn-success" style="background-color: red; margin-top: 1px;" title='""" + i18n.translate("Warning", language) + """' onclick='abrirModal()'-->
-            <!--button type="button" class="btn btn-success" style="background-color: red; margin-top: 1px;" title='""" + i18n.translate("Warning", language) + """'
-                onclick='abrirModal(); gtag("event", "button_click", {
-                "event_category": "button", "event_label": "Warning Button"
-              });'>
-              <i class="fas fa-exclamation-triangle"></i>
-            </button-->
           </div>
         </div>
-
-        <!--div id="modal">
-          <div id="modal-content">
-            <p><strong><i class="fas fa-exclamation-triangle"></i></strong>  """ + i18n.translate("Notice", language) + """</p>
-            <button id="close-btn" onclick="fecharModal()">OK</button>
-          </div>
-        </div-->
-
       </div>
 		</div>
 	</main>
@@ -710,6 +719,16 @@ class DMFServlet extends HttpServlet {
       $('#myModal').modal('show');
     });
   </script>""" }) + """
+
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('#textWithTooltips').on('click', 'a', function (e) {
+        e.stopPropagation();
+        window.open(this.href, '_blank');
+      });
+    });
+  </script>
 </body>
 </html>
     """

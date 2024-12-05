@@ -17999,7 +17999,7 @@ toolbox:
 tools:
   changes:
     - 5.6.0
-  label: Tools
+  label: MarkPrefSuffix
   search:
     terms:
       - admin
