@@ -55,9 +55,17 @@ class MarkPrefSuffix(decsPath: String) {
                    descriptor: String,
                    scopeNote: String,
                    decsId: String): String = {
-    val content: String = s"[$term] $descriptor: $scopeNote"
-    val content1: String = if (content.size > 100) content.substring(0, 100) + "..." else content
+    val content: String = s"<b>[$descriptor]</b><br/>$scopeNote"
+    //val content1: String = if (content.size > 90) content.substring(0, 90) + "..." else content
 
-    s"""<a href="https://decs.bvsalud.org/ths/resource/?id=$decsId" class="text-primary" data-toggle="tooltip" title="$content1" target="_blank">$term</a>"""
+    //s"""<a href="https://decs.bvsalud.org/ths/resource/?id=$decsId" class="text-primary" data-toggle="tooltip" data-bs-html="true" title="$content1" target="_blank">$term</a>"""
+    s"""<a href="https://decs.bvsalud.org/ths/resource/?id=$decsId"
+       class="tooltip-link"
+       data-bs-toggle="tooltip"
+       data-bs-html="true"
+       title="$content"
+       target="_blank">
+      $term
+    </a>"""
   }
 }

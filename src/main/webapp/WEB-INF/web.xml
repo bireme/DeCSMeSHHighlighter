@@ -5,12 +5,11 @@
     <context-param>
         <description>DeCS database directory</description>
         <param-name>DECS_PATH</param-name>
-        <!--param-value>/home/javaapps/sbt-projects/DeCSHighlighter/decs/decs</param-value-->
         <param-value>decs/decs</param-value>
     </context-param>
 
     <context-param>
-        <description>DeCS database directory (used to prefix and suffix mark process</description>
+        <description>DeCS database directory (used to prefix and suffix mark process)</description>
         <param-name>DECS_PREFSUF_PATH</param-name>
         <param-value>decs/decs_prefsuf</param-value>
     </context-param>

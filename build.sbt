@@ -2,14 +2,15 @@ name := "DeCSMeSHFinder"
 
 version := "1.0"
 
-scalaVersion := "2.13.15" //"2.13.13" //"2.13.11"
+scalaVersion := "2.13.16" //"2.13.13"
 
 val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
-val luceneVersion = "9.12.0" //"9.8.0"
+val luceneVersion = "9.12.1" //"9.8.0"
 val tikaVersion = /*"2.5.0"*/ "3.0.0-BETA2"
-val sttpVersion = "4.0.0-M19" //"4.0.0-M17"
+val sttpVersion = "4.0.0-RC2" //"4.0.0-M17"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
+val circeVersion = "0.14.12"
 
 libraryDependencies ++= Seq(
   "jakarta.servlet" % "jakarta.servlet-api" % jakartaServletApiVersion % "provided",
@@ -17,11 +18,12 @@ libraryDependencies ++= Seq(
   "org.apache.lucene" % "lucene-core" % luceneVersion,
   "org.apache.lucene" % "lucene-queryparser" % luceneVersion,
   "org.apache.lucene" % "lucene-backward-codecs" % luceneVersion,
+  "org.apache.lucene" % "lucene-analysis-common" % luceneVersion,
   //"org.apache.tika" % "tika-core" % tikaVersion,
   //"org.apache.tika" % "tika-langdetect" % tikaVersion pomOnly(),
   "com.softwaremill.sttp.client4" %% "core" % sttpVersion,
   "com.softwaremill.sttp.client4" %% "circe" % sttpVersion,
-  "io.circe" %% "circe-generic" % "0.14.10",
+  "io.circe" %% "circe-generic" % circeVersion,
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
 )
@@ -42,6 +44,10 @@ assembly / assemblyMergeStrategy := {
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
+}
+
+artifactName := { (v: ScalaVersion, m: ModuleID, a: Artifact) =>
+  "decsmeshfinder.war"
 }
 
 /*

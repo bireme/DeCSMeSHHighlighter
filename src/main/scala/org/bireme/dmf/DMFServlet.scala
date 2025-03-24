@@ -112,7 +112,7 @@ class DMFServlet extends HttpServlet {
         scanQualifiers=termTypes.contains("Qualifiers"), scanPublicationTypes=containsDescriptors,
         scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
       )
-      val descriptors: (String, Seq[(Int, Int, String, String, String)], Seq[(String,Int)]) =
+      val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
         highlighter.highlight(markPrefSuffix.prefSuffix(_,_, language=language), inputText, config)
         //highlighter.highlight("«", "»", inputText, config)
         //highlighter.highlight(inputText, config)
@@ -310,11 +310,26 @@ class DMFServlet extends HttpServlet {
         cursor: pointer;
       }
     </style>
+
+    <style>
+        .tooltip-inner {
+            background-color: /*#669966*/ #1e491f !important; /* Fundo verde */
+            color: #ffffff !important;          /* Texto branco */
+            max-width: 600px; /* Define o novo tamanho máximo */
+        }
+
+        .tooltip .arrow::before {
+            background-color: #f39c12 !important; /* Cor da seta */
+        }
+    </style>
 </head>
 <body>
 	<script type="text/javascript">
 		function clearTextAreas() {
-			document.getElementById("textWithTooltips").textContent = "";
+      var textWithTooltips = document.getElementById("textWithTooltips");
+			textWithTooltips.textContent = "";
+      textWithTooltips.setAttribute("contenteditable", "true");
+
 			document.getElementById("outputTerms").value = "";
       document.getElementById("outputAnnifTerms").value = "";
 		}
@@ -525,7 +540,7 @@ class DMFServlet extends HttpServlet {
              i18n.translate("Paste your text below", language) + """:
           </label>
           <div style="display: flex; align-items: flex-start;">
-            <div id="textWithTooltips" class="p-3 border rounded" contenteditable="true">""" + inputText + """</div>
+            <div id="textWithTooltips" class="p-3 border rounded" spellcheck="false" contenteditable="""" + (if (isFirstLoad) "true" else "false")+ """">""" + inputText + """</div>
             <!--textarea name="" id="textWithTooltips" cols="30" rows="7" class="form-control"></textarea-->
 
             <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
@@ -718,17 +733,21 @@ class DMFServlet extends HttpServlet {
     $(document).ready(function () {
       $('#myModal').modal('show');
     });
+    document.querySelector('.close').addEventListener('click', function () {
+    $('#myModal').modal('hide');
+    });
   </script>""" }) + """
 
-  <script>
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip();
-      $('#textWithTooltips').on('click', 'a', function (e) {
-        e.stopPropagation();
-        window.open(this.href, '_blank');
-      });
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Inicializar todos os tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 </body>
 </html>
     """

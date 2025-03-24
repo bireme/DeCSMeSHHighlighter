@@ -2,7 +2,7 @@ package org.bireme.dmf
 
 import sttp.client4.circe.asJson
 import sttp.client4.httpurlconnection.HttpURLConnectionBackend
-import sttp.client4.{Request, Response, UriContext, basicRequest}
+import sttp.client4.{Request, Response, ResponseException, UriContext, basicRequest}
 import sttp.model.MediaType
 import io.circe.generic.auto._
 
@@ -35,19 +35,19 @@ class AnnifClient(baseAnnifUrl: String) {
                      limit: Option[Int] = None,
                      threshold: Option[Float] = None,
                      language: Option[String] = None): Either[String, Seq[Suggestion]] = {
-    val formData = mutable.Map("text" -> text)
+    val formData: mutable.Map[String, String] = mutable.Map("text" -> text)
     if (limit.isDefined) formData.addOne("limit", limit.get.toString)
     if (threshold.isDefined) formData.addOne("threshold", threshold.get.toString)
     if (language.isDefined) formData.addOne("language", language.get)
 
-    val request1: Request[Either[sttp.client4.ResponseException[String,io.circe.Error], AnnifResponse]] = basicRequest
+    val request1: Request[Either[ResponseException[String], AnnifResponse]] = basicRequest
       .post(uri"$baseAnnifUrl/v1/projects/$project_id/suggest")
       .contentType(MediaType.ApplicationXWwwFormUrlencoded)
       .header("Accept", "application/json")
       .body(formData.toMap)
       .response(asJson[AnnifResponse])
 
-    val response1: Response[Either[sttp.client4.ResponseException[String,io.circe.Error], AnnifResponse]] =
+    val response1: Response[Either[ResponseException[String], AnnifResponse]] =
       request1.send(HttpURLConnectionBackend())
 
     response1.body match {
@@ -59,8 +59,8 @@ class AnnifClient(baseAnnifUrl: String) {
 }
 
 object AnnifClientApp extends App {
-  val url: String = "http://annif.teste.bireme.br:5000/"
-  val ac: AnnifClient = new AnnifClient(url)
+  private val url: String = "http://annif.teste.bireme.br:5000/"
+  private val ac: AnnifClient = new AnnifClient(url)
 
   ac.listProjects() match {
     case Right(projects) => println(projects)

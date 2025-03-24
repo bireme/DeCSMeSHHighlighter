@@ -1,0 +1,37 @@
+Inicialização e parada do serviço DeCSMeshFinder no jetty no servidor de produção diamante15.bireme.br
+
+url: https://decsfinder2.bvsalud.org
+
+
+1) Conecte-se no servidor de produção diamante15.bireme.br
+
+ ssh -p 8022 operacao@diamante15.bireme.br
+
+ senha:   13iahx09
+
+
+2) Mude até o diretório do projeto
+
+ cd /home/javaapps/sbt-projects/DeCSMeSHHighlighter1.1
+
+
+3) Pare a execução do servidor de aplicações jetty
+
+ bin/jetty-stop.sh
+
+
+4) Edite o arquivo de configurações web.xml
+
+ vi jetty-base/webapps/decsmeshfinder/WEB-INF/web.xml
+
+
+5) Altere, se necessário, os parâmetros referentes ao Annif
+
+  ANNIF_BASE_URL - url do serviço Annif
+
+  ANNIF_PROJECT_ID - projeto do Annif a ser pesquisado
+
+
+6) Reinicie o servidor jetty
+
+ bin/jetty-start.sh
