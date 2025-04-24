@@ -112,8 +112,13 @@ class DMFServlet extends HttpServlet {
         scanQualifiers=termTypes.contains("Qualifiers"), scanPublicationTypes=containsDescriptors,
         scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
       )
+      val oLanguage: String = outLang match { //.getOrElse(inputLang.getOrElse("en"))
+        case Some(lang) => if (lang.length == 2) lang else inputLang.getOrElse("en")
+        case None => inputLang.getOrElse("en")
+      }
       val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
-        highlighter.highlight(markPrefSuffix.prefSuffix(_,_, language=language), inputText, config)
+        highlighter.highlight(markPrefSuffix.prefSuffix(_,_, termLang=oLanguage, tipLang=language), inputText, config)
+
         //highlighter.highlight("«", "»", inputText, config)
         //highlighter.highlight(inputText, config)
       val annif: AnnifClient = new AnnifClient(annifBaseUrl)
@@ -124,12 +129,12 @@ class DMFServlet extends HttpServlet {
         case _ => Right(Seq[Suggestion]())
       }
       val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
+      val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term, termLang=oLanguage, tipLang=language))
       val descr: Seq[String] = descriptors._3.map(_._1)
       val termsText: String = descr.mkString("\n")
-      val annifText: String = annifTerms.mkString("\n")
       val exportText: String = getExportTermsText(descr, annifTerms, language)
       val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
-        termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifText, exportText, useFrequencySort, isFirstLoad)
+        termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
       val out: PrintWriter = response.getWriter
       out.println(outputText)
       out.flush()
@@ -309,6 +314,32 @@ class DMFServlet extends HttpServlet {
       #textWithTooltips a{
         cursor: pointer;
       }
+
+      #textWithTooltipsAnnif{
+        display: block;
+        width: 100%;
+        height: 200px;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        overflow-x: auto;
+      }
+      #textWithTooltipsAnnif:focus-visible {
+        background-color: #fff;
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+      }
+      #textWithTooltipsAnnif a{
+        cursor: pointer;
+      }
     </style>
 
     <style>
@@ -326,12 +357,13 @@ class DMFServlet extends HttpServlet {
 <body>
 	<script type="text/javascript">
 		function clearTextAreas() {
+      //alert("entrando no clearTextAreas");
       var textWithTooltips = document.getElementById("textWithTooltips");
+      var textWithTooltipsAnnif = document.getElementById("textWithTooltipsAnnif");
 			textWithTooltips.textContent = "";
       textWithTooltips.setAttribute("contenteditable", "true");
-
-			document.getElementById("outputTerms").value = "";
-      document.getElementById("outputAnnifTerms").value = "";
+      textWithTooltipsAnnif.textContent = "";
+      textWithTooltipsAnnif.setAttribute("contenteditable", "true");
 		}
 
 		function submitPage(plang, tOrder) {
@@ -407,12 +439,6 @@ class DMFServlet extends HttpServlet {
 
       var hiddenField6 = document.createElement("input");
       hiddenField6.setAttribute("type", "hidden");
-      hiddenField6.setAttribute("name", "frequencySort");
-      hiddenField6.setAttribute("value", useFreqSort);
-      form.appendChild(hiddenField6);
-
-      var hiddenField7 = document.createElement("input");
-      hiddenField6.setAttribute("type", "hidden");
       hiddenField6.setAttribute("name", "isFirstLoad");
       hiddenField6.setAttribute("value", "false");
       form.appendChild(hiddenField6);
@@ -445,7 +471,8 @@ class DMFServlet extends HttpServlet {
 
     function exportTerms() {
         //alert("entrando no exportTerms");
-        let expoText = """" + exportText + """";
+
+        let expoText = '""" + exportText + """';
 
         if (expoText != null && expoText.trim() !== "")  {
           const now = new Date();
@@ -483,7 +510,7 @@ class DMFServlet extends HttpServlet {
 		<div class="container">
 			<div class="row" style="position: relative;">
         <div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSF/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.png" alt="" class="imgBlack"></a>
 				</div>
 				<div id="language" style="z-index: 1">
           <a href="#" onclick='submitPage("en", "");'>English</a>
@@ -492,7 +519,7 @@ class DMFServlet extends HttpServlet {
           <a href="#" onclick='submitPage("fr", "");'>Français</a>
 				</div>
 				<!--div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSF/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
 				</div-->
 			</div>
 		</div>
@@ -533,79 +560,54 @@ class DMFServlet extends HttpServlet {
 	</section>
 
 	<main id="main_container" class="padding1">
-		<div class="container">
-			<div class="row">
-        <div class="form-group col-md-12">
-          <label for="">""" +
-             i18n.translate("Paste your text below", language) + """:
-          </label>
-          <div style="display: flex; align-items: flex-start;">
-            <div id="textWithTooltips" class="p-3 border rounded" spellcheck="false" contenteditable="""" + (if (isFirstLoad) "true" else "false")+ """">""" + inputText + """</div>
-            <!--textarea name="" id="textWithTooltips" cols="30" rows="7" class="form-control"></textarea-->
-
-            <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
-              <!--button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """' onclick='submitPage("", "")'-->
-              <button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """'
-                       onclick='submitPage("", ""); gtag("event", "button_click", {
-                           "event_category": "button", "event_label": "Search Button"
-                           });'>
-                <i class="fas fa-search"></i>
-              </button>
-              <!--button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Clear", language) + """' onclick="clearTextAreas()"-->
-              <button type="button" class="btn btn-success" style="margin-top: 1px;"  title='""" + i18n.translate("Clear", language) + """'
+    <div class="container">
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label>""" + i18n.translate("Paste your text below", language) + """:</label>
+                <div style="display: flex; align-items: flex-start;">
+                    <div id="textWithTooltips" class="p-3 border rounded" spellcheck="false" contenteditable="""" + (if (inputText.trim.isEmpty) "true" else "false")+ """">""" + inputText + """</div>
+                    <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
+                        <button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """'
+                            onclick='submitPage("", ""); gtag("event", "button_click", {
+                                "event_category": "button", "event_label": "Search Button"
+                            });'>
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button type="button" class="btn btn-success" style="margin-top: 1px;"  title='""" + i18n.translate("Clear", language) + """'
                        onclick='clearTextAreas(); gtag("event", "button_click", {
                            "event_category": "button", "event_label": "Clear Button"
                            });'>
-                <i class="far fa-trash-alt"></i>
+                        <i class="far fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+          <!-- Display Annif terms -->
+          <div class="form-group col-md-12">
+            <label>""" + i18n.translate("Terms identified by AI", language) + """:</label>
+            <div style="display: flex; align-items: flex-start;">
+              <div id="textWithTooltipsAnnif" class="p-3 border rounded" style="flex-grow: 1;" spellcheck="false" contenteditable="false">""" + annifText + """</div>
+              <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
+              <button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Export to file", language) + """'
+                  onclick='exportTerms(); gtag("event", "button_click", {
+                  "event_category": "button", "event_label": "Export Button"
+                });'>
+                  <i class="fas fa-file-export"></i>
+              </button>
+              <button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Send your comments", language) + """'
+                  onclick='window.open("https://contacto.bvsalud.org/chat.php?group=DeCSMeSH%20Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__", "_blank"); gtag("event", "button_click", {
+                  "event_category": "button", "event_label": "Comments Button"
+                });'>
+                <i class="fas fa-comment"></i>
               </button>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-md-6">
-          <label for="">
-              """ + i18n.translate("Extracted descriptors", language) + """:
-          </label>
-          <div style="display: flex; align-items: flex-start;">
-            <textarea name="" id="outputTerms" cols="30" rows="11" class="form-control">""" + termsText + """
-            </textarea>
-          </div>
-        </div>
-
-        <!-- Nova textarea "Additional Notes" -->
-        <div class="form-group col-md-6">
-          <label for="">
-            """ + i18n.translate("Terms identified by AI", language) + """:
-          </label>
-          <div style="display: flex; align-items: flex-start;">
-            <textarea name="" id="outputAnnifTerms" cols="30" rows="11" class="form-control">""" + annifText + """</textarea>
-            <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
-            <!--button type="button" class="btn btn-success" title='""" + i18n.translate("Alphabetical order", language) + """' onclick='submitPage("", "false")'>
-              <i class="fas fa-sort-alpha-down"></i>
-            </button>
-            <button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Numerical order", language) + """' onclick='submitPage("", "true")'>
-              <i class="fas fa-sort-numeric-down-alt"></i>
-            </button-->
-            <!--button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Export to file", language) + """' onclick='exportTerms()'-->
-            <button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Export to file", language) + """'
-                onclick='exportTerms(); gtag("event", "button_click", {
-                "event_category": "button", "event_label": "Export Button"
-              });'>
-              <i class="fas fa-file-export"></i>
-            </button>
-            <!--button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Send your comments", language) + """' onclick="window.open('https://contacto.bvsalud.org/chat.php?group=DeCSMeSH%20Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__', '_blank');"-->
-            <button type="button" class="btn btn-success" style="margin-top: 1px;" title='""" + i18n.translate("Send your comments", language) + """'
-                onclick='window.open("https://contacto.bvsalud.org/chat.php?group=DeCSMeSH%20Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__", "_blank"); gtag("event", "button_click", {
-                "event_category": "button", "event_label": "Comments Button"
-              });'>
-              <i class="fas fa-comment"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-		</div>
-	</main>
+    </div>
+  </main>
 
   <!--div class="container">
 		<div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -623,7 +625,7 @@ class DMFServlet extends HttpServlet {
       <div class="container">
           <div class="row">
               <div class="col-md-5">
-                  <b>DeCS/MeSH Finder</b> <br>
+                  <b>DeCS Finder IA</b> <br>
                   <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
                   <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
               </div>
@@ -728,16 +730,7 @@ class DMFServlet extends HttpServlet {
 	<script src="decsf/js/accessibility.js"></script>
 	<script src="decsf/js/main.js"></script>
 
-  """ + (if (isFirstLoad) { """
-  <script>
-    $(document).ready(function () {
-      $('#myModal').modal('show');
-    });
-    document.querySelector('.close').addEventListener('click', function () {
-    $('#myModal').modal('hide');
-    });
-  </script>""" }) + """
-
+  """ + getFirstLoadText(isFirstLoad) + """
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Inicializar todos os tooltips
@@ -751,5 +744,18 @@ class DMFServlet extends HttpServlet {
 </body>
 </html>
     """
+  }
+
+  private def getFirstLoadText(isFirstLoad: Boolean): String = {
+    if (isFirstLoad) { """
+      <script>
+        $(document).ready(function () {
+          $('#myModal').modal('show');
+        });
+        document.querySelector('.close').addEventListener('click', function () {
+        $('#myModal').modal('hide');
+        });
+      </script>"""
+    } else ""
   }
 }

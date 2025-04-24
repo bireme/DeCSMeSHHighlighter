@@ -24,19 +24,20 @@ class MarkPrefSuffix(decsPath: String) {
 
   def prefSuffix(term: String,
                  uniqueId: String,
-                 language: String): String = {
+                 termLang: String,
+                 tipLang:  String): String = {
     val topDocs: TopDocs = isearcher.search(new TermQuery(new Term("unique_id", uniqueId.toUpperCase)), 1)
     topDocs.scoreDocs.headOption match {
       case Some(sd) =>
         val doc: Document = isearcher.storedFields.document(sd.doc)
-        val descriptorField: String = language.trim.toLowerCase() match {
+        val descriptorField: String = tipLang.trim.toLowerCase() match {
           case "en" => "descriptor_en"
           case "es" => "descriptor_es"
           case "pt" => "descriptor_pt"
           case "fr" => "descriptor_fr"
           case _ => "descriptor_en"
         }
-        val scopeNoteField: String = language.trim.toLowerCase() match {
+        val scopeNoteField: String = tipLang.trim.toLowerCase() match {
           case "en" => "scopeNote_en"
           case "es" => "scopeNote_es"
           case "pt" => "scopeNote_pt"
@@ -45,21 +46,66 @@ class MarkPrefSuffix(decsPath: String) {
         val descriptor: String = Option(doc.get(descriptorField)).getOrElse("")
         val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("")
         val decsId: String = Option(doc.get("decs_id")).getOrElse("")
+        val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
 
-        mark(term, descriptor, scopeNote, decsId)
+        mark(term, descriptor, scopeNote, decsId, treeNumber, tipLang)
       case None => term
+    }
+  }
+
+  def prefSuffix1(term: String,
+                  termLang: String,
+                  tipLang:  String): String = {
+    val inDescriptorField: String = termLang.trim.toLowerCase() match {
+      case "en" => "descriptor_en"
+      case "es" => "descriptor_es"
+      case "pt" => "descriptor_pt"
+      case "fr" => "descriptor_fr"
+      case _ => "descriptor_en"
+    }
+    val outDescriptorField: String = tipLang.trim.toLowerCase() match {
+      case "en" => "descriptor_en"
+      case "es" => "descriptor_es"
+      case "pt" => "descriptor_pt"
+      case "fr" => "descriptor_fr"
+      case _ => "descriptor_en"
+    }
+    val topDocs: TopDocs = isearcher.search(new TermQuery(new Term(inDescriptorField, term)), 1)
+    topDocs.scoreDocs.headOption match {
+      case Some(sd) =>
+        val doc: Document = isearcher.storedFields.document(sd.doc)
+        val scopeNoteField: String = tipLang.trim.toLowerCase() match {
+          case "en" => "scopeNote_en"
+          case "es" => "scopeNote_es"
+          case "pt" => "scopeNote_pt"
+          case _ => "scopeNote_en"
+        }
+        val descriptor: String = Option(doc.get(outDescriptorField)).getOrElse("")
+        val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("")
+        val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
+        val decsId: String = Option(doc.get("decs_id")).getOrElse("")
+
+        mark(term, descriptor, scopeNote, decsId, treeNumber, tipLang)
+      case None =>
+        println(s"Nao achou o termo:[$term] termLang:$termLang tipLang:$tipLang")
+        term
     }
   }
 
   private def mark(term: String,
                    descriptor: String,
                    scopeNote: String,
-                   decsId: String): String = {
-    val content: String = s"<b>[$descriptor]</b><br/>$scopeNote"
-    //val content1: String = if (content.size > 90) content.substring(0, 90) + "..." else content
+                   decsId: String,
+                   treeNumber: Option[Array[String]],
+                   language: String): String = {
+    val treeNumberStr: String = treeNumber.map(arr => s"<br/><br/>${arr.mkString("<br/>")}").getOrElse("")
+    val content: String = s"<b>[$descriptor]</b><br/><br/>$scopeNote$treeNumberStr"
+    val lang: String = language match {
+      case "pt" => ""
+      case _ => s"/$language"
+    }
 
-    //s"""<a href="https://decs.bvsalud.org/ths/resource/?id=$decsId" class="text-primary" data-toggle="tooltip" data-bs-html="true" title="$content1" target="_blank">$term</a>"""
-    s"""<a href="https://decs.bvsalud.org/ths/resource/?id=$decsId"
+    s"""<a href="https://decs.bvsalud.org$lang/ths/resource/?id=$decsId&q=$descriptor&filter=ths_exact_term"
        class="tooltip-link"
        data-bs-toggle="tooltip"
        data-bs-html="true"
