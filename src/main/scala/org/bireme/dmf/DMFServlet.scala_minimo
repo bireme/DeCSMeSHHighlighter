@@ -1,0 +1,328 @@
+/*=========================================================================
+
+    DeCSMeSHFinder © Pan American Health Organization, 2020.
+    See License at: https://github.com/bireme/DeCSMeSHFinder/blob/master/LICENSE.txt
+
+  ==========================================================================*/
+
+package org.bireme.dmf
+
+import jakarta.servlet.{ServletConfig, ServletContext}
+import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+
+import java.io.{InputStream, PrintWriter}
+import org.bireme.dh.{Config, Highlighter}
+
+import scala.util.{Failure, Success, Try}
+
+/**
+  * DeCSMeshHighlighter Servlet
+  */
+class DMFServlet extends HttpServlet {
+  private var highlighter: Highlighter = _
+  private var markPrefSuffix: MarkPrefSuffix = _
+  private var translate: Translate = _
+  private var i18n: I18N = _
+  private var annifBaseUrl: String = _
+  private var annifProjectId_pt: String = _
+  private var annifProjectId_es: String = _
+  private var annifProjectId_en: String = _
+
+  /**
+    * Do initial web app configuration
+    * @param config servlet config object
+    */
+  override def init(config: ServletConfig): Unit = {
+    super.init(config)
+
+    val context: ServletContext = config.getServletContext
+    val decsPath:String = context.getInitParameter("DECS_PATH")
+    val decsPrefSufPath:String = context.getInitParameter("DECS_PREFSUF_PATH")
+    val i18nIS: InputStream = context.getResourceAsStream("/i18n.txt")
+
+    highlighter = new Highlighter(decsPath)
+    markPrefSuffix = new MarkPrefSuffix(decsPrefSufPath)
+    translate = new Translate(decsPath)
+    i18n = new I18N(i18nIS)
+    annifBaseUrl = context.getInitParameter("ANNIF_BASE_URL")
+    //annifProjectId = context.getInitParameter("ANNIF_PROJECT_ID")
+    annifProjectId_pt = context.getInitParameter("ANNIF_PROJECT_PT_ID")
+    annifProjectId_es = context.getInitParameter("ANNIF_PROJECT_ES_ID")
+    annifProjectId_en = context.getInitParameter("ANNIF_PROJECT_EN_ID")
+
+    println("DMFServlet is listening ...")
+  }
+
+  /**
+    * Process get http requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  override def doGet(request: HttpServletRequest,
+                     response: HttpServletResponse): Unit = processRequest(request, response)
+
+  /**
+    * Process post http requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  override def doPost(request: HttpServletRequest,
+                      response: HttpServletResponse): Unit = processRequest(request, response)
+
+  /**
+    *  Process get or post requisition
+    * @param request http request object
+    * @param response http response object
+    */
+  private def processRequest(request: HttpServletRequest,
+                             response: HttpServletResponse): Unit = {
+    request.setCharacterEncoding("UTF-8")
+    response.setCharacterEncoding("UTF-8")
+    response.setContentType("text/html;charset=UTF-8")
+
+    Try {
+      val isFirstLoad: Boolean = Option(request.getParameter("isFirstLoad")).map(_.trim) match {
+        case Some(value) => value.toBoolean
+        case None => true
+      }
+      val inputLang: Option[String] = Option(request.getParameter("inputLang")).map(_.trim)
+        .flatMap(par => if (par.isEmpty) None else Some(par))
+      val outLang: Option[String] = Option(request.getParameter("outLang")).map(_.trim)
+        .flatMap(par => if (par.isEmpty) None else Some(par))
+      val termTypes: Seq[String] = Option(request.getParameter("termTypes")).map(_.trim)
+        .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers"))
+      val inputText: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+      val headerLang: String = getHeaderLang(request)
+      val language: String = Option(request.getParameter("lang")).map(_.trim)
+        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
+      val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
+      val containsDescriptors: Boolean = termTypes.contains("Descriptors")
+      val config = Config(
+        scanLang=inputLang, outLang=outLang, scanMainHeadings=containsDescriptors, scanEntryTerms=true,
+        scanQualifiers=termTypes.contains("Qualifiers"), scanPublicationTypes=containsDescriptors,
+        scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
+      )
+      println(s"inputLang=$inputLang outLang=$outLang termTypes=$termTypes inputText=$inputText language=$language useFrequencySort=$useFrequencySort containsDescriptor=$containsDescriptors config=$config")
+      val oLanguage: String = outLang match { //.getOrElse(inputLang.getOrElse("en"))
+        case Some(lang) => if (lang.length == 2) lang else inputLang.getOrElse("en")
+        case None => inputLang.getOrElse("en")
+      }
+      val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
+        //highlighter.highlight(markPrefSuffix.prefSuffix(_,_, termLang=oLanguage, tipLang=language), inputText, config)
+        highlighter.highlight("[", "]",  inputText, config)
+      //println(s"descriptors=$descriptors")
+      val annif: AnnifClient = new AnnifClient(annifBaseUrl)
+      /* val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
+        case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText, limit=Some(15))
+        case Some("es") => annif.getSuggestions(annifProjectId_es, inputText, limit=Some(15))
+        case Some("en") => annif.getSuggestions(annifProjectId_en, inputText, limit=Some(15))
+        case _ => Right(Seq[Suggestion]())
+      } */
+      val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())
+      val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
+      val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term, termLang=oLanguage, tipLang=language))
+      val descr: Seq[String] = descriptors._3.map(_._1)
+      val exportText: String = getExportTermsText(descr, annifTerms, language)
+      val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
+        termTypes, descriptors._1, inputText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
+      val out: PrintWriter = response.getWriter
+      out.println(outputText)
+      out.flush()
+    } match {
+      case Success(_) => ()
+      case Failure(exception) => response.sendError(500, s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.toString}")
+    }
+  }
+
+  private def getAnnifTerms(annifSuggestions: Either[String, Seq[Suggestion]],
+                            inputLang: Option[String],
+                            outputLang: Option[String]): Seq[String] = {
+    val annifTerms: Seq[String] = annifSuggestions.map(y => y.map(x => x.term)) match {
+      case Right(terms) => inputLang match {
+        case Some(iLang) =>
+          val iLang2: String = if (iLang.equals("All languages")) "pt" else iLang
+          val outLang: String = outputLang match {
+            case Some(oLang) => if (oLang.equals("Same of the text")) iLang2 else oLang
+            case None => iLang
+          }
+
+          translate.translate(terms, outLang) match {
+            case Right(translated) => translated
+            case Left(_) => terms
+          }
+        case None => terms
+      }
+      case Left(error) => Seq(s"ERROR: $error")
+    }
+    annifTerms
+  }
+
+  private def getExportTermsText(descriptors: Seq[String],
+                                 annifTerms: Seq[String],
+                                 language: String): String = {
+    val buffer = new StringBuilder()
+
+    buffer.append(s"=== ${i18n.translate("Extracted descriptors", language)} ===")
+    descriptors.foreach(descr => buffer.append(s"\\n$descr"))
+
+    buffer.append(s"\\n\\n=== ${i18n.translate("Terms identified by AI", language)} ===")
+    annifTerms.foreach(term => buffer.append(s"\\n$term"))
+    buffer.toString()
+  }
+
+  /**
+    *
+    * @param request HttpServletRequest object
+    * @return the desired input/output language according to the request header Accept-Language
+    */
+  private def getHeaderLang(request: HttpServletRequest): String = {
+    val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
+    val langs: Array[String] = header.split(",|;")
+
+    langs.find {
+      lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
+    }.getOrElse("pt")
+  }
+
+  private def getHtml(inputLang: String,          // Language of the text entered by user
+                      outLang: String,            // Language of the terms to be used in the found terms
+                      termTypes: Seq[String],     // Descriptors and/or Qualifiers
+                      markedInputText: String,    // Text entered by the user and with it's terms marked with tooltips
+                      originalInputText: String,  // Text entered by the user
+                      language: String,           // Language used in the interface
+                      annifText: String,          // Terms identified by Annif and marked with tooltip
+                      exportText: String,         // Text put in the export file
+                      useFrequencySort: Boolean,
+                      isFirstLoad: Boolean): String = {
+    s"""
+<!DOCTYPE html>
+<html lang="""" + language + """">
+<head>
+	<meta charset="UTF-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>DeCSMeSH Finder - Advanced</title>
+	<link rel="stylesheet" href="decsf/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="decsf/css/fontawesome/css/all.css"/>
+	<link rel="stylesheet" href="decsf/css/bootstrap-select.css"/>
+	<link rel="stylesheet" href="decsf/css/accessibility.css"/>
+	<link rel="stylesheet" href="decsf/css/style.css"/>
+  <link rel="shortcut icon" href="decsf/img/favicon.png"/>
+</head>
+
+<body>
+	<script type="text/javascript">
+
+		function submitPage(plang, tOrder) {
+     alert("Entrando no submitPage()");
+     var inputText0 = document.getElementById('textWithTooltips').textContent;
+     var inputText = if (inputText0.includes("tooltip-link")) """" + originalInputText + """;" else  inputText0;
+
+     /*alert("inputText=" + inputText);
+     var inputLang = document.getElementById("inputTextLanguage").value;
+     var outputLang = document.getElementById("outputTextLanguage").value;
+
+//alert("plang=[" + plang + "]");
+      var pageLang = """" + language + """";
+      var language;
+      if (plang === "") language = pageLang;
+      else language = plang;
+
+      var useFreqSort;
+      if (tOrder === "") useFreqSort = """ + useFrequencySort.toString + """; else useFreqSort = tOrder;
+
+			var termTypes = new Array();
+      var trTypes = document.getElementById("termTypes");
+      var i;
+      var count = 0;
+
+      for (i = 0; i < trTypes.options.length; i++) {
+        if (trTypes.options[i].selected) {
+          termTypes[count] = trTypes.options[i].value;
+          count = count + 1
+        }
+      }
+      var form = document.createElement("form");
+      form.setAttribute("method", "post");
+      form.setAttribute("action", "dmf");
+      form.acceptCharset = "UTF-8";
+
+      var hiddenField1 = document.createElement("input");
+      hiddenField1.setAttribute("type", "hidden");
+      hiddenField1.setAttribute("name", "inputLang");
+      hiddenField1.setAttribute("value", inputLang);
+      form.appendChild(hiddenField1);
+
+      var hiddenField2 = document.createElement("input");
+      hiddenField2.setAttribute("type", "hidden");
+      hiddenField2.setAttribute("name", "outLang");
+      hiddenField2.setAttribute("value", outputLang);
+      form.appendChild(hiddenField2);
+
+      var hiddenField3 = document.createElement("input");
+      hiddenField3.setAttribute("type", "hidden");
+      hiddenField3.setAttribute("name", "inputText");
+      hiddenField3.setAttribute("value", inputText);
+      form.appendChild(hiddenField3);
+
+      var termTypesStr = "";
+			for (i = 0; i < termTypes.length; i++) {
+        if (i > 0) {
+          termTypesStr = termTypesStr + "|";
+        }
+        termTypesStr = termTypesStr + termTypes[i];
+      }
+
+      var hiddenField4 = document.createElement("input");
+      hiddenField4.setAttribute("type", "hidden");
+      hiddenField4.setAttribute("name", "termTypes");
+      hiddenField4.setAttribute("value", termTypesStr);
+      form.appendChild(hiddenField4);
+
+      var hiddenField5 = document.createElement("input");
+      hiddenField5.setAttribute("type", "hidden");
+      hiddenField5.setAttribute("name", "lang");
+      hiddenField5.setAttribute("value", language);
+      form.appendChild(hiddenField5);
+
+      var hiddenField6 = document.createElement("input");
+      hiddenField6.setAttribute("type", "hidden");
+      hiddenField6.setAttribute("name", "isFirstLoad");
+      hiddenField6.setAttribute("value", "false");
+      form.appendChild(hiddenField6);
+
+
+      document.body.appendChild(form);
+
+      form.submit(); */
+		}
+	</script>
+
+	<header id="header">
+		<div class="container">
+			<div class="row" style="position: relative;">
+				<div id="language" style="z-index: 1">
+          <a href="#" onclick='submitPage("en", "");'>English</a>
+          <a href="#" onclick='submitPage("es", "");'>Español</a>
+          <a href="#" onclick='submitPage("pt", "");'>Português</a>
+          <a href="#" onclick='submitPage("fr", "");'>Français</a>
+				</div>
+			</div>
+		</div>
+	</header>
+
+  <script src="decsf/js/jquery-3.4.1.min.js"></script>
+	<script src="decsf/js/bootstrap.bundle.min.js"></script>
+	<script src="decsf/js/bootstrap-select.js"></script>
+	<script src="decsf/js/cookie.js"></script>
+	<script src="decsf/js/accessibility.js"></script>
+	<script src="decsf/js/main.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
+    """
+  }
+}

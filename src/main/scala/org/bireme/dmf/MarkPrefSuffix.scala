@@ -44,7 +44,7 @@ class MarkPrefSuffix(decsPath: String) {
           case _ => "scopeNote_en"
         }
         val descriptor: String = Option(doc.get(descriptorField)).getOrElse("")
-        val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("")
+        val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("").replace('"', '\'')
         val decsId: String = Option(doc.get("decs_id")).getOrElse("")
         val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
 
@@ -81,7 +81,7 @@ class MarkPrefSuffix(decsPath: String) {
           case _ => "scopeNote_en"
         }
         val descriptor: String = Option(doc.get(outDescriptorField)).getOrElse("")
-        val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("")
+        val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("").replace('"', '\'')
         val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
         val decsId: String = Option(doc.get("decs_id")).getOrElse("")
 

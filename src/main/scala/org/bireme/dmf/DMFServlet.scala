@@ -13,12 +13,11 @@ import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletRespons
 import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
 
-import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 /**
-  * DeCSMeshHighlighter Servlet
-  */
+ * DeCSMeshHighlighter Servlet
+ */
 class DMFServlet extends HttpServlet {
   private var highlighter: Highlighter = _
   private var markPrefSuffix: MarkPrefSuffix = _
@@ -29,19 +28,10 @@ class DMFServlet extends HttpServlet {
   private var annifProjectId_es: String = _
   private var annifProjectId_en: String = _
 
-  /*
-  private val yellowSquare = "\uD83D\uDFE8"  // Quadrado Amarelo
-  private val redSquare = "\uD83D\uDFE5"     // Quadrado Vermelho
-  private val greenSquare = "\uD83D\uDFE9"   // Quadrado Verde
-  private val blueSquare = "\uD83D\uDFE6"    // Quadrado Azul
-  private val orangeSquare = "\uD83D\uDFE7"  // Quadrado Laranja
-  private val purpleSquare = "\uD83D\uDFEA"  // Quadrado Roxo
-  */
-
   /**
-    * Do initial web app configuration
-    * @param config servlet config object
-    */
+   * Do initial web app configuration
+   * @param config servlet config object
+   */
   override def init(config: ServletConfig): Unit = {
     super.init(config)
 
@@ -64,26 +54,26 @@ class DMFServlet extends HttpServlet {
   }
 
   /**
-    * Process get http requisition
-    * @param request http request object
-    * @param response http response object
-    */
+   * Process get http requisition
+   * @param request http request object
+   * @param response http response object
+   */
   override def doGet(request: HttpServletRequest,
                      response: HttpServletResponse): Unit = processRequest(request, response)
 
   /**
-    * Process post http requisition
-    * @param request http request object
-    * @param response http response object
-    */
+   * Process post http requisition
+   * @param request http request object
+   * @param response http response object
+   */
   override def doPost(request: HttpServletRequest,
                       response: HttpServletResponse): Unit = processRequest(request, response)
 
   /**
-    *  Process get or post requisition
-    * @param request http request object
-    * @param response http response object
-    */
+   *  Process get or post requisition
+   * @param request http request object
+   * @param response http response object
+   */
   private def processRequest(request: HttpServletRequest,
                              response: HttpServletResponse): Unit = {
     request.setCharacterEncoding("UTF-8")
@@ -101,7 +91,7 @@ class DMFServlet extends HttpServlet {
         .flatMap(par => if (par.isEmpty) None else Some(par))
       val termTypes: Seq[String] = Option(request.getParameter("termTypes")).map(_.trim)
         .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers"))
-      val inputText: String = Option(request.getParameter("inputText")).map(it => removeUnderlines(it.trim)).getOrElse("")
+      val inputText: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
       val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
         .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
@@ -112,29 +102,29 @@ class DMFServlet extends HttpServlet {
         scanQualifiers=termTypes.contains("Qualifiers"), scanPublicationTypes=containsDescriptors,
         scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
       )
+      //println(s"inputLang=$inputLang outLang=$outLang termTypes=$termTypes inputText=$inputText language=$language useFrequencySort=$useFrequencySort containsDescriptor=$containsDescriptors config=$config")
       val oLanguage: String = outLang match { //.getOrElse(inputLang.getOrElse("en"))
         case Some(lang) => if (lang.length == 2) lang else inputLang.getOrElse("en")
         case None => inputLang.getOrElse("en")
       }
       val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
         highlighter.highlight(markPrefSuffix.prefSuffix(_,_, termLang=oLanguage, tipLang=language), inputText, config)
-
-        //highlighter.highlight("«", "»", inputText, config)
-        //highlighter.highlight(inputText, config)
+        //highlighter.highlight("[", "]",  inputText, config)
+      //println(s"descriptors=$descriptors")
       val annif: AnnifClient = new AnnifClient(annifBaseUrl)
-      val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
+       val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
         case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText, limit=Some(15))
         case Some("es") => annif.getSuggestions(annifProjectId_es, inputText, limit=Some(15))
         case Some("en") => annif.getSuggestions(annifProjectId_en, inputText, limit=Some(15))
         case _ => Right(Seq[Suggestion]())
       }
+      //val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())
       val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
       val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term, termLang=oLanguage, tipLang=language))
       val descr: Seq[String] = descriptors._3.map(_._1)
-      val termsText: String = descr.mkString("\n")
       val exportText: String = getExportTermsText(descr, annifTerms, language)
       val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
-        termTypes, replaceOpenCloseTags(descriptors._1), termsText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
+        termTypes, descriptors._1, inputText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
       val out: PrintWriter = response.getWriter
       out.println(outputText)
       out.flush()
@@ -181,10 +171,10 @@ class DMFServlet extends HttpServlet {
   }
 
   /**
-    *
-    * @param request HttpServletRequest object
-    * @return the desired input/output language according to the request header Accept-Language
-    */
+   *
+   * @param request HttpServletRequest object
+   * @return the desired input/output language according to the request header Accept-Language
+   */
   private def getHeaderLang(request: HttpServletRequest): String = {
     val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
     val langs: Array[String] = header.split(",|;")
@@ -194,36 +184,19 @@ class DMFServlet extends HttpServlet {
     }.getOrElse("pt")
   }
 
-  private def replaceOpenCloseTags(in: String): String = {
-    val openTag: String = "«"
-    val closeTag: String = "»"
-
-    val regex: Regex = s"$openTag(.+?)$closeTag".r
-
-    regex.replaceAllIn(in, m => putUnderlines(m.group(1)))
-  }
-
-  private def putUnderlines(in: String): String = {
-    val underlined: String = in.map(c => s"$c\u0332").mkString
-
-    underlined
-  }
-
-  private def removeUnderlines(in: String): String = {
-    // Remove o caractere de sublinhado (\u0332) da string
-    in.filterNot(_ == '\u0332')
-  }
-
-  private def getHtml(inputLang: String,
-                      outLang: String,
-                      termTypes: Seq[String],
-                      inputText: String,
-                      termsText: String,
-                      language: String,
-                      annifText: String,
-                      exportText: String,
+  private def getHtml(inputLang: String,          // Language of the text entered by user
+                      outLang: String,            // Language of the terms to be used in the found terms
+                      termTypes: Seq[String],     // Descriptors and/or Qualifiers
+                      markedInputText: String,    // Text entered by the user and with it's terms marked with tooltips
+                      originalInputText: String,  // Text entered by the user
+                      language: String,           // Language used in the interface
+                      annifText: String,          // Terms identified by Annif and marked with tooltip
+                      exportText: String,         // Text put in the export file
                       useFrequencySort: Boolean,
                       isFirstLoad: Boolean): String = {
+
+    //println(s"originalInputText=[${Option(originalInputText).getOrElse("<vazio>")}]")
+
     val warningMessage: String = language match {
       case "en" => "Find ideal descriptors with DeCS Finder IA.\nSimplify the indexing of your texts with artificial intelligence. DeCS Finder IA, developed by BIREME, identifies DeCS/MeSH descriptors for your content quickly and precisely.\nTry it now and boost your search!"
       case "es" => "Encuentre los descriptores ideales con DeCS Finder IA.\nSimplifique la indización de sus textos con inteligencia artificial. DeCS Finder IA, desarrollado por BIREME, identifica descriptores DeCS/MeSH para su contenido de forma rápida y precisa.\n¡Pruébelo ahora y potencie su búsqueda!"
@@ -232,10 +205,13 @@ class DMFServlet extends HttpServlet {
       case _ => "Find ideal descriptors with DeCS Finder IA.\nSimplify the indexing of your texts with artificial intelligence. DeCS Finder IA, developed by BIREME, identifies DeCS/MeSH descriptors for your content quickly and precisely.\nTry it now and boost your search!"
     }
 
-    """
+    s"""
 <!DOCTYPE html>
 <html lang="""" + language + """">
+
 <head>
+  <!-- script type="text/javascript"> alert(`inputLang="${inputLang}"\n\n outLang="${outLang}"\n\n termTypes="${termTypes}"\n\n markedInputText="${markedInputText}"\n\n originalInputText="${originalInputText}" \n\n language="${language}"\n\n annifText="${annifText}"\n\n exportText="${exportText}"\n\n useFrequencySort="${useFrequencySort}"\n\n isFirstLoad="${isFirstLoad}"`)</script -->
+
   <!-- Google tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-DBPY4Q6HT8"></script>
         <script>
@@ -246,50 +222,50 @@ class DMFServlet extends HttpServlet {
             gtag('config', 'G-DBPY4Q6HT8');
         </script>
 
-	<meta charset="UTF-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<title>DeCSMeSH Finder - Advanced</title>
-	<link rel="stylesheet" href="decsf/css/bootstrap.min.css">
-	<link rel="stylesheet" href="decsf/css/fontawesome/css/all.css">
-	<link rel="stylesheet" href="decsf/css/bootstrap-select.css">
-	<link rel="stylesheet" href="decsf/css/accessibility.css">
-	<link rel="stylesheet" href="decsf/css/style.css">
-  <link rel="shortcut icon" href="decsf/img/favicon.png">
+	<link rel="stylesheet" href="decsf/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="decsf/css/fontawesome/css/all.css"/>
+	<link rel="stylesheet" href="decsf/css/bootstrap-select.css"/>
+	<link rel="stylesheet" href="decsf/css/accessibility.css"/>
+	<link rel="stylesheet" href="decsf/css/style.css"/>
+  <link rel="shortcut icon" href="decsf/img/favicon.png"/>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
-        /* Estilos para a caixa de diálogo */
-        #modal {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
+      /* Estilos para a caixa de diálogo */
+      #modal {
+          display: none;
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          justify-content: center;
+          align-items: center;
+      }
 
-        #modal-content {
-            background-color: #669966;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-            color: white;
-            max-width: 100ch;
-        }
+      #modal-content {
+          background-color: #669966;
+          padding: 20px;
+          border-radius: 5px;
+          text-align: center;
+          color: white;
+          max-width: 100ch;
+      }
 
-        #close-btn {
-            margin-top: 10px;
-        }
+      #close-btn {
+          margin-top: 10px;
+      }
     </style>
 
     <style>
-      #textWithTooltips{
+      #textWithTooltips {
         display: block;
         width: 100%;
         height: 200px;
@@ -311,11 +287,11 @@ class DMFServlet extends HttpServlet {
         outline: 0;
         box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
       }
-      #textWithTooltips a{
+      #textWithTooltips a {
         cursor: pointer;
       }
 
-      #textWithTooltipsAnnif{
+      #textWithTooltipsAnnif {
         display: block;
         width: 100%;
         height: 200px;
@@ -337,7 +313,7 @@ class DMFServlet extends HttpServlet {
         outline: 0;
         box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
       }
-      #textWithTooltipsAnnif a{
+      #textWithTooltipsAnnif a {
         cursor: pointer;
       }
     </style>
@@ -354,6 +330,7 @@ class DMFServlet extends HttpServlet {
         }
     </style>
 </head>
+
 <body>
 	<script type="text/javascript">
 		function clearTextAreas() {
@@ -368,16 +345,19 @@ class DMFServlet extends HttpServlet {
 
 		function submitPage(plang, tOrder) {
      //alert("Entrando no submitPage()");
-     var inputText = document.getElementById("textWithTooltips").textContent;
-     //alert("textWithTooltips=" + document.getElementById("textWithTooltips").textContent);
+     var inputText0 = document.getElementById('textWithTooltips').textContent;
+     //alert("inputText0=[" + inputText0 + "]");
+     //alert("originalInputText=['""" + originalInputText + """']");
+     var inputText = inputText0.includes("tooltip-link") ? "" : inputText0;
+     //alert("inputText=[" + inputText + "]");
      var inputLang = document.getElementById("inputTextLanguage").value;
      var outputLang = document.getElementById("outputTextLanguage").value;
 
-//alert("plang=[" + plang + "]");
-      var pageLang = """" + language + """";
-      var language;
-      if (plang === "") language = pageLang;
-      else language = plang;
+     //alert("plang=[" + plang + "]");
+     var pageLang = """" + language + """";
+     var language;
+     if (plang === "") language = pageLang;
+     else language = plang;
 
       var useFreqSort;
       if (tOrder === "") useFreqSort = """ + useFrequencySort.toString + """; else useFreqSort = tOrder;
@@ -472,7 +452,7 @@ class DMFServlet extends HttpServlet {
     function exportTerms() {
         //alert("entrando no exportTerms");
 
-        let expoText = '""" + exportText + """';
+        let expoText = """" + exportText + """";
 
         if (expoText != null && expoText.trim() !== "")  {
           const now = new Date();
@@ -510,7 +490,7 @@ class DMFServlet extends HttpServlet {
 		<div class="container">
 			<div class="row" style="position: relative;">
         <div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.png" alt="" class="imgBlack"></a>
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.png" alt="" class="imgBlack"/></a>
 				</div>
 				<div id="language" style="z-index: 1">
           <a href="#" onclick='submitPage("en", "");'>English</a>
@@ -518,9 +498,6 @@ class DMFServlet extends HttpServlet {
           <a href="#" onclick='submitPage("pt", "");'>Português</a>
           <a href="#" onclick='submitPage("fr", "");'>Français</a>
 				</div>
-				<!--div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
-				</div-->
 			</div>
 		</div>
 	</header>
@@ -565,7 +542,7 @@ class DMFServlet extends HttpServlet {
             <div class="form-group col-md-12">
                 <label>""" + i18n.translate("Paste your text below", language) + """:</label>
                 <div style="display: flex; align-items: flex-start;">
-                    <div id="textWithTooltips" class="p-3 border rounded" spellcheck="false" contenteditable="""" + (if (inputText.trim.isEmpty) "true" else "false")+ """">""" + inputText + """</div>
+                    <div id="textWithTooltips" class="p-3 border rounded" spellcheck="false" contenteditable="""" + (if (markedInputText.trim.isEmpty) "true" else "false")+ """">""" + markedInputText + """</div>
                     <div class="btn-group" role="group" aria-label="Basic example" style="display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;">
                         <button type="button" class="btn btn-success" title='""" + i18n.translate("Search", language) + """'
                             onclick='submitPage("", ""); gtag("event", "button_click", {
@@ -609,7 +586,7 @@ class DMFServlet extends HttpServlet {
     </div>
   </main>
 
-  <!--div class="container">
+  <!-- div class="container">
 		<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			<div id="disclaimer">
 				<p><strong><i class="fas fa-exclamation-triangle"></i></strong>  """ + i18n.translate("Notice", language) + """</p>
@@ -619,23 +596,23 @@ class DMFServlet extends HttpServlet {
 			</button>
 			<div class="disclaimerTransparente"></div>
 		</div>
-	</div-->
+	</div  -->
 
   <footer id="footer" class="padding1">
       <div class="container">
           <div class="row">
               <div class="col-md-5">
-                  <b>DeCS Finder IA</b> <br>
+                  <b>DeCS Finder IA</b> <br/>
                   <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
                   <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
               </div>
               <div class="col-md-7 text-right">""" +
-                  (language match {
-                    case "es" => "<a href=\"https://www.bireme.org/es/home-espanol/\" target=\"_blank\">"
-                    case "pt" => "<a href=\"https://www.bireme.org/\" target=\"_blank\">"
-                    case _ => "<a href=\"https://www.bireme.org/en/home-english/\" target=\"_blank\">"
-                  }) + """
-                  <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid">
+      (language match {
+        case "es" => "<a href=\"https://www.bireme.org/es/home-espanol/\" target=\"_blank\">"
+        case "pt" => "<a href=\"https://www.bireme.org/\" target=\"_blank\">"
+        case _ => "<a href=\"https://www.bireme.org/en/home-english/\" target=\"_blank\">"
+      }) + """
+                  <img src="http://logos.bireme.org/img/""" + language + """/h_bir_white.svg" alt="" class="img-fluid" />
                 </a>
               </div>
           </div>
@@ -663,9 +640,9 @@ class DMFServlet extends HttpServlet {
             submitPage("", "")
 
         });
-    </script>
+  </script>
 
-    <script>
+  <script>
         // Captura o evento de mudança no select
         document.getElementById('outputTextLanguage').addEventListener('change', function() {
             // Obtém o valor selecionado
@@ -685,9 +662,9 @@ class DMFServlet extends HttpServlet {
             // Resubmit pagina para atualizar a mudança da lingua
             submitPage("", "")
         });
-    </script>
+  </script>
 
-    <script>
+  <script>
       // Captura o evento de mudança no select
       document.getElementById('termTypes').addEventListener('change', function() {
           // Obtém todas as opções selecionadas
@@ -713,7 +690,7 @@ class DMFServlet extends HttpServlet {
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">DeCS Finder IA</h5>
+          <h5 class="modal-title" id="exampleModalLabel">DeCS Finder</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
