@@ -105,13 +105,14 @@ class MarkPrefSuffix(decsPath: String) {
       case _ => s"/$language"
     }
 
-    s"""<a href="https://decs.bvsalud.org$lang/ths/resource/?id=$decsId&q=$descriptor&filter=ths_exact_term"
+    val ret = s"""<a href="https://decs.bvsalud.org$lang/ths/resource/?id=$decsId&q=$descriptor&filter=ths_exact_term"
        class="tooltip-link"
        data-bs-toggle="tooltip"
        data-bs-html="true"
        title="$content"
-       target="_blank">
-      $term
-    </a>"""
+       target="_blank">$term</a>"""
+
+    //println(s"term=$term ret=$ret")
+    ret
   }
 }

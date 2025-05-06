@@ -124,6 +124,7 @@ class DMFServlet extends HttpServlet {
       val descr: Seq[String] = descriptors._3.map(_._1)
       val exportText: String = getExportTermsText(descr, annifTerms, language)
       val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
+        //termTypes, descriptors._1, inputText, language, "aqui termos Annif", exportText, useFrequencySort, isFirstLoad)
         termTypes, descriptors._1, inputText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
       val out: PrintWriter = response.getWriter
       out.println(outputText)
@@ -345,11 +346,19 @@ class DMFServlet extends HttpServlet {
 
 		function submitPage(plang, tOrder) {
      //alert("Entrando no submitPage()");
-     var inputText0 = document.getElementById('textWithTooltips').textContent;
+     //alert("originalInputText=[""" + originalInputText + """]");
+     var inputText0 = document.getElementById('textWithTooltips').innerHTML;
+     var inputText1 = document.getElementById('textWithTooltips').textContent;
      //alert("inputText0=[" + inputText0 + "]");
-     //alert("originalInputText=['""" + originalInputText + """']");
-     var inputText = inputText0.includes("tooltip-link") ? "" : inputText0;
+
+     var inputText= "";
+     if (inputText.includes("tooltip-link")) {
+      inputText = '""" + originalInputText + """';
+     } else {
+       inputText = inputText1;
+     }
      //alert("inputText=[" + inputText + "]");
+
      var inputLang = document.getElementById("inputTextLanguage").value;
      var outputLang = document.getElementById("outputTextLanguage").value;
 
