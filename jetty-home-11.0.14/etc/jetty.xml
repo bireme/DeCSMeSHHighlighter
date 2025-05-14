@@ -111,4 +111,10 @@
     <Set name="dumpAfterStart" property="jetty.server.dumpAfterStart"/>
     <Set name="dumpBeforeStop" property="jetty.server.dumpBeforeStop"/>
 
+    <Call name="setAttribute">
+      <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+      <!-- -1 means “no limit” -->
+      <Arg>-1</Arg>
+    </Call>
+
 </Configure>

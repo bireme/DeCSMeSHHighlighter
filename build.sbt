@@ -8,9 +8,11 @@ val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
 val luceneVersion = "9.12.1" //"9.8.0"
 val tikaVersion = /*"2.5.0"*/ "3.0.0-BETA2"
-val sttpVersion = "4.0.0-RC2" //"4.0.0-M17"
+val sttpVersion = "4.0.3" //4.0.0-RC2"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
-val circeVersion = "0.14.12"
+val circeVersion = "0.14.13"
+val jsoupVersion = "1.20.1"
+val linguaVersion = "1.2.2"
 
 libraryDependencies ++= Seq(
   "jakarta.servlet" % "jakarta.servlet-api" % jakartaServletApiVersion % "provided",
@@ -24,6 +26,8 @@ libraryDependencies ++= Seq(
   "com.softwaremill.sttp.client4" %% "core" % sttpVersion,
   "com.softwaremill.sttp.client4" %% "circe" % sttpVersion,
   "io.circe" %% "circe-generic" % circeVersion,
+  "org.jsoup" % "jsoup" % jsoupVersion,
+  "com.github.pemistahl" % "lingua" % linguaVersion,
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
 )

@@ -7,11 +7,14 @@
 
 package org.bireme.dmf
 
+import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 import jakarta.servlet.{ServletConfig, ServletContext}
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 
 import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 import scala.util.{Failure, Success, Try}
 
@@ -81,93 +84,137 @@ class DMFServlet extends HttpServlet {
     response.setContentType("text/html;charset=UTF-8")
 
     Try {
+      val breakSignal: String = "!__break__!"
       val isFirstLoad: Boolean = Option(request.getParameter("isFirstLoad")).map(_.trim) match {
         case Some(value) => value.toBoolean
         case None => true
       }
-      val inputLang: Option[String] = Option(request.getParameter("inputLang")).map(_.trim)
-        .flatMap(par => if (par.isEmpty) None else Some(par))
       val outLang: Option[String] = Option(request.getParameter("outLang")).map(_.trim)
         .flatMap(par => if (par.isEmpty) None else Some(par))
       val termTypes: Seq[String] = Option(request.getParameter("termTypes")).map(_.trim)
         .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers"))
-      val inputText: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+      val inputText000: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+      val inputText00: String = inputText000.replaceAll("(\r?\n\r?|<br>|<div>|<section>|<article>|<header>|<footer>|<nav>|<aside>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<p>|<pre>|<blockquote>|<ul>|<ol>|<li>|" +
+        "<form>|<fieldset>|<legend>|<table>|<caption>|<thead>|<tbody>|<tfoot>|<tr>|<th>|<td>|<figure>|<figcaption>|<hr>|<main>|<address>|<canvas>|<video>)", breakSignal)
+      val inputText0: String = if (inputText00.startsWith(breakSignal)) inputText00.substring(breakSignal.length) else inputText00
+      //println(s"inputText0=$inputText0")
+      val doc: Document = Jsoup.parse(inputText0)
+      val inputText: String = doc.body().text().trim
+      //println(s"inputText=$inputText")
       val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
         .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
-      val containsDescriptors: Boolean = termTypes.contains("Descriptors")
-      val config = Config(
-        scanLang=inputLang, outLang=outLang, scanMainHeadings=containsDescriptors, scanEntryTerms=true,
-        scanQualifiers=termTypes.contains("Qualifiers"), scanPublicationTypes=containsDescriptors,
-        scanCheckTags=containsDescriptors, scanGeographics=containsDescriptors
-      )
-      //println(s"inputLang=$inputLang outLang=$outLang termTypes=$termTypes inputText=$inputText language=$language useFrequencySort=$useFrequencySort containsDescriptor=$containsDescriptors config=$config")
-      val oLanguage: String = outLang match { //.getOrElse(inputLang.getOrElse("en"))
-        case Some(lang) => if (lang.length == 2) lang else inputLang.getOrElse("en")
-        case None => inputLang.getOrElse("en")
-      }
-      val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
-        highlighter.highlight(markPrefSuffix.prefSuffix(_,_, termLang=oLanguage, tipLang=language), inputText, config)
+
+      val outputText: String = if (inputText.isEmpty) {
+        getHtml(inputLang="", outLang="Same of the text", termTypes, markedInputText="", inputText, language,
+          annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
+      } else {
+        val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
+          case "" => "All languages"
+          case "All languages" =>
+            val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
+            val detectedLanguage: Language = detector.detectLanguageOf(inputText)
+            println(s"detectedLanguage=${detectedLanguage.name()}")
+            val lang: String = detectedLanguage.name() match {
+              case "ENGLISH" => "en"
+              case "FRENCH" => "fr"
+              case "PORTUGUESE" => "pt"
+              case "SPANISH" => "es"
+              case _ => "en"
+            }
+            //println(s"lang=$lang")
+            lang
+          case "en" => "en"
+          case "fr" => "fr"
+          case "pt" => "pt"
+          case "es" => "es"
+          case _ => "en"
+        }
+        //println(s"inputLang=$inputLang")
+
+        val containsDescriptors: Boolean = termTypes.contains("Descriptors")
+        val config = Config(
+          scanLang = Some(inputLang), outLang = outLang, scanMainHeadings = containsDescriptors, scanEntryTerms = true,
+          scanQualifiers = termTypes.contains("Qualifiers"), scanPublicationTypes = containsDescriptors,
+          scanCheckTags = containsDescriptors, scanGeographics = containsDescriptors
+        )
+        //println(s"inputLang=$inputLang outLang=$outLang termTypes=$termTypes inputText=[$inputText] language=$language useFrequencySort=$useFrequencySort containsDescriptor=$containsDescriptors config=$config")
+        val oLanguage: String = outLang match { //.getOrElse(inputLang.getOrElse("en"))
+          case Some(lang) => if (lang.length == 2) lang else inputLang
+          case None => inputLang
+        }
+        val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
+          highlighter.highlight(markPrefSuffix.prefSuffix(_, _, termLang = oLanguage, tipLang = language), inputText, config)
         //highlighter.highlight("[", "]",  inputText, config)
-      //println(s"descriptors=$descriptors")
-      val annif: AnnifClient = new AnnifClient(annifBaseUrl)
-       val annifSuggestions: Either[String, Seq[Suggestion]] = inputLang match {
-        case Some("pt") => annif.getSuggestions(annifProjectId_pt, inputText, limit=Some(15))
-        case Some("es") => annif.getSuggestions(annifProjectId_es, inputText, limit=Some(15))
-        case Some("en") => annif.getSuggestions(annifProjectId_en, inputText, limit=Some(15))
-        case _ => Right(Seq[Suggestion]())
+        //println(s"descriptors=${descriptors._1}")
+        val annif: AnnifClient = new AnnifClient(annifBaseUrl)
+        val annifSuggestions: Either[String, Seq[AnnifSuggestion]] = inputLang match {
+          case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(15))
+          case "es" => annif.getSuggestions(annifProjectId_es, inputText, limit = Some(15))
+          case "en" => annif.getSuggestions(annifProjectId_en, inputText, limit = Some(15))
+          case _ => Right(Seq[AnnifSuggestion]())
+        }
+        //val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())
+        val annifTerms: Seq[(String, Option[String])] = getAnnifTerms(annifSuggestions, Some(inputLang), outLang).getOrElse(Seq[(String, Option[String])]())
+        val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term._1, termLang = oLanguage, tipLang = language))
+        //val descr: Seq[String] = descriptors._3.map(_._1)
+        val descr: Seq[(String,String)] = descriptors._2.map(t => (t._3, t._5))
+        val exportText: String = getExportTermsText(descr, annifTerms, language)
+
+        //inputText.foreach(ch => println(s"[$ch]=${ch.toInt}"))
+        //println(s"Antes de chamar o getHtml.\ninputText=[$inputText]\ninputText.replace=[${inputText.replace("\n", "<br>")}]")
+        getHtml(inputLang, oLanguage,
+          //termTypes, descriptors._1, inputText, language, "aqui termos Annif", exportText, useFrequencySort, isFirstLoad)
+          termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br>"), language, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
       }
-      //val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())
-      val annifTerms: Seq[String] = getAnnifTerms(annifSuggestions, inputLang, outLang)
-      val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term, termLang=oLanguage, tipLang=language))
-      val descr: Seq[String] = descriptors._3.map(_._1)
-      val exportText: String = getExportTermsText(descr, annifTerms, language)
-      val outputText: String = getHtml(inputLang.getOrElse("pt"), outLang.getOrElse("Same of the text"),
-        //termTypes, descriptors._1, inputText, language, "aqui termos Annif", exportText, useFrequencySort, isFirstLoad)
-        termTypes, descriptors._1, inputText, language, annifTermsPrefSuf.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
+      //println(s"markedInputText=[${descriptors._1.replace(breakSignal, "<br/>")}]")
       val out: PrintWriter = response.getWriter
       out.println(outputText)
       out.flush()
+      //println("======================================================================================")
     } match {
       case Success(_) => ()
       case Failure(exception) => response.sendError(500, s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.toString}")
     }
   }
 
-  private def getAnnifTerms(annifSuggestions: Either[String, Seq[Suggestion]],
+  private def getAnnifTerms(annifSuggestions: Either[String, Seq[AnnifSuggestion]],
                             inputLang: Option[String],
-                            outputLang: Option[String]): Seq[String] = {
-    val annifTerms: Seq[String] = annifSuggestions.map(y => y.map(x => x.term)) match {
-      case Right(terms) => inputLang match {
+                            outputLang: Option[String]): Either[String, Seq[(String, Option[String])]] = {
+    val annifTerms: Either[String, Seq[(String, Option[String])]] = annifSuggestions match {
+      case Right(suggestions) => inputLang match {
         case Some(iLang) =>
-          val iLang2: String = if (iLang.equals("All languages")) "pt" else iLang
+          val iLang2: String = if (iLang.equals("All languages")) "en" else iLang
           val outLang: String = outputLang match {
             case Some(oLang) => if (oLang.equals("Same of the text")) iLang2 else oLang
             case None => iLang
           }
-
-          translate.translate(terms, outLang) match {
-            case Right(translated) => translated
-            case Left(_) => terms
+          val res: Seq[(String, Option[String])] = suggestions.foldLeft(Seq[(String, Option[String])]()) {
+            case (seq, suggestion) =>
+              translate.translate(suggestion.label, outLang) match {
+                case Right(translated) => seq.appended((translated, suggestion.notation))
+                case Left(_) => seq
+              }
           }
-        case None => terms
+          Right(res)
+        case None => Right(Seq[(String, Option[String])]())
       }
-      case Left(error) => Seq(s"ERROR: $error")
+      case Left(error) => Left(error)
     }
     annifTerms
   }
 
-  private def getExportTermsText(descriptors: Seq[String],
-                                 annifTerms: Seq[String],
+  private def getExportTermsText(descriptors: Seq[(String, String)],
+                                 annifTerms: Seq[(String, Option[String])],
                                  language: String): String = {
     val buffer = new StringBuilder()
 
     buffer.append(s"=== ${i18n.translate("Extracted descriptors", language)} ===")
-    descriptors.foreach(descr => buffer.append(s"\\n$descr"))
+    descriptors.foreach { case (id, descr) => buffer.append(s"\\n$descr [${id.toUpperCase()}]")}
 
     buffer.append(s"\\n\\n=== ${i18n.translate("Terms identified by AI", language)} ===")
-    annifTerms.foreach(term => buffer.append(s"\\n$term"))
+    annifTerms.foreach { case (descr, id) => buffer.append(s"\\n$descr [${id.getOrElse("").toUpperCase()}]")}
     buffer.toString()
   }
 
@@ -188,7 +235,7 @@ class DMFServlet extends HttpServlet {
   private def getHtml(inputLang: String,          // Language of the text entered by user
                       outLang: String,            // Language of the terms to be used in the found terms
                       termTypes: Seq[String],     // Descriptors and/or Qualifiers
-                      markedInputText: String,    // Text entered by the user and with it's terms marked with tooltips
+                      markedInputText: String,    // Text entered by the user and with its terms marked with tooltips
                       originalInputText: String,  // Text entered by the user
                       language: String,           // Language used in the interface
                       annifText: String,          // Terms identified by Annif and marked with tooltip
@@ -196,6 +243,7 @@ class DMFServlet extends HttpServlet {
                       useFrequencySort: Boolean,
                       isFirstLoad: Boolean): String = {
 
+    //println(s"markedInputText=[${Option(markedInputText).getOrElse("<vazio>")}]")
     //println(s"originalInputText=[${Option(originalInputText).getOrElse("<vazio>")}]")
 
     val warningMessage: String = language match {
@@ -342,20 +390,20 @@ class DMFServlet extends HttpServlet {
       textWithTooltips.setAttribute("contenteditable", "true");
       textWithTooltipsAnnif.textContent = "";
       textWithTooltipsAnnif.setAttribute("contenteditable", "true");
+      submitPage("", "");
 		}
 
 		function submitPage(plang, tOrder) {
      //alert("Entrando no submitPage()");
      //alert("originalInputText=[""" + originalInputText + """]");
      var inputText0 = document.getElementById('textWithTooltips').innerHTML;
-     var inputText1 = document.getElementById('textWithTooltips').textContent;
      //alert("inputText0=[" + inputText0 + "]");
 
      var inputText= "";
-     if (inputText.includes("tooltip-link")) {
-      inputText = '""" + originalInputText + """';
+     if (inputText0.includes("tooltip-link")) {
+      inputText = `""" + originalInputText.replace("`", "'") + """`;
      } else {
-       inputText = inputText1;
+       inputText = inputText0;
      }
      //alert("inputText=[" + inputText + "]");
 
@@ -517,7 +565,7 @@ class DMFServlet extends HttpServlet {
 				<div class="form-group col-md-4">
 					<label for="">""" + i18n.translate("Language of your text", language) + """:</label>
 					<select name="" id="inputTextLanguage" class="form-control">
-						<!--option value="All languages" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option-->
+						<option value="All languages" """ + (if (inputLang.equals("All languages")) "selected=\"\"" else "") + """>""" + i18n.translate("I don't know", language) + """</option>
 						<option value="en" """ + (if (inputLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
 						<option value="es" """ + (if (inputLang.equals("es")) "selected=\"\"" else "") + """>""" + i18n.translate("Spanish", language) + """</option>
 						<option value="pt" """ + (if (inputLang.equals("pt")) "selected=\"\"" else "") + """>""" + i18n.translate("Portuguese", language) + """</option>
@@ -691,7 +739,7 @@ class DMFServlet extends HttpServlet {
               console.error('Google Analytics não está disponível.');
           }
           // Resubmit pagina para atualizar a mudança da lingua
-          submitPage("", "")
+          submitPage("", "");
       });
   </script>
 
@@ -727,6 +775,25 @@ class DMFServlet extends HttpServlet {
             });
         });
     </script>
+
+    <script>
+      //alert("Entrando no script do textWithTooltips");
+      const el = document.getElementById('textWithTooltips');
+
+      el.addEventListener('paste', (e) => {
+        // extrai apenas o texto colado
+        const pastedText = e.clipboardData.getData('text');
+        onPaste(el, pastedText);
+      });
+
+      function onPaste(el, text) {
+        //alert('Texto colado:' + text);
+        // coloque aqui sua lógica
+        el.innerHTML = text;
+        submitPage("", "");
+      }
+    </script>
+
 </body>
 </html>
     """

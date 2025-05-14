@@ -22,10 +22,10 @@ class AnnifClient(baseAnnifUrl: String) {
 
   def listProjects(): Either[String, String] = {
     val backend = HttpURLConnectionBackend()
-    val request = basicRequest
+    val request: Request[Either[String, String]] = basicRequest
       .get(uri"$baseAnnifUrl/v1/projects")
 
-    val response = request.send(backend)
+    val response: Response[Either[String, String]] = request.send(backend)
 
     response.body
   }
@@ -34,7 +34,7 @@ class AnnifClient(baseAnnifUrl: String) {
                      text: String,
                      limit: Option[Int] = None,
                      threshold: Option[Float] = None,
-                     language: Option[String] = None): Either[String, Seq[Suggestion]] = {
+                     language: Option[String] = None): Either[String, List[AnnifSuggestion]] = {
     val formData: mutable.Map[String, String] = mutable.Map("text" -> text)
     if (limit.isDefined) formData.addOne("limit", limit.get.toString)
     if (threshold.isDefined) formData.addOne("threshold", threshold.get.toString)
@@ -53,7 +53,8 @@ class AnnifClient(baseAnnifUrl: String) {
     response1.body match {
       case Left(error) => Left(error.toString.replaceAll("\'", "").replaceAll("\"", "\'"))
       case Right(annifResponse) =>
-        Right(annifResponse.results.map(suggestion => Suggestion(term=suggestion.label, score=suggestion.score)))
+        //Right(annifResponse.results.map(suggestion => Suggestion(term=suggestion.label, score=suggestion.score)))
+        Right(annifResponse.results)
     }
   }
 }
@@ -66,8 +67,8 @@ object AnnifClientApp extends App {
     case Right(projects) => println(projects)
     case Left(error) => println(s"Error: $error")
   }
-  ac.getSuggestions("omikuji-decs", "as mulheres do brasil tem crianças com dengue") match {
-    case Right(suggestions) => suggestions.foreach(suggestion => println(s"term=${suggestion.term} score=${suggestion.score}"))
+  ac.getSuggestions(project_id = "omikuji-decs", text = "as mulheres do brasil tem crianças com dengue") match {
+    case Right(suggestions) => suggestions.foreach(suggestion => println(s"term=${suggestion.label} score=${suggestion.score}"))
     case Left(error) => println(s"Error: $error")
   }
 }
