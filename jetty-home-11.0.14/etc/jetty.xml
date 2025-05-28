@@ -113,8 +113,7 @@
 
     <Call name="setAttribute">
       <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
-      <!-- -1 means “no limit” -->
-      <Arg>-1</Arg>
+      <Arg>8388608</Arg>
     </Call>
 
 </Configure>

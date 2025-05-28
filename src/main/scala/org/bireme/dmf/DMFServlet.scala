@@ -94,12 +94,15 @@ class DMFServlet extends HttpServlet {
       val termTypes: Seq[String] = Option(request.getParameter("termTypes")).map(_.trim)
         .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers"))
       val inputText000: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+      //println(s"inputText000=$inputText000")
       val inputText00: String = inputText000.replaceAll("(\r?\n\r?|<br>|<div>|<section>|<article>|<header>|<footer>|<nav>|<aside>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<p>|<pre>|<blockquote>|<ul>|<ol>|<li>|" +
         "<form>|<fieldset>|<legend>|<table>|<caption>|<thead>|<tbody>|<tfoot>|<tr>|<th>|<td>|<figure>|<figcaption>|<hr>|<main>|<address>|<canvas>|<video>)", breakSignal)
       val inputText0: String = if (inputText00.startsWith(breakSignal)) inputText00.substring(breakSignal.length) else inputText00
       //println(s"inputText0=$inputText0")
       val doc: Document = Jsoup.parse(inputText0)
       val inputText: String = doc.body().text().trim
+
+      require(inputText.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]")
       //println(s"inputText=$inputText")
       val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
@@ -107,7 +110,7 @@ class DMFServlet extends HttpServlet {
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
 
       val outputText: String = if (inputText.isEmpty) {
-        getHtml(inputLang="", outLang="Same of the text", termTypes, markedInputText="", inputText, language,
+        getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes, markedInputText="", inputText, language,
           annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
       } else {
         val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
@@ -175,7 +178,14 @@ class DMFServlet extends HttpServlet {
       //println("======================================================================================")
     } match {
       case Success(_) => ()
-      case Failure(exception) => response.sendError(500, s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.toString}")
+      case Failure(exception: Throwable) =>
+        exception.printStackTrace()
+        val errMess: String = exception match {
+          case _: java.lang.StackOverflowError => s"Oops, it seems that your text is too long!"
+          case _ => s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.getMessage}!"
+        }
+
+        response.sendError(500, errMess)
     }
   }
 
@@ -378,6 +388,17 @@ class DMFServlet extends HttpServlet {
             background-color: #f39c12 !important; /* Cor da seta */
         }
     </style>
+
+    <style>
+      #header img {
+        margin-top: 10px;
+      }
+
+      #header {
+        padding-bottom: 10px;
+      }
+    </style>
+
 </head>
 
 <body>
@@ -547,7 +568,7 @@ class DMFServlet extends HttpServlet {
 		<div class="container">
 			<div class="row" style="position: relative;">
         <div class="col-12">
-					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/logo-green-""" + language + """.png" alt="" class="imgBlack"/></a>
+					<a href="javascript:submitPageToSite('""" + language + """');"><img src="decsf/img/decs-finder-color-""" + language + """.svg" alt="" class="imgBlack"/></a>
 				</div>
 				<div id="language" style="z-index: 1">
           <a href="#" onclick='submitPage("en", "");'>English</a>
@@ -575,7 +596,7 @@ class DMFServlet extends HttpServlet {
 				<div class="form-group col-md-4">
 					<label for="">""" + i18n.translate("Language of the terms", language) + """:</label>
 					<select name="" id="outputTextLanguage" class="form-control">
-            <option value="Same of the text" """ + (if (outLang.equals("Same of the text")) "selected=\"\"" else "") + """>""" + i18n.translate("The same found in the text", language) + """</option>
+            <!-- option value="Same of the text" """ + (if (outLang.equals("Same of the text")) "selected=\"\"" else "") + """>""" + i18n.translate("The same found in the text", language) + """</option-->
 						<option value="en" """ + (if (outLang.equals("en")) "selected=\"\"" else "") + """>""" + i18n.translate("English", language) + """</option>
 						<option value="es" """ + (if (outLang.equals("es")) "selected=\"\"" else "") + """>""" + i18n.translate("Spanish", language) + """</option>
 						<option value="pt" """ + (if (outLang.equals("pt")) "selected=\"\"" else "") + """>""" + i18n.translate("Portuguese", language) + """</option>
