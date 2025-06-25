@@ -38,6 +38,12 @@
         <param-value>omikuji-decs-en</param-value>
     </context-param>
 
+    <context-param>
+        <description>Ollama Client Host</description>
+        <param-name>OLLAMA_HOST</param-name>
+        <param-value>186.209.156.70</param-value>
+    </context-param>
+
     <servlet>
         <servlet-name>DMFSiteServlet</servlet-name>
         <servlet-class>org.bireme.dmf.DMFSiteServlet</servlet-class>

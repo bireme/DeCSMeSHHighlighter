@@ -183,7 +183,8 @@ class DMFSiteServlet extends HttpServlet {
                   <a href="#" onclick='submitPage("fr", false);'>Français</a>
                </div>
                <div id="brand" class="col-md-12 text-center">
-                  <img src="siteDeCSf/img/logo-""" + language + """.svg" alt="DeCSMeshFinder">
+                  <!-- img src="siteDeCSf/img/logo-""" + language + """.svg" alt="DeCSMeshFinder" -->
+                  <img src="siteDeCSf/img/decs-finder-color-""" + language + """.svg" alt="DeCSMeshFinder">
                </div>
             </div>
             <div class="row">
@@ -231,7 +232,7 @@ class DMFSiteServlet extends HttpServlet {
          <div class="container" id="main_container">
             <div class="row">
                <div class="col-md-12">
-                  <h2 class="title1 text-center">""" + i18n.translate("Why use DeCS/MeSH Finder", language) + """?</h2>
+                  <h2 class="title1 text-center">""" + i18n.translate("Why use DeCS Finder", language) + """?</h2>
                   <hr class="default_divider default_divider2">
                   <p>""" + i18n.translate("Determining the keywords", language) + """</p>
                   <br>
@@ -255,12 +256,12 @@ class DMFSiteServlet extends HttpServlet {
                   </ul>
                   <div class="tab-content" id="featureContent">
                      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <p>""" + i18n.translate("The basic DeCS/MeSH Finder interface", language) + """</p>
+                        <p>""" + i18n.translate("The basic DeCS Finder interface", language) + """</p>
                         <!--a href="dmhw?lang=""" + language + """" target="_blank" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a-->
                         <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a>
                      </div>
                      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <p>""" + i18n.translate("The advanced interface of DeCS/MeSH Finder", language) + """</p>
+                        <p>""" + i18n.translate("The advanced interface of DeCS Finder", language) + """</p>
                         <!--a href="dmhw?lang=""" + language + """" target="_blank" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a-->
                         <a href="javascript:submitPage('""" + language + """', true);" class="btn btn-lg btn-outline-success">""" + i18n.translate("Try it now", language) + """</a>
                      </div>
@@ -283,13 +284,13 @@ class DMFSiteServlet extends HttpServlet {
                         <div class="card-header" id="headingOne">
                            <h2 class="mb-0">
                               <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                              """ + i18n.translate("How does DeCS/MeSH Finder find terms", language) + """?
+                              """ + i18n.translate("How does DeCS Finder find terms", language) + """?
                               </button>
                            </h2>
                         </div>
                         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              """ + i18n.translate("DeCS/MeSH Finder goes through each word", language) + """
+                              """ + i18n.translate("DeCS Finder goes through each word", language) + """
                            </div>
                         </div>
                      </div>
@@ -297,13 +298,13 @@ class DMFSiteServlet extends HttpServlet {
                         <div class="card-header" id="headingTwo">
                            <h2 class="mb-0">
                               <button class="btn btn-link btn-block text-left Finder" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                              """ + i18n.translate("Is DeCS/MeSH Finder free to use", language) + """?
+                              """ + i18n.translate("Is DeCS Finder free to use", language) + """?
                               </button>
                            </h2>
                         </div>
                         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionFAQ">
                            <div class="card-body">
-                              """ + i18n.translate("Yes, using DeCS/MeSH Finder is free", language) + """
+                              """ + i18n.translate("Yes, using DeCS Finder is free", language) + """
                            </div>
                         </div>
                      </div>
@@ -311,7 +312,7 @@ class DMFSiteServlet extends HttpServlet {
                         <div class="card-header" id="headingThree">
                            <h2 class="mb-0">
                               <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                              """ + i18n.translate("Who are the main users of DeCS/MeSH Finder", language) + """?
+                              """ + i18n.translate("Who are the main users of DeCS Finder", language) + """?
                               </button>
                            </h2>
                         </div>
@@ -348,7 +349,7 @@ class DMFSiteServlet extends HttpServlet {
                              """ + i18n.translate("Your web pages", language) + """
                              <br/><br/>
                              <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
-                             <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%20Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """</a>
+                             <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%20Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS Finder Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS Finder Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS Finder Online Service", language) + """</a>
                              <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
                            </div>
                         </div>
@@ -366,7 +367,7 @@ class DMFSiteServlet extends HttpServlet {
                               """ + i18n.translate("Your documents may have the terms DeCS/MeSH found", language) + """
                               <br/><br/>
                               <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
-                              <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS/MeSH Finder Online Service", language) + """</a>
+                              <a class="btn btn-outline-light lz_text_link" href="javascript:void(window.open('//contacto.bvsalud.org/chat.php?operator=morimarc&group=DeCSMeSH%Finder&hg=Pw__&ptl=""" + (if (language.equals("fr")) "en" else language) + """&hcgs=MQ__&htgs=MQ__&hinv=MQ__&hfk=MQ__&ovltwo=MQ__','','width=400,height=600,left=0,top=0,resizable=yes,menubar=no,location=no,status=yes,scrollbars=yes'))" alt="LiveZilla Live Chat Software" data-text-online="""" + i18n.translate("DeCS Finder Online Service", language) + """" data-text-offline="""" + i18n.translate("DeCS Finder Online Service", language) + """" data-css-online="" data-css-offline="" data-online-only="0">""" + i18n.translate("DeCS Finder Online Service", language) + """</a>
                               <!-- livezilla.net PLACE WHERE YOU WANT TO SHOW TEXT LINK -->
                            </div>
                            </div>
@@ -396,7 +397,7 @@ class DMFSiteServlet extends HttpServlet {
           <div class="container">
               <div class="row">
                   <div class="col-md-5">
-                      <b>DeCS/MeSH Finder</b> <br>
+                      <b>DeCS Finder</b> <br>
                       <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
                       <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
                   </div>

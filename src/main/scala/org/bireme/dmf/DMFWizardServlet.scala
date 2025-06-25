@@ -106,13 +106,14 @@ class DMFWizardServlet extends HttpServlet {
     <meta charset="UTF-8">
     <meta name="autor" content=" BIREME | OPAS | OMS - > Márcio Alves">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeCS/MeSH Finder - Wizard</title>
+    <title>DeCS Finder - Wizard</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
     <link rel="stylesheet" href="wizardDeCSF/css/bootstrap.min.css">
     <link rel="stylesheet" href="wizardDeCSF/css/wizard.css">
     <link rel="stylesheet" href="wizardDeCSF/css/accessibility.css">
     <link rel="stylesheet" href="wizardDeCSF/css/style.css">
     <link rel="shortcut icon" href="wizardDeCSF/img/favicon.png">
+
 </head>
 <body onload="initialClean()">
 <script type="text/javascript">
@@ -251,7 +252,8 @@ class DMFWizardServlet extends HttpServlet {
                 <a href="#" onclick='submitPage("fr", false);'>Français</a>
 				    </div>
 				    <div class="col-12" id="logoDeCS">
-					      <a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSF/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a>
+					      <!-- a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSF/img/logo-green-""" + language + """.svg" alt="" class="imgBlack"></a -->
+                <a href="javascript:submitPageToSite('""" + language + """');"><img src="wizardDeCSF/img/decs-finder-color-""" + language + """.svg" alt="" class="imgBlack"></a>
 				    </div>
 		    </div>
 		</div>
@@ -260,15 +262,11 @@ class DMFWizardServlet extends HttpServlet {
     <div class="row">
         <div class="col-md-4">
             <h3 class="title">""" + i18n.translate("Choose one of the options below to identify the DeCS/MeSH terms in your text", language) + """.</h3>
-            <!--div class="btn-group">
-                <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success">""" + i18n.translate("SIMPLE", language) + """</a>
-                <a href="#" class="btn btn-lg btn-outline-success" onclick='submitPage("""" + language + """", true, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
-            </div-->
             <div class="btn-group">
               <!-- Botão SIMPLE -->
-              <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success" id="simpleButton">""" + i18n.translate("SIMPLE", language) + """</a>
+              <a href="#modalWizard" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-lg btn-success" id="simpleButton"><b>""" + i18n.translate("SIMPLE", language) + """</b></a>
               <!-- Botão ADVANCED -->
-              <a href="#" class="btn btn-lg btn-outline-success" id="advancedButton" onclick='submitPage("""" + language + """", true, true)'>""" + i18n.translate("ADVANCED", language) + """</a>
+              <a href="#" class="btn btn-lg btn-outline-success" id="advancedButton" onclick='submitPage("""" + language + """", true, true)'><b>""" + i18n.translate("ADVANCED", language) + """</b></a>
             </div>
         </div>
         <div class="col-md-8">
@@ -280,7 +278,7 @@ class DMFWizardServlet extends HttpServlet {
     <div class="container">
         <div class="row">
             <div class="col-md-5">
-                <b>DeCS/MeSH Finder</b> <br>
+                <b>DeCS Finder</b> <br>
                 <a href="http://politicas.bireme.org/terminos/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Terms and conditions of use", language) + """</a>
 					      <a href="http://politicas.bireme.org/privacidad/""" + (if (language.equals("fr")) "en" else language) + """" target="_blank">""" + i18n.translate("Privacy policy", language) + """</a>
             </div>

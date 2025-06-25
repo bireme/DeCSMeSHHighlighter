@@ -26,7 +26,6 @@ class DMFServlet extends HttpServlet {
   private var markPrefSuffix: MarkPrefSuffix = _
   private var translate: Translate = _
   private var i18n: I18N = _
-  private var ollamaHost: String = _
   private var annifBaseUrl: String = _
   private var annifProjectId_pt: String = _
   private var annifProjectId_es: String = _
@@ -48,7 +47,6 @@ class DMFServlet extends HttpServlet {
     markPrefSuffix = new MarkPrefSuffix(decsPrefSufPath)
     translate = new Translate(decsPath)
     i18n = new I18N(i18nIS)
-    ollamaHost = context.getInitParameter("OLLAMA_HOST")
     annifBaseUrl = context.getInitParameter("ANNIF_BASE_URL")
     //annifProjectId = context.getInitParameter("ANNIF_PROJECT_ID")
     annifProjectId_pt = context.getInitParameter("ANNIF_PROJECT_PT_ID")
@@ -85,8 +83,6 @@ class DMFServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8")
     response.setContentType("text/html;charset=UTF-8")
 
-    //println("entrando no processRequest")
-
     Try {
       val breakSignal: String = "!__break__!"
       val isFirstLoad: Boolean = Option(request.getParameter("isFirstLoad")).map(_.trim) match {
@@ -108,39 +104,38 @@ class DMFServlet extends HttpServlet {
 
       require(inputText.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]")
       //println(s"inputText=$inputText")
-
-      val showSR: Boolean = Option(request.getParameter("showSR")).exists(_.toBoolean)
-      //println(s"processRequest. showSR=$showSR")
       val headerLang: String = getHeaderLang(request)
       val language: String = Option(request.getParameter("lang")).map(_.trim)
         .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
-      lazy val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
-        case "" => "All languages"
-        case "All languages" =>
-          val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
-          val detectedLanguage: Language = detector.detectLanguageOf(inputText)
-          //println(s"detectedLanguage=${detectedLanguage.name()}")
-          val lang: String = detectedLanguage.name() match {
-            case "ENGLISH" => "en"
-            case "FRENCH" => "fr"
-            case "PORTUGUESE" => "pt"
-            case "SPANISH" => "es"
-            case _ => "en"
-          }
-          //println(s"lang=$lang")
-          lang
-        case "en" => "en"
-        case "fr" => "fr"
-        case "pt" => "pt"
-        case "es" => "es"
-        case _ => "en"
-      }
-      //println(s"inputLang=$inputLang")
+
       val outputText: String = if (inputText.isEmpty) {
         getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes, markedInputText="", inputText, language,
-          srText="", annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
+          annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
       } else {
+        val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
+          case "" => "All languages"
+          case "All languages" =>
+            val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
+            val detectedLanguage: Language = detector.detectLanguageOf(inputText)
+            println(s"detectedLanguage=${detectedLanguage.name()}")
+            val lang: String = detectedLanguage.name() match {
+              case "ENGLISH" => "en"
+              case "FRENCH" => "fr"
+              case "PORTUGUESE" => "pt"
+              case "SPANISH" => "es"
+              case _ => "en"
+            }
+            //println(s"lang=$lang")
+            lang
+          case "en" => "en"
+          case "fr" => "fr"
+          case "pt" => "pt"
+          case "es" => "es"
+          case _ => "en"
+        }
+        //println(s"inputLang=$inputLang")
+
         val containsDescriptors: Boolean = termTypes.contains("Descriptors")
         val config = Config(
           scanLang = Some(inputLang), outLang = outLang, scanMainHeadings = containsDescriptors, scanEntryTerms = true,
@@ -154,25 +149,9 @@ class DMFServlet extends HttpServlet {
         }
         val descriptors: (String, Seq[(Int, Int, String, String, String, String)], Seq[(String, Int, Double)]) =
           highlighter.highlight(markPrefSuffix.prefSuffix(_, _, termLang = oLanguage, tipLang = language), inputText, config)
-        //println(s"descriptors=$descriptors")
+        println(s"descriptors=$descriptors")
         //highlighter.highlight("[", "]",  inputText, config)
         //println(s"descriptors=${descriptors._1}")
-        val srText: String = {
-          if (showSR) {
-            val ollamaClient: OllamaClient = new OllamaClient(ollamaHost, None)
-            val ollamaModel: Option[String] = inputLang match {
-              case "pt" => Some("sr-v1-pt")
-              case "es" => Some("sr-v1-es")
-              case "en" => Some("sr-v1-en")
-              case _ => None
-            }
-            if (ollamaModel.isEmpty || (inputText.length < 80)) "<Input text is too small.>"
-            else ollamaClient.chat(inputText, ollamaModel.get) match {
-              case Success(value) => translateText(ollamaClient, value, textLanguage=inputLang, language)
-              case Failure(exception) => s"SuperResumos error: ${exception.getMessage}"
-            }
-          } else ""
-        }
         val annif: AnnifClient = new AnnifClient(annifBaseUrl)
         val annifSuggestions: Either[String, Seq[AnnifSuggestion]] = inputLang match {
           case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(15))
@@ -188,9 +167,10 @@ class DMFServlet extends HttpServlet {
         val exportText: String = getExportTermsText(descr, annifTerms, language)
 
         //inputText.foreach(ch => println(s"[$ch]=${ch.toInt}"))
-        //println(s"Antes de chamar o getHtml. srText=[$srText]")
-        getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br>"),
-          language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
+        //println(s"Antes de chamar o getHtml.\ninputText=[$inputText]\ninputText.replace=[${inputText.replace("\n", "<br>")}]")
+        getHtml(inputLang, oLanguage,
+          //termTypes, descriptors._1, inputText, language, "aqui termos Annif", exportText, useFrequencySort, isFirstLoad)
+          termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br>"), language, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
       }
       //println(s"markedInputText=[${descriptors._1.replace(breakSignal, "<br/>")}]")
       val out: PrintWriter = response.getWriter
@@ -263,47 +243,12 @@ class DMFServlet extends HttpServlet {
     }.getOrElse("pt")
   }
 
-  private def translateText(ollamaClient: OllamaClient,
-                            text: String,
-                            textLanguage: String,
-                            targetLanguage: String): String = {
-    val languages: Set[String] = Set("pt", "en", "es", "fr")
-    //println(s"entrando no translateText textLanguage=$textLanguage targetLanguage=$targetLanguage")
-    if (text.trim.isEmpty|| !languages.contains(targetLanguage) || targetLanguage.equals(textLanguage)) text
-    else {
-      val idioma: String = targetLanguage match {
-        case "pt" => "portugues"
-        case "es" => "espanhol"
-        case "en" => "ingles"
-        case _ => "frances"
-      }
-      val prompt: String = s"Dado o seguinte texto de entrada traduza-o para o $idioma retornando como resposta unicamente o texto traduzido: $text"
-
-      //println(s"prompt=$prompt")
-      ollamaClient.chat(prompt, "llama3.2") match {
-        case Success(output) =>
-          output.indexOf(":") match {
-            case i if i <= 0 => output
-            case i =>
-              val out: String = output.substring(i + 1).trim
-              if (out.head == '"' && out.length > 2) out.substring(1, out.length - 1)
-              else out
-          }
-        case Failure(exception) =>
-          exception.printStackTrace()
-          //println(exception.toString)
-          text
-      }
-    }
-  }
-
   private def getHtml(inputLang: String,          // Language of the text entered by user
                       outLang: String,            // Language of the terms to be used in the found terms
                       termTypes: Seq[String],     // Descriptors and/or Qualifiers
                       markedInputText: String,    // Text entered by the user and with its terms marked with tooltips
                       originalInputText: String,  // Text entered by the user
                       language: String,           // Language used in the interface
-                      srText: String,             // SuperResumos text
                       annifText: String,          // Terms identified by Annif and marked with tooltip
                       exportText: String,         // Text put in the export file
                       useFrequencySort: Boolean,
@@ -387,7 +332,7 @@ class DMFServlet extends HttpServlet {
       #textWithTooltips {
         display: block;
         width: 100%;
-        height: """ + (if (srText.isEmpty) "calc(100vh - 406px);" else "calc(100vh - 575px);") + """
+        height: calc(100vh - 406px);
         padding: .375rem .75rem;
         font-size: 1rem;
         font-weight: 400;
@@ -541,10 +486,7 @@ class DMFServlet extends HttpServlet {
       //alert("Conteúdo do arquivo:\n" + text);
       var textWithTooltips = document.getElementById("textWithTooltips");
 	    textWithTooltips.textContent = text;
-      var inputTextLanguage = document.getElementById('inputTextLanguage')
-      inputTextLanguage.value = "All languages"
-
-      submitPage(``, """" + language + """", "false");
+      submitPage("", """" + language + """");
     };
   </script>
 
@@ -557,16 +499,16 @@ class DMFServlet extends HttpServlet {
     const url = document.getElementById('url-input').value;
     document.getElementById('custom-dialog').style.display = 'none';
 
-    //alert("Abrir: " + url);
+    alert("Abrir: " + url);
     if (url.length > 0) {
-      //alert("Vou chamar fetchTextOrPDFContent");
+      alert("Vou chamar fetchTextOrPDFContent");
       fetchTextOrPDFContent(url)
       .then(conteudo => {
-        //alert("conteúdo = " + conteudo);
+        alert("conteúdo = " + conteudo);
         var textWithTooltips = document.getElementById("textWithTooltips");
 	      textWithTooltips.textContent = conteudo.substring(0, 190000);
 
-        submitPage(``, """" + inputLang + """", "false");
+        submitPage("", """" + inputLang + """");
       })
       .catch(err => {
         alert("Download error: " + err);
@@ -692,15 +634,14 @@ class DMFServlet extends HttpServlet {
       """ + LanguageTags.languageArea(inputLang, outLang, termTypes, language, i18n) + """
 
       <!-- MAIN AREAS -->
-      """ + MainAreas.inputOutputAreas("Paste your text below", markedInputText.trim, originalInputText, srText, annifText, exportText, language, i18n) + """
+      """ + MainAreas.inputOutputAreas("Paste your text below", markedInputText.trim, originalInputText, annifText, exportText, language, i18n) + """
   </div>
   <!-- FOOTER -->
   """ + Footer.footer(language, i18n) + """
 
   <script>
-        // Captura o evento de mudança no select
+          // Captura o evento de mudança no select
         document.getElementById('inputTextLanguage').addEventListener('change', function() {
-            //alert("evento de mudança no select do inputTextLanguage");
             // Obtém o valor selecionado
             var selectedLanguage = this.value;
 
@@ -716,7 +657,7 @@ class DMFServlet extends HttpServlet {
                 console.error('Google Analytics não está disponível.');
             }
             // Resubmit pagina para atualizar a mudança da lingua
-            submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+            submitPage("""" + originalInputText + """", """" + language + """");
         });
   </script>
 
@@ -738,7 +679,7 @@ class DMFServlet extends HttpServlet {
                 console.error('Google Analytics não está disponível.');
             }
             // Resubmit pagina para atualizar a mudança da lingua
-            submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+            submitPage("""" + originalInputText + """", """" + language + """");
         });
   </script>
 
@@ -760,7 +701,7 @@ class DMFServlet extends HttpServlet {
               console.error('Google Analytics não está disponível.');
           }
           // Resubmit pagina para atualizar a mudança da lingua
-          submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+          submitPage("""" + originalInputText + """", """" + language + """");
       });
   </script>
 
@@ -812,7 +753,7 @@ class DMFServlet extends HttpServlet {
         //alert('Texto colado:' + text);
         // coloque aqui sua lógica
         el.innerHTML = text;
-        submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+        submitPage("""" + originalInputText + """", """" + language + """");
       }
     </script>
 </body>

@@ -8,11 +8,14 @@ val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
 val luceneVersion = "9.12.1" //"9.8.0"
 val tikaVersion = /*"2.5.0"*/ "3.0.0-BETA2"
-val sttpVersion = "4.0.3" //4.0.0-RC2"
+val sttpVersion = "4.0.9" //4.0.0-RC2"
+val scalaTagsVersion = "0.13.1"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
-val circeVersion = "0.14.13"
-val jsoupVersion = "1.20.1"
+val circeVersion = "0.14.14"
+val jsoupVersion = "1.21.1"
 val linguaVersion = "1.2.2"
+val ollama4jVersion = "1.0.100"
+val playJsonVersion = "2.10.6"
 
 libraryDependencies ++= Seq(
   "jakarta.servlet" % "jakarta.servlet-api" % jakartaServletApiVersion % "provided",
@@ -25,9 +28,12 @@ libraryDependencies ++= Seq(
   //"org.apache.tika" % "tika-langdetect" % tikaVersion pomOnly(),
   "com.softwaremill.sttp.client4" %% "core" % sttpVersion,
   "com.softwaremill.sttp.client4" %% "circe" % sttpVersion,
+  "com.lihaoyi" %% "scalatags" % scalaTagsVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "org.jsoup" % "jsoup" % jsoupVersion,
+  "io.github.ollama4j" % "ollama4j" % ollama4jVersion,
   "com.github.pemistahl" % "lingua" % linguaVersion,
+  "com.typesafe.play" %% "play-json" % playJsonVersion,
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
 )
