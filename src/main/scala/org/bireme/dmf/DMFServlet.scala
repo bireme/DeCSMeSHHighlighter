@@ -115,12 +115,13 @@ class DMFServlet extends HttpServlet {
       val language: String = Option(request.getParameter("lang")).map(_.trim)
         .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
+      //println("inputLang0=" + request.getParameter("inputLang"))
       lazy val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
         case "" => "All languages"
         case "All languages" =>
           val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
           val detectedLanguage: Language = detector.detectLanguageOf(inputText)
-          //println(s"detectedLanguage=${detectedLanguage.name()}")
+          println(s"detectedLanguage=${detectedLanguage.name()}")
           val lang: String = detectedLanguage.name() match {
             case "ENGLISH" => "en"
             case "FRENCH" => "fr"

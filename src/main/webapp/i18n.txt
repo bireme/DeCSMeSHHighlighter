@@ -47,8 +47,8 @@ Privacy policy|Privacy Policy|Política de Privacidad|Política de Privacidade|P
 # ============================================================================
 
 Choose one of the options below to identify the DeCS/MeSH terms in your text|Choose one of the options below to identify the DeCS/MeSH terms in your text|Elija una de las opciones siguientes para identificar los términos DeCS/MeSH en su texto|Escolha uma das opções abaixo para identificar os termos DeCS/MeSH em seu texto|Choisissez l'une des options ci-dessous pour identifier les termes DeCS/MeSH dans votre texte
-SIMPLE|For beginners|Para principiantes|Para iniciantes|Pour les débutants
-ADVANCED|Advanced users|Usuarios avanzados|Usuários Avançados|Utilisateurs avancés
+SIMPLE|Beginner users|Usuarios principiantes|Usuários iniciantes|Utilisateurs débutants
+ADVANCED|Advanced users|Usuarios avanzados|Usuários avançados|Utilisateurs avancés
 Answer the following questions|Answer the following questions|Responda las siguientes preguntas|Responda às seguintes perguntas|Répondez aux questions suivantes
 What is the language of your text|What is the language of your text|¿Cuál es el idioma de tu texto|Qual é o idioma do seu texto|Quelle est la langue de votre texte
 Select|Select|Seleccione|Selecione|Sélectionnez l'une des options

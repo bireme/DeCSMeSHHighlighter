@@ -133,11 +133,12 @@ class DMFWizardServlet extends HttpServlet {
     }
 
     function submitPage(plang, useAllTermTypes, leaveWizard) {
-//alert("Entrando no submitPage() useAllTermTypes=[" + useAllTermTypes + "]");
+//alert("Entrando no submitPage() plang=[" + plang + "] useAllTermTypes=[" + useAllTermTypes + "] leaveWizard=[" + leaveWizard + "] language=[`""" + language + """`]");
         var inputText = document.getElementById("text1").value;
         var inputLang = document.getElementById("select1").value;
         var outputLang = document.getElementById("select2").value;
 
+//alert("inputLang=[" + inputLang + "] outputLang=[" + outputLang + "]");
         var pageLang = """" + language + """";
         var language;
         if (plang === "") language = pageLang;
@@ -311,7 +312,7 @@ class DMFWizardServlet extends HttpServlet {
                     <div class="col-12">
                         <select name="" id="select1" class="form-control wizardColor">
                             <option value="" disabled="" selected data-toggle="collapse" data-target="#etapa2">""" + i18n.translate("Select", language) + """</option>
-                            <option value="All Languages">""" + i18n.translate("I don't know", language) + """</option>
+                            <option value="All languages">""" + i18n.translate("I don't know", language) + """</option>
                             <option value="en">""" + i18n.translate("English", language) + """</option>
                             <option value="es">""" + i18n.translate("Spanish", language) + """</option>
                             <option value="pt">""" + i18n.translate("Portuguese", language) + """</option>
@@ -359,7 +360,7 @@ class DMFWizardServlet extends HttpServlet {
                     <div class="col-12">
                         <select name="" id="select2" class="form-control wizardColor2">
                             <option value="" disabled="" selected>""" + i18n.translate("Select", language) + """</option>
-                            <option value="All Languages">""" + i18n.translate("The same found in the text", language) + """</option>
+                            <option value="All languages">""" + i18n.translate("The same found in the text", language) + """</option>
                             <option value="en">""" + i18n.translate("English", language) + """</option>
                             <option value="es">""" + i18n.translate("Spanish", language) + """</option>
                             <option value="pt">""" + i18n.translate("Portuguese", language) + """</option>

@@ -1,7 +1,7 @@
 $('#select1').on('change', function () {
     var selected = $(this).val()
     //if ($(this).val() == "English") {
-    if ((selected == "All Languages") || (selected == "en") ||
+    if ((selected == "All languages") || (selected == "en") ||
         (selected == "es") || (selected == "pt") || (selected == "fr")) {
         $('#etapa1').hide();
         $('#etapa2').show();
@@ -21,7 +21,7 @@ $('#btEtapa2').on('click', function () {
 $('#select2').on('change', function () {
     var selected = $(this).val()
         //if ($(this).val() == "English") {
-    if ((selected == "All Languages") || (selected == "en") ||
+    if ((selected == "All languages") || (selected == "en") ||
         (selected == "es") || (selected == "pt") || (selected == "fr")) {
         $('#etapa1').hide();
         $('#etapa2').hide();
