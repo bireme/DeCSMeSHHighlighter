@@ -121,7 +121,7 @@ class DMFServlet extends HttpServlet {
         case "All languages" =>
           val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
           val detectedLanguage: Language = detector.detectLanguageOf(inputText)
-          println(s"detectedLanguage=${detectedLanguage.name()}")
+          //println(s"detectedLanguage=${detectedLanguage.name()}")
           val lang: String = detectedLanguage.name() match {
             case "ENGLISH" => "en"
             case "FRENCH" => "fr"
@@ -167,9 +167,9 @@ class DMFServlet extends HttpServlet {
               case "en" => Some("sr-v1-en")
               case _ => None
             }
-            if (ollamaModel.isEmpty || (inputText.length < 80)) "<Input text is too small.>"
+            if (ollamaModel.isEmpty || (inputText.length < 300)) ""
             else ollamaClient.chat(inputText, ollamaModel.get) match {
-              case Success(value) => translateText(ollamaClient, value, textLanguage=inputLang, language)
+              case Success(value) => translateText(ollamaClient, value, textLanguage = inputLang, language)
               case Failure(exception) => s"SuperResumos error: ${exception.getMessage}"
             }
           } else ""
@@ -182,7 +182,19 @@ class DMFServlet extends HttpServlet {
           case _ => Right(Seq[AnnifSuggestion]())
         }
         //val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())
-        val annifTerms: Seq[(String, Option[String])] = getAnnifTerms(annifSuggestions, Some(inputLang), outLang).getOrElse(Seq[(String, Option[String])]())
+        val annifTerms0: Seq[(String, Option[String])] = getAnnifTerms(annifSuggestions, Some(inputLang), Some(oLanguage))
+          .getOrElse(Seq[(String, Option[String])]())
+        val annifTerms: Seq[(String, Option[String])] = annifTerms0.map {
+          case (label, notation) =>
+            val notat: Option[String] = notation.map {
+              n =>
+                n.indexOf("|") match {
+                  case -1 => n
+                  case pos => n.substring(0, pos)
+                }
+            }
+            (label, notat)
+        }
         val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term._1, termLang = oLanguage, tipLang = language))
         //val descr: Seq[String] = descriptors._3.map(_._1)
         val descr: Set[(String,String)] = descriptors._2.map(t => (t._3, t._5)).toSet
