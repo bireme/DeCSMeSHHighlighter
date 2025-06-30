@@ -81,7 +81,7 @@ object MainAreas {
     div(
       id := "textWithTooltips",
       cls := "p-3 border rounded",
-      style := "flex-grow: 1;",
+      style := "flex-grow: 1; resize: vertical; overflow: auto;",
       attr("spellcheck")      := "false",
       attr("contenteditable") := (if (inpText.trim.isEmpty) "true" else "false")
     )(raw(inpText))

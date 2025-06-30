@@ -167,7 +167,9 @@ class DMFServlet extends HttpServlet {
               case "en" => Some("sr-v1-en")
               case _ => None
             }
-            if (ollamaModel.isEmpty || (inputText.length < 300)) ""
+            val inputTextLen: Int = inputText.length
+            if (ollamaModel.isEmpty || (inputTextLen < 300) || (inputTextLen > 2300))
+              i18n.translate("Sorry", language)
             else ollamaClient.chat(inputText, ollamaModel.get) match {
               case Success(value) => translateText(ollamaClient, value, textLanguage = inputLang, language)
               case Failure(exception) => s"SuperResumos error: ${exception.getMessage}"

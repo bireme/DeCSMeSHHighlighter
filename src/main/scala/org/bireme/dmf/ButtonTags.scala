@@ -60,12 +60,12 @@ object ButtonTags {
     button(
       attr("type") := "button",
       cls  := "btn btn-success",
-      style := "margin-top: 2px; font-size: 15px;",
+      style := "margin-top: 2px; font-size: 15px; document.body.style.cursor = \"default\";",
       attr("data-bs-toggle") := "button",
       attr("aria-pressed") := "false",
       title := i18n.translate(key="SuperAbstract", language),
       attr("onclick") :=
-        """submitPage(`""" + originalInputText + """`, """" + language + """", "true"); gtag("event", "button_click", { "event_category": "button", "event_label": "SR Button"});"""
+        """document.body.style.cursor = "wait";submitPage(`""".stripMargin + originalInputText + """`, """" + language + """", "true"); gtag("event", "button_click", { "event_category": "button", "event_label": "SR Button"});"""
     )(em(i18n.translate(key="SR",language)))
   }
 
