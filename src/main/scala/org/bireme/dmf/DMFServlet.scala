@@ -827,6 +827,7 @@ class DMFServlet extends HttpServlet {
         //alert('Texto colado:' + text);
         // coloque aqui sua lógica
         el.innerHTML = text;
+        document.body.style.cursor = "wait";
         submitPage(`""" + originalInputText + """`, """" + language + """", "false");
       }
     </script>
