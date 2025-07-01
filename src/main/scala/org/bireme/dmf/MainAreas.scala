@@ -113,9 +113,9 @@ object MainAreas {
     val fileInputId = "fileChooser"
 
     div(
-      cls := "btn-group",
+    /*  cls := "btn-group",
       attr("role")       := "group",
-      attr("aria-label") := "Import Button Group",
+      attr("aria-label") := "Import Button Group", */
       style := "display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;"
     )(
       input(
@@ -128,7 +128,7 @@ object MainAreas {
       ),
       ButtonTags.importButton(language, i18n),
       //ButtonTags.internetButton(language, i18n),
-      ButtonTags.searchButton(originalInputText, language, i18n),
+      //ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.clearButton(language, i18n),
       ButtonTags.srButton(originalInputText, language, i18n),
       //ButtonTags.srButton(originalInputText, language, i18n),
@@ -140,9 +140,9 @@ object MainAreas {
                                 language: String,
                                 i18n: I18N): Text.TypedTag[String] = {
     div(
-      cls := "btn-group",
+      /* cls := "btn-group",
       attr("role")       := "group",
-      attr("aria-label") := "Export Button Group",
+      attr("aria-label") := "Export Button Group", */
       style := "display: flex; flex-direction: column; justify-content: flex-start; margin-left: 10px;"
     )(
       ButtonTags.exportButton(exportText, language, i18n),

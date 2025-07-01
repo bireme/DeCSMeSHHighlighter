@@ -816,6 +816,17 @@ class DMFServlet extends HttpServlet {
       //alert("Entrando no script do textWithTooltips");
       const el = document.getElementById('textWithTooltips');
 
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          event.preventDefault(); // evita quebra de linha
+          const text = el.innerText.trim();
+          if (text !== "") {
+            document.body.style.cursor = "wait";
+            submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+          }
+        }
+      });
+
       el.addEventListener('paste', (e) => {
         // extrai apenas o texto colado
         const pastedText = e.clipboardData.getData('text');
