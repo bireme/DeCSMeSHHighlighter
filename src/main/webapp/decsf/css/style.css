@@ -18,8 +18,8 @@ a{
 	margin-top: 20px;
 }
 #filter{
-	background: #669966;
-	border-bottom: 5px solid #4e7952;
+	background: #426A5A; /*#669966;*/
+	border-bottom: 5px solid #93C01F;/*#4e7952;*/
 	color: #fff;
 	padding: 10px;
 }
@@ -39,7 +39,7 @@ a{
 	display: inline-block;
 }
 #language a{
-	background:#4e7952;
+	background: #426A5A; /*#4e7952;*/
 	color: #fff;
 	font-size: 12px;
 	padding: 5px;
@@ -84,7 +84,7 @@ a{
 	outline: none;
 }
 #footer{
-	background-color: #669966;
+	background-color: #426A5A; /*#669966; */
 	color: #fff;
 	margin-top: 1px;
 	padding: 15px 0;
@@ -128,4 +128,14 @@ a{
 	img[src$=".svg"]{
 		width: 100%; 
 	}
+}
+
+/* Ajuste da cor dos botões */
+.btn-success {
+  background-color: #588a76 /*#426A5A*/ !important;
+  border-color: #588a76 /*#426A5A*/ !important;
+}
+.btn-success:hover{
+	background:#426A5A /*#588a76*/ !important;
+
 }

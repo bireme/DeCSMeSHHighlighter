@@ -40,7 +40,7 @@ object MainAreas {
         Seq(
           label(
             i18n.translate("SuperAbstract", language) + ":",
-            style := "margin-top: 11px; font-weight: bold;"
+            style := "margin-top: 11px;"
           ),
           div(style := "display: flex; align-items: flex-start; max-width: 643px;")(
             srTextArea(srText)
@@ -54,7 +54,7 @@ object MainAreas {
       Seq[Modifier](
         label(
           i18n.translate(labelx, language) + ":",
-          style := "font-weight: bold;"
+          //style := "font-weight: bold;"
         ),
         div(style := "display: flex; align-items: flex-start;")(
           inputTextArea(inputText),
@@ -69,7 +69,7 @@ object MainAreas {
                              language: String,
                              i18n: I18N): Text.TypedTag[String] = {
     div(cls := "form-group col-md-12")(
-      label(i18n.translate("Terms identified by AI", language) + ":", style := "font-weight: bold;"),
+      label(i18n.translate("Terms identified by AI", language) + ":" /*, style := "font-weight: bold;"*/),
       div(style := "display: flex; align-items: flex-start;")(
         annifArea(annifText),
         exportButtonGroup(exportText, language, i18n)
@@ -130,7 +130,7 @@ object MainAreas {
       //ButtonTags.internetButton(language, i18n),
       //ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.clearButton(language, i18n),
-      ButtonTags.srButton(originalInputText, language, i18n),
+      //ButtonTags.srButton(originalInputText, language, i18n),
       //ButtonTags.srButton(originalInputText, language, i18n),
       DialogBox.renderDialogBox()
     )

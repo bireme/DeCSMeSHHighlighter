@@ -22,7 +22,7 @@ object Footer {
   private def leftFooter(language: String,
                          i18n: I18N): Text.TypedTag[String] = {
     div(cls := "col-md-5")(
-      b("DeCS Finder"),
+      b("DeCS Finder IA"),
       br(),
 
       /* Termos de uso */

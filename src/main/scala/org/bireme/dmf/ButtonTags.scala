@@ -13,8 +13,9 @@ object ButtonTags {
       cls := "btn btn-success",
       style := "margin-top:2px;",
       title := i18n.translate(key="Import file", language),
-      onclick := s"""document.getElementById('$fileInputId').click(); gtag("event", "button_click", { "event_category": "button", "event_label": "Import Button" });"""
-    )(i(cls := "fas fa-archive"))
+      onclick := s"""document.body.style.cursor = "wait"; document.getElementById('$fileInputId').click(); gtag("event", "button_click", { "event_category": "button", "event_label": "Import Button" });"""
+    //)(i(cls := "fas fa-archive"))
+    )(i(cls := "fas fa-file-download"))
   }
 
   def internetButton(language: String,
@@ -26,7 +27,8 @@ object ButtonTags {
       title := i18n.translate(key="Import", language),
       attr("onclick") :=
         """showDialog(); gtag("event", "button_click", { "event_category": "button", "event_label": "Internet Button" });"""
-    )(i(cls := "fa fa-globe"))
+    //)(i(cls := "fa fa-globe"))
+    )(i(cls := "fas fa-download"))
   }
 
   def searchButton(originalInputText: String,

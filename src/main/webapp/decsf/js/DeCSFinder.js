@@ -3,7 +3,8 @@ function handleXXX2(event) {
 }
 
 function clearTextAreas(language) {
-    //alert("entrando no clearTextAreas");
+    //alert("entrando no clearTextAreas. language=" + language);
+    //alert("entrando no clearTextAreas.");
 
     var inputTextLanguage = document.getElementById("inputTextLanguage");
     var outputTextLanguage = document.getElementById("outputTextLanguage");
@@ -17,98 +18,117 @@ function clearTextAreas(language) {
     textWithTooltips.setAttribute("contenteditable", "true");
     textWithTooltipsAnnif.textContent = "";
     textWithTooltipsAnnif.setAttribute("contenteditable", "true");
-    superResumos.textContent = "";
+    //superResumos.textContent = "";
+
     submitPage(``, language, "false");
 }
 
 function submitPage(originalInputText, language, showSR) {
     //alert("Entrando no submitPage() originalInputText=" + originalInputText + " language=" + language + " showSR=" + showSR);
     //alert("originalInputText=[""" + originalInputText + """]");
-    var inputText0 = document.getElementById('textWithTooltips').innerHTML;
+    var textWithTooltips = document.getElementById("textWithTooltips");
+    var inputText0 = textWithTooltips.innerHTML;
     //alert("inputText0=[" + inputText0 + "]");
+    var inputTextLen = inputText0.length;
 
-    var inputText= "";
-    if (inputText0.includes("tooltip-link")) {
-        inputText = originalInputText.replaceAll("`", "'") ;
+    if (inputTextLen >= 230000) {
+        var textWithTooltipsAnnif = document.getElementById("textWithTooltipsAnnif");
+        var textMess = "";
+
+        if (language == "es") textMess = "El texto de entrada debe tener un máximo de 2300 caracteres.<br/>Intenta dividirlo en partes más pequeñas.";
+        else if (language == "pt") textMess = "O texto de entrada deve ter no máximo 2300 caracteres.<br/>Experimente quebrar seu texto em textos menores.";
+        else if (language == "fr") textMess = "Le texte saisi doit comporter au maximum 2 300 caractères.<br/>Essayez de le diviser en sections plus courtes.";
+        else textMess = "The input text must be a maximum of 2300 characters.<br/>Try breaking your text into smaller texts.";
+
+        textWithTooltips.textContent = textMess;
+        textWithTooltipsAnnif.textContent = "";
+        textWithTooltips.setAttribute("contenteditable", "false");
+        textWithTooltipsAnnif.setAttribute("contenteditable", "false");
+        document.body.style.cursor = "default";
     } else {
-        inputText = inputText0;
-    }
-    //alert("inputText=[" + inputText + "]");
-
-    var inputLang = document.getElementById("inputTextLanguage").value;
-    var outputLang = document.getElementById("outputTextLanguage").value;
-
-    var trTypes = document.getElementById("termTypes");
-	var termTypes = new Array();
-    var i;
-    var count = 0;
-
-    for (i = 0; i < trTypes.options.length; i++) {
-        if (trTypes.options[i].selected) {
-            termTypes[count] = trTypes.options[i].value;
-            count = count + 1
+        var inputText= "";
+        if (inputText0.includes("tooltip-link")) {
+            inputText = originalInputText.replaceAll("`", "'") ;
+        } else {
+            inputText = inputText0;
         }
-    }
+        //alert("inputText=[" + inputText + "]");
 
-    var form = document.createElement("form");
-    form.setAttribute("method", "post");
-    form.setAttribute("action", "dmf");
-    form.acceptCharset = "UTF-8";
+        var inputLang = document.getElementById("inputTextLanguage").value;
+        var outputLang = document.getElementById("outputTextLanguage").value;
 
-    var hiddenField1 = document.createElement("input");
-    hiddenField1.setAttribute("type", "hidden");
-    hiddenField1.setAttribute("name", "inputLang");
-    hiddenField1.setAttribute("value", inputLang);
-    form.appendChild(hiddenField1);
+        var trTypes = document.getElementById("termTypes");
+        var termTypes = new Array();
+        var i;
+        var count = 0;
 
-    var hiddenField2 = document.createElement("input");
-    hiddenField2.setAttribute("type", "hidden");
-    hiddenField2.setAttribute("name", "outLang");
-    hiddenField2.setAttribute("value", outputLang);
-    form.appendChild(hiddenField2);
-
-    var hiddenField3 = document.createElement("input");
-    hiddenField3.setAttribute("type", "hidden");
-    hiddenField3.setAttribute("name", "inputText");
-    hiddenField3.setAttribute("value", inputText);
-    form.appendChild(hiddenField3);
-
-    var termTypesStr = "";
-	for (i = 0; i < termTypes.length; i++) {
-        if (i > 0) {
-            termTypesStr = termTypesStr + "|";
+        for (i = 0; i < trTypes.options.length; i++) {
+            if (trTypes.options[i].selected) {
+                termTypes[count] = trTypes.options[i].value;
+                count = count + 1
+            }
         }
-        termTypesStr = termTypesStr + termTypes[i];
+
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "dmf");
+        form.acceptCharset = "UTF-8";
+
+        var hiddenField1 = document.createElement("input");
+        hiddenField1.setAttribute("type", "hidden");
+        hiddenField1.setAttribute("name", "inputLang");
+        hiddenField1.setAttribute("value", inputLang);
+        form.appendChild(hiddenField1);
+
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "outLang");
+        hiddenField2.setAttribute("value", outputLang);
+        form.appendChild(hiddenField2);
+
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "inputText");
+        hiddenField3.setAttribute("value", inputText);
+        form.appendChild(hiddenField3);
+
+        var termTypesStr = "";
+        for (i = 0; i < termTypes.length; i++) {
+            if (i > 0) {
+                termTypesStr = termTypesStr + "|";
+            }
+            termTypesStr = termTypesStr + termTypes[i];
+        }
+
+        var hiddenField4 = document.createElement("input");
+        hiddenField4.setAttribute("type", "hidden");
+        hiddenField4.setAttribute("name", "termTypes");
+        hiddenField4.setAttribute("value", termTypesStr);
+        form.appendChild(hiddenField4);
+
+        var hiddenField5 = document.createElement("input");
+        hiddenField5.setAttribute("type", "hidden");
+        hiddenField5.setAttribute("name", "lang");
+        hiddenField5.setAttribute("value", language);
+        form.appendChild(hiddenField5);
+
+        var hiddenField6 = document.createElement("input");
+        hiddenField6.setAttribute("type", "hidden");
+        hiddenField6.setAttribute("name", "isFirstLoad");
+        hiddenField6.setAttribute("value", "false");
+        form.appendChild(hiddenField6);
+
+        var showSuperResumos = (showSR === "true") ? "true" : "false";
+        var hiddenField7 = document.createElement("input");
+        hiddenField7.setAttribute("type", "hidden");
+        hiddenField7.setAttribute("name", "showSR");
+        hiddenField7.setAttribute("value", showSuperResumos);
+        form.appendChild(hiddenField7);
+
+        document.body.appendChild(form);
+
+        form.submit();
     }
-
-    var hiddenField4 = document.createElement("input");
-    hiddenField4.setAttribute("type", "hidden");
-    hiddenField4.setAttribute("name", "termTypes");
-    hiddenField4.setAttribute("value", termTypesStr);
-    form.appendChild(hiddenField4);
-
-    var hiddenField5 = document.createElement("input");
-    hiddenField5.setAttribute("type", "hidden");
-    hiddenField5.setAttribute("name", "lang");
-    hiddenField5.setAttribute("value", language);
-    form.appendChild(hiddenField5);
-
-    var hiddenField6 = document.createElement("input");
-    hiddenField6.setAttribute("type", "hidden");
-    hiddenField6.setAttribute("name", "isFirstLoad");
-    hiddenField6.setAttribute("value", "false");
-    form.appendChild(hiddenField6);
-
-    var showSuperResumos = (showSR === "true") ? "true" : "false";
-    var hiddenField7 = document.createElement("input");
-    hiddenField7.setAttribute("type", "hidden");
-    hiddenField7.setAttribute("name", "showSR");
-    hiddenField7.setAttribute("value", showSuperResumos);
-    form.appendChild(hiddenField7);
-
-    document.body.appendChild(form);
-
-    form.submit();
 }
 
 function submitPageToSite(language) {

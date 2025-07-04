@@ -85,9 +85,12 @@ class DMFServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8")
     response.setContentType("text/html;charset=UTF-8")
 
-    //println("entrando no processRequest")
+    val headerLang: String = Try(getHeaderLang(request)).getOrElse("pt")
 
     Try {
+
+      val language: String = Option(request.getParameter("lang")).map(_.trim)
+        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val breakSignal: String = "!__break__!"
       val isFirstLoad: Boolean = Option(request.getParameter("isFirstLoad")).map(_.trim) match {
         case Some(value) => value.toBoolean
@@ -106,14 +109,10 @@ class DMFServlet extends HttpServlet {
       val doc: Document = Jsoup.parse(inputText0)
       val inputText: String = doc.body().text().trim
 
-      require(inputText.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]")
       //println(s"inputText=$inputText")
 
       val showSR: Boolean = Option(request.getParameter("showSR")).exists(_.toBoolean)
       //println(s"processRequest. showSR=$showSR")
-      val headerLang: String = getHeaderLang(request)
-      val language: String = Option(request.getParameter("lang")).map(_.trim)
-        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
       //println("inputLang0=" + request.getParameter("inputLang"))
       lazy val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
@@ -137,8 +136,14 @@ class DMFServlet extends HttpServlet {
         case "es" => "es"
         case _ => "en"
       }
+
+      //require(inputText.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]")
       //println(s"inputLang=$inputLang")
-      val outputText: String = if (inputText.isEmpty) {
+      val outputText: String = if (inputText.length > 200000) {
+        getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes,
+          markedInputText=s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]", "", language,
+          srText="", annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
+      } else if (inputText.isEmpty) {
         getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes, markedInputText="", inputText, language,
           srText="", annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
       } else {
@@ -216,12 +221,14 @@ class DMFServlet extends HttpServlet {
       case Success(_) => ()
       case Failure(exception: Throwable) =>
         exception.printStackTrace()
-        val errMess: String = exception match {
-          case _: java.lang.StackOverflowError => s"Oops, it seems that your text is too long!"
-          case _ => s"Oops, an internal error occurred. Sorry for the inconvenience.\n\n${exception.getMessage}!"
-        }
-
-        response.sendError(500, errMess)
+        val errMess: String = i18n.translate("SS Generation", headerLang)
+        val outputText: String = getHtml(inputLang=headerLang, outLang=headerLang, Seq[String]("Descriptors", "Qualifiers"), markedInputText=errMess,
+          originalInputText="", language=headerLang, srText="", annifText="", exportText="", useFrequencySort=true, isFirstLoad=false)
+        //println(s"===> outputText = [$outputText]")
+        val out: PrintWriter = response.getWriter
+        out.println(outputText)
+        out.flush()
+        //response.sendError(500, errMess)
     }
   }
 
@@ -270,11 +277,12 @@ class DMFServlet extends HttpServlet {
    * @return the desired input/output language according to the request header Accept-Language
    */
   private def getHeaderLang(request: HttpServletRequest): String = {
+    println(s"Accept-Language=${request.getHeader("Accept-Language")}")
     val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
     val langs: Array[String] = header.split(",|;")
 
     langs.find {
-      lang => lang.equals("en") || lang.equals("es") || lang.equals("pt") || lang.equals("fr")
+      lang => lang.equals("fr") || lang.equals("en") || lang.equals("pt") || lang.equals("es")
     }.getOrElse("pt")
   }
 
@@ -535,6 +543,7 @@ class DMFServlet extends HttpServlet {
       const input = event.target;
       if (!input.files || input.files.length === 0) {
         //alert("Nenhum arquivo selecionado.");
+        document.body.style.cursor = "default";
         return;
       }
 
@@ -559,6 +568,7 @@ class DMFServlet extends HttpServlet {
           }
         } catch (err) {
           alert("Error reading PDF: " + err);
+          document.body.style.cursor = "default";
           return;
         }
       } else {
@@ -567,10 +577,12 @@ class DMFServlet extends HttpServlet {
             text = await file.text();
           } catch (err) {
             alert("Error reading text: " + err);
+            document.body.style.cursor = "default";
             return;
           }
         } else {
             alert("Only text and pdf files are allowed.");
+            document.body.style.cursor = "default";
             return;
         }
       }
