@@ -10,9 +10,9 @@ package org.bireme.dmf
 import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 import jakarta.servlet.{ServletConfig, ServletContext}
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import org.apache.tika.metadata.Metadata
-import org.apache.tika.parser.AutoDetectParser
-import org.apache.tika.sax.BodyContentHandler
+//import org.apache.tika.metadata.Metadata
+//import org.apache.tika.parser.AutoDetectParser
+//import org.apache.tika.sax.BodyContentHandler
 
 import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
