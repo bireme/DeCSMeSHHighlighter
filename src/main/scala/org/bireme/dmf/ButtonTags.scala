@@ -15,7 +15,8 @@ object ButtonTags {
       title := i18n.translate(key="Import file", language),
       onclick := s"""document.body.style.cursor = "wait"; document.getElementById('$fileInputId').click(); gtag("event", "button_click", { "event_category": "button", "event_label": "Import Button" });"""
     //)(i(cls := "fas fa-archive"))
-    )(i(cls := "fas fa-file-download"))
+    //)(i(cls := "fas fa-file-download"))
+    )(i(cls := "fas fa-file-upload"))
   }
 
   def internetButton(language: String,

@@ -10,6 +10,9 @@ package org.bireme.dmf
 import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 import jakarta.servlet.{ServletConfig, ServletContext}
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import org.apache.tika.metadata.Metadata
+import org.apache.tika.parser.AutoDetectParser
+import org.apache.tika.sax.BodyContentHandler
 
 import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
@@ -893,4 +896,16 @@ class DMFServlet extends HttpServlet {
       </script>"""
     } else ""
   }
+
+  /*private def extractDocOdtText(): Try[String] = {
+    Try {
+      val parser: AutoDetectParser = new AutoDetectParser()
+      val handler: BodyContentHandler = new BodyContentHandler()
+      val metadata: Metadata = new Metadata()
+      val stream =
+
+      parser.parse(stream, handler, metadata)
+      handler.toString()
+    }
+  } */
 }

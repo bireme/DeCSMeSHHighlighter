@@ -101,7 +101,7 @@ object MainAreas {
     div(
       id := "textWithTooltipsAnnif",
       cls := "p-3 border rounded",
-      style := "flex-grow: 1; overflow-x: auto; white-space: pre;",
+      style := "flex-grow: 1; resize: vertical; overflow-x: auto; white-space: pre;",
       attr("spellcheck")      := "false",
       attr("contenteditable") := "false"
     )(raw(annifText))
