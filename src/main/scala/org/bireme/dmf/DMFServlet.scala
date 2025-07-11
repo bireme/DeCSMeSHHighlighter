@@ -110,26 +110,27 @@ class DMFServlet extends HttpServlet {
       val inputText0: String = if (inputText00.startsWith(breakSignal)) inputText00.substring(breakSignal.length) else inputText00
       //println(s"inputText0=$inputText0")
       val doc: Document = Jsoup.parse(inputText0)
-      val inputText: String = doc.body().text().trim
+      val inputTextX: String = doc.body().text().trim
 
-      //println(s"inputText=$inputText")
+      //println(s"inputTextX=$inputTextX")
 
       val showSR: Boolean = Option(request.getParameter("showSR")).exists(_.toBoolean)
       //println(s"processRequest. showSR=$showSR")
       val useFrequencySort: Boolean = Option(request.getParameter("frequencySort")).forall(_.toBoolean)
       //println("inputLang0=" + request.getParameter("inputLang"))
-      lazy val inputLang: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
+      lazy val inputLangX: String = Option(request.getParameter("inputLang")).map(_.trim).getOrElse("All languages") match {
         case "" => "All languages"
         case "All languages" =>
-          val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
-          val detectedLanguage: Language = detector.detectLanguageOf(inputText)
+          //val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(Language.ENGLISH, Language.FRENCH, Language.PORTUGUESE, Language.SPANISH).build()
+          val detector: LanguageDetector = LanguageDetectorBuilder.fromAllLanguages().build()
+          val detectedLanguage: Language = detector.detectLanguageOf(inputTextX)
           //println(s"detectedLanguage=${detectedLanguage.name()}")
           val lang: String = detectedLanguage.name() match {
             case "ENGLISH" => "en"
             case "FRENCH" => "fr"
             case "PORTUGUESE" => "pt"
             case "SPANISH" => "es"
-            case _ => "en"
+            case other => other
           }
           //println(s"lang=$lang")
           lang
@@ -140,16 +141,25 @@ class DMFServlet extends HttpServlet {
         case _ => "en"
       }
 
-      //require(inputText.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]")
+      //require(inputTextX.length < 200000, s"Your text size is greater than 200,000 characters. Size=[${inputTextX.length}]")
       //println(s"inputLang=$inputLang")
-      val outputText: String = if (inputText.length > 200000) {
+      val outputText: String = if (inputTextX.length > 200000) {
         getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes,
-          markedInputText=s"Your text size is greater than 200,000 characters. Size=[${inputText.length}]", "", language,
+          markedInputText=s"Your text size is greater than 200,000 characters. Size=[${inputTextX.length}]", "", language,
           srText="", annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
-      } else if (inputText.isEmpty) {
-        getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes, markedInputText="", inputText, language,
+      } else if (inputTextX.isEmpty) {
+        getHtml(inputLang="", outLang=language /*"Same of the text"*/, termTypes, markedInputText="", inputTextX, language,
           srText="", annifText="", exportText="", useFrequencySort=useFrequencySort, isFirstLoad=isFirstLoad)
       } else {
+        val (inputLang: String, inputText: String) =
+          if (inputLangX.equals("en") || inputLangX.equals("es") || inputLangX.equals("pt") || inputLangX.equals("fr")) (inputLangX, inputTextX)
+          else {
+            val ollamaClient: OllamaClient = new OllamaClient(ollamaHost, None)
+            val translatedText: String = translateText(ollamaClient, inputTextX.replace(breakSignal, "\n"), textLanguage = inputLangX.toLowerCase, targetLanguage = language)
+            println(s"textLanguage = $inputLangX, targetLanguage = $language translatedText = $translatedText")
+            (language, translatedText.replace("\n", breakSignal))
+          }
+        //println(s"inputLang=$inputLang inputText=$inputText")
         val containsDescriptors: Boolean = termTypes.contains("Descriptors")
         val config = Config(
           scanLang = Some(inputLang), outLang = outLang, scanMainHeadings = containsDescriptors, scanEntryTerms = true,
@@ -206,14 +216,29 @@ class DMFServlet extends HttpServlet {
             (label, notat)
         }
         val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term._1, termLang = oLanguage, tipLang = language))
+        println(s"annifSuggestions=$annifSuggestions\n\nannifTerms0=$annifTerms0\n\nannifTerms=$annifTerms\n\nannifTermsPrefSuf=$annifTermsPrefSuf\n\n")
+        val annifZip: Seq[(String, Float)] =  annifTermsPrefSuf.zip(annifSuggestions.getOrElse(Seq[AnnifSuggestion]()).map(_.score))
+        val annifZip1: Seq[String] = annifZip.map {
+          case (key, score) =>
+             score match {
+               case x if x >= 0.5  => s"🟢 $key"
+               case x if x >= 0.09 => s"🟡 $key"
+               case _              => s"⭕ $key"
+             }
+        }
         //val descr: Seq[String] = descriptors._3.map(_._1)
         val descr: Set[(String,String)] = descriptors._2.map(t => (t._3, t._5)).toSet
         val exportText: String = getExportTermsText(descr, annifTerms, language)
 
         //inputText.foreach(ch => println(s"[$ch]=${ch.toInt}"))
         //println(s"Antes de chamar o getHtml. srText=[$srText]")
-        getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br>"),
-          language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
+        /*getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
+          language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)*/
+
+        /*getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
+          language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)*/
+        getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
+          language, srText, annifZip1.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
       }
       //println(s"markedInputText=[${descriptors._1.replace(breakSignal, "<br/>")}]")
       val out: PrintWriter = response.getWriter
@@ -280,7 +305,7 @@ class DMFServlet extends HttpServlet {
    * @return the desired input/output language according to the request header Accept-Language
    */
   private def getHeaderLang(request: HttpServletRequest): String = {
-    println(s"Accept-Language=${request.getHeader("Accept-Language")}")
+    //println(s"Accept-Language=${request.getHeader("Accept-Language")}")
     val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
     val langs: Array[String] = header.split(",|;")
 
@@ -297,13 +322,14 @@ class DMFServlet extends HttpServlet {
     //println(s"entrando no translateText textLanguage=$textLanguage targetLanguage=$targetLanguage")
     if (text.trim.isEmpty|| !languages.contains(targetLanguage) || targetLanguage.equals(textLanguage)) text
     else {
+      //println(s"2 - entrando no translateText textLanguage=$textLanguage targetLanguage=$targetLanguage")
       val idioma: String = targetLanguage match {
         case "pt" => "portugues"
         case "es" => "espanhol"
         case "en" => "ingles"
         case _ => "frances"
       }
-      val prompt: String = s"Dado o seguinte texto de entrada traduza-o para o $idioma retornando como resposta unicamente o texto traduzido: $text"
+      val prompt: String = s"\n\nDado o seguinte texto de entrada traduza-o para o $idioma retornando como resposta unicamente o texto traduzido. Mantenha as mesmas quebras de linha do texto: $text\n\n"
 
       //println(s"prompt=$prompt")
       ollamaClient.chat(prompt, "llama3.2") match {

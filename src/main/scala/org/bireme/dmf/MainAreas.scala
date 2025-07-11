@@ -130,8 +130,7 @@ object MainAreas {
       //ButtonTags.internetButton(language, i18n),
       //ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.clearButton(language, i18n),
-      //ButtonTags.srButton(originalInputText, language, i18n),
-      //ButtonTags.srButton(originalInputText, language, i18n),
+      ButtonTags.srButton(originalInputText, language, i18n),
       DialogBox.renderDialogBox()
     )
   }
