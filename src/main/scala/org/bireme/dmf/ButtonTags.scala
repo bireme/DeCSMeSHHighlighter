@@ -69,7 +69,8 @@ object ButtonTags {
       title := i18n.translate(key="SuperAbstract", language),
       attr("onclick") :=
         """document.body.style.cursor = "wait";submitPage(`""".stripMargin + originalInputText + """`, """" + language + """", "true"); gtag("event", "button_click", { "event_category": "button", "event_label": "SR Button"});"""
-    )(em(i18n.translate(key="SR",language)))
+    //)(em(i18n.translate(key="SR",language)))
+    )(i(cls := "bi bi-arrows-angle-contract"))
   }
 
   def exportButton(exportTerms: String,
