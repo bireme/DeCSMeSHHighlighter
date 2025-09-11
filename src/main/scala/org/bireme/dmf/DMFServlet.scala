@@ -154,10 +154,11 @@ class DMFServlet extends HttpServlet {
         val (inputLang: String, inputText: String) =
           if (inputLangX.equals("en") || inputLangX.equals("es") || inputLangX.equals("pt") || inputLangX.equals("fr")) (inputLangX, inputTextX)
           else {
-            val ollamaClient: OllamaClient = new OllamaClient(ollamaHost, None)
+            /*val ollamaClient: OllamaClient = new OllamaClient(ollamaHost, None)
             val translatedText: String = translateText(ollamaClient, inputTextX.replace(breakSignal, "\n"), textLanguage = inputLangX.toLowerCase, targetLanguage = language)
             println(s"textLanguage = $inputLangX, targetLanguage = $language translatedText = $translatedText")
-            (language, translatedText.replace("\n", breakSignal))
+            (language, translatedText.replace("\n", breakSignal))*/
+            ("All languages", inputTextX)
           }
         //println(s"inputLang=$inputLang inputText=$inputText")
         val containsDescriptors: Boolean = termTypes.contains("Descriptors")
@@ -176,7 +177,7 @@ class DMFServlet extends HttpServlet {
         //println(s"descriptors=$descriptors")
         //highlighter.highlight("[", "]",  inputText, config)
         //println(s"descriptors=${descriptors._1}")
-        val srText: String = {
+        val srText: String = ""/*{
           if (showSR) {
             val ollamaClient: OllamaClient = new OllamaClient(ollamaHost, None)
             val ollamaModel: Option[String] = inputLang match {
@@ -187,13 +188,14 @@ class DMFServlet extends HttpServlet {
             }
             val inputTextLen: Int = inputText.length
             if (ollamaModel.isEmpty || (inputTextLen < 300) || (inputTextLen > 2300))
-              i18n.translate("SS Generation", language)
+              //i18n.translate("SS Generation", language)
+              inputText
             else ollamaClient.chat(inputText, ollamaModel.get) match {
               case Success(value) => translateText(ollamaClient, value, textLanguage = inputLang, language)
               case Failure(exception) => s"SuperResumos error: ${exception.getMessage}"
             }
           } else ""
-        }
+        }*/
         val annif: AnnifClient = new AnnifClient(annifBaseUrl)
         val annifSuggestions: Either[String, Seq[AnnifSuggestion]] = inputLang match {
           case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(15))

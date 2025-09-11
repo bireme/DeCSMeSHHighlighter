@@ -71,7 +71,8 @@ function submitPage(originalInputText, language, showSR) {
 
         var form = document.createElement("form");
         form.setAttribute("method", "post");
-        form.setAttribute("action", "dmf");
+        //form.setAttribute("action", "dmf");
+        form.setAttribute("action", "");
         form.acceptCharset = "UTF-8";
 
         var hiddenField1 = document.createElement("input");
@@ -134,7 +135,8 @@ function submitPage(originalInputText, language, showSR) {
 function submitPageToSite(language) {
     var formS = document.createElement("form");
     formS.setAttribute("method", "post");
-    formS.setAttribute("action", "dmfs");
+    //formS.setAttribute("action", "dmfs");
+    formS.setAttribute("action", "");
 
     var hiddenFieldLang = document.createElement("input");
     hiddenFieldLang.setAttribute("type", "hidden");

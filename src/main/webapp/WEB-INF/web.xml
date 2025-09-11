@@ -45,39 +45,13 @@
     </context-param>
 
     <servlet>
-        <servlet-name>DMFSiteServlet</servlet-name>
-        <servlet-class>org.bireme.dmf.DMFSiteServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet>
         <servlet-name>DMFServlet</servlet-name>
         <servlet-class>org.bireme.dmf.DMFServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
     </servlet>
-
-    <servlet>
-        <servlet-name>DMFWizardServlet</servlet-name>
-        <servlet-class>org.bireme.dmf.DMFWizardServlet</servlet-class>
-        <load-on-startup>3</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>DMFSiteServlet</servlet-name>
-        <url-pattern>/dmfs</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>DMFServlet</servlet-name>
-        <url-pattern>/dmf</url-pattern>
+        <url-pattern></url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>DMFWizardServlet</servlet-name>
-        <url-pattern>/dmfw</url-pattern>
-    </servlet-mapping>
-
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
 </web-app>
