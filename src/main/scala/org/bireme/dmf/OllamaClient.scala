@@ -1,10 +1,8 @@
 package org.bireme.dmf
 
-import io.github.ollama4j.OllamaAPI
-import io.github.ollama4j.models.chat.OllamaChatMessageRole
-import io.github.ollama4j.models.chat.OllamaChatRequest
-import io.github.ollama4j.models.chat.OllamaChatRequestBuilder
-import io.github.ollama4j.models.chat.OllamaChatResult
+import io.github.ollama4j.Ollama
+import io.github.ollama4j.models.generate.OllamaGenerateRequest
+import io.github.ollama4j.models.response.OllamaResult
 
 import play.api.libs.json._
 
@@ -16,7 +14,7 @@ class OllamaClient(ollamaHost: String,
                    ollamaPort: Option[Int]) {
   private val url: String = s"http://$ollamaHost:${ollamaPort.getOrElse(11434)}"
 
-  private val ollamaAPI: OllamaAPI = new OllamaAPI(url)
+  private val ollamaAPI: Ollama = new Ollama(url)
   if (!ollamaAPI.ping())  throw new Exception(s"It is not possible to connect with Ollama server at: $url")
 
   def getModelNames(): Try[Set[String]] = Try(ollamaAPI.listModels().asScala.map(model => model.getModelName).toSet)
@@ -24,13 +22,17 @@ class OllamaClient(ollamaHost: String,
   def chat(input: String,
            model: String): Try[String] = {
     Try {
-      val builder: OllamaChatRequestBuilder = OllamaChatRequestBuilder.getInstance(model)
-      val requestModel: OllamaChatRequest = builder.withMessage(OllamaChatMessageRole.USER, input).build
-      val chatResult: OllamaChatResult = ollamaAPI.chat(requestModel)
-      val parsed: JsValue = Json.parse(chatResult.toString)
-      val result: Option[String] = (parsed \ "response").asOpt[String]
+      val result: OllamaResult =
+        ollamaAPI.generate(OllamaGenerateRequest.builder()
+            .withModel(model)
+            .withPrompt(input)
+            .build(),
+          null)
+      val chatResult: String = result.getResponse()
+      val parsed: JsValue = Json.parse(chatResult)
+      val result2: Option[String] = (parsed \ "response").asOpt[String]
 
-      result.getOrElse(throw new Exception("Super Abstract generation error."))
+      result2.getOrElse(throw new Exception("Super Abstract generation error."))
     }
   }
 }
@@ -51,7 +53,7 @@ object OllamaClient {
         val split: Array[String] = par.split(" *= *", 2)
         val split0: String = split.head
 
-        split.size match {
+        split.length match {
           case 1 if split0.length > 2 => map + (split0.substring(2) -> "")
           case 2 if split0.length > 1 => map + (split0.substring(1) -> split(1))
           case _ =>

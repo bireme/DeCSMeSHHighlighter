@@ -2,20 +2,20 @@ name := "DeCSMeSHFinder"
 
 version := "1.0"
 
-scalaVersion := "2.13.16" //"2.13.13"
+scalaVersion := "2.13.18" //"2.13.13"
 
 val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
 val luceneVersion = "9.12.1" //"9.8.0"
 val tikaVersion = "3.2.0"
-val sttpVersion = "4.0.9" //4.0.0-RC2"
+val sttpVersion = "4.0.13" //4.0.0-RC2"
 val scalaTagsVersion = "0.13.1"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
-val circeVersion = "0.14.14"
-val jsoupVersion = "1.21.1"
+val circeVersion = "0.14.15"
+val jsoupVersion = "1.21.2"
 val linguaVersion = "1.2.2"
-val ollama4jVersion = "1.0.100"
-val playJsonVersion = "2.10.7"
+val ollama4jVersion = "1.1.5"
+val playJsonVersion = "2.10.8"
 
 libraryDependencies ++= Seq(
   "jakarta.servlet" % "jakarta.servlet-api" % jakartaServletApiVersion % "provided",
