@@ -23,7 +23,6 @@ object ImportDeCS {
     Console.err.println("\t[-encoding=<str>] - master file character encoding. Default is ISO8859-1")
     System.exit(1)
   }
-  
 
   def main(args: Array[String]): Unit = {
     val parameters: Map[String, String] = args.foldLeft[Map[String, String]](Map()) {

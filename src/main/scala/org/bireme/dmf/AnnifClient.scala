@@ -59,16 +59,18 @@ class AnnifClient(baseAnnifUrl: String) {
   }
 }
 
-object AnnifClientApp extends App {
-  private val url: String = "http://annif.teste.bireme.br:5000/"
-  private val ac: AnnifClient = new AnnifClient(url)
+object AnnifClientApp {
+  def main(args: Array[String]): Unit = {
+    val url: String = "http://annif.teste.bireme.br:5000/"
+    val ac: AnnifClient = new AnnifClient(url)
 
-  ac.listProjects() match {
-    case Right(projects) => println(projects)
-    case Left(error) => println(s"Error: $error")
-  }
-  ac.getSuggestions(project_id = "omikuji-decs", text = "as mulheres do brasil tem crianças com dengue") match {
-    case Right(suggestions) => suggestions.foreach(suggestion => println(s"term=${suggestion.label} score=${suggestion.score}"))
-    case Left(error) => println(s"Error: $error")
+    ac.listProjects() match {
+      case Right(projects) => println(projects)
+      case Left(error) => println(s"Error: $error")
+    }
+    ac.getSuggestions(project_id = "omikuji-decs", text = "as mulheres do brasil tem crianças com dengue") match {
+      case Right(suggestions) => suggestions.foreach(suggestion => println(s"term=${suggestion.label} score=${suggestion.score}"))
+      case Left(error) => println(s"Error: $error")
+    }
   }
 }

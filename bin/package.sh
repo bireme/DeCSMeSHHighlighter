@@ -12,7 +12,7 @@ sbt clean package
 
 cd $DMH_DIR/jetty-base || exit
 
-mv ../target/scala-2.13/decsmeshfinder.war ../jetty-base/webapps
+mv ../target/scala-3.3.7/decsmeshfinder.war ../jetty-base/webapps
 
 ../jetty-home-11.0.14/bin/jetty.sh start
 

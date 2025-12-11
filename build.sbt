@@ -2,11 +2,11 @@ name := "DeCSMeSHFinder"
 
 version := "1.0"
 
-scalaVersion := "2.13.18" //"2.13.13"
+scalaVersion := "3.3.7" //"2.13.18" //"2.13.13"
 
 val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
-val luceneVersion = "9.12.1" //"9.8.0"
+val luceneVersion = "10.3.2" //"9.8.0"
 val tikaVersion = "3.2.0"
 val sttpVersion = "4.0.13" //4.0.0-RC2"
 val scalaTagsVersion = "0.13.1"
@@ -14,7 +14,7 @@ val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
 val circeVersion = "0.14.15"
 val jsoupVersion = "1.21.2"
 val linguaVersion = "1.2.2"
-val ollama4jVersion = "1.1.5"
+val ollama4jVersion = "1.1.6"
 val playJsonVersion = "2.10.8"
 
 libraryDependencies ++= Seq(
@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % circeVersion,
   "org.jsoup" % "jsoup" % jsoupVersion,
   "io.github.ollama4j" % "ollama4j" % ollama4jVersion,
+  //"com.github.pemistahl" % "lingua" % linguaVersion,
   "com.github.pemistahl" % "lingua" % linguaVersion,
   "com.typesafe.play" %% "play-json" % playJsonVersion,
   "org.scalactic" %% "scalactic" % scalaTestVersion,
@@ -43,7 +44,7 @@ trapExit := false
 
 resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Ywarn-unused")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 //enablePlugins(JettyPlugin)
 //enablePlugins(WarPlugin)

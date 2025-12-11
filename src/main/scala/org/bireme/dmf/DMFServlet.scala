@@ -7,12 +7,13 @@
 
 package org.bireme.dmf
 
-import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 import jakarta.servlet.{ServletConfig, ServletContext}
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 //import org.apache.tika.metadata.Metadata
 //import org.apache.tika.parser.AutoDetectParser
 //import org.apache.tika.sax.BodyContentHandler
+
+import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 
 import java.io.{InputStream, PrintWriter}
 import org.bireme.dh.{Config, Highlighter}
@@ -198,9 +199,14 @@ class DMFServlet extends HttpServlet {
         }*/
         val annif: AnnifClient = new AnnifClient(annifBaseUrl)
         val annifSuggestions: Either[String, Seq[AnnifSuggestion]] = inputLang match {
+          /*
           case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(7), threshold=Some(0.13f))
           case "es" => annif.getSuggestions(annifProjectId_es, inputText, limit = Some(7), threshold=Some(0.13f))
           case "en" => annif.getSuggestions(annifProjectId_en, inputText, limit = Some(7), threshold=Some(0.13f))
+          */
+          case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(15))
+          case "es" => annif.getSuggestions(annifProjectId_es, inputText, limit = Some(15))
+          case "en" => annif.getSuggestions(annifProjectId_en, inputText, limit = Some(15))
           case _ => Right(Seq[AnnifSuggestion]())
         }
         //val annifSuggestions: Either[String, Seq[Suggestion]] = Right(Seq[Suggestion]())

@@ -23,31 +23,31 @@ class Translate(decsPath: String) {
       if (!outLang.equals("en") && !outLang.equals("es") && !outLang.equals("pt") && !outLang.equals("fr"))
         throw new IllegalArgumentException(s"Invalid language: $outLang")
 
-        val normalizedTerm: String = Tools.uniformString(term)
-        val query: Query = new TermQuery(new Term("term_normalized", normalizedTerm))
-        val topDocs: TopDocs = isearcher.search(query, 1)
-        val scoreDocs: Array[ScoreDoc] = topDocs.scoreDocs
+      val normalizedTerm: String = Tools.uniformString(term)
+      val query: Query = new TermQuery(new Term("term_normalized", normalizedTerm))
+      val topDocs: TopDocs = isearcher.search(query, 1)
+      val scoreDocs: Array[ScoreDoc] = topDocs.scoreDocs
 
-        val outTerm: String = scoreDocs.headOption match {
-          case Some(sd) =>
-            Option(isearcher.storedFields.document(sd.doc).getField("id")) match {
-              case Some(id) =>
-                val query2: Query = parser.parse(s"id:${id.stringValue()} AND lang=$outLang AND -synonym:[* TO *]", "term")
-                val topDocs2: TopDocs = isearcher.search(query2, 1)
-                val scoreDocs2: Array[ScoreDoc] = topDocs2.scoreDocs
+      val outTerm: String = scoreDocs.headOption match {
+        case Some(sd) =>
+          Option(isearcher.storedFields.document(sd.doc).getField("id")) match {
+            case Some(id) =>
+              val query2: Query = parser.parse(s"id:${id.stringValue()} AND lang=$outLang AND -synonym:[* TO *]", "term")
+              val topDocs2: TopDocs = isearcher.search(query2, 1)
+              val scoreDocs2: Array[ScoreDoc] = topDocs2.scoreDocs
 
-                scoreDocs2.headOption match {
-                  case Some(sd) =>
-                    Option(isearcher.storedFields.document(sd.doc).getField("term")) match {
-                      case Some(trm) => trm.stringValue()
-                      case None => term
-                    }
-                  case None => term
-                }
-              case None => term
-            }
-          case None => term
-        }
+              scoreDocs2.headOption match {
+                case Some(sd) =>
+                  Option(isearcher.storedFields.document(sd.doc).getField("term")) match {
+                    case Some(trm) => trm.stringValue()
+                    case None => term
+                  }
+                case None => term
+              }
+            case None => term
+          }
+        case None => term
+      }
       outTerm
     }.toEither match {
       case Right(x) => Right(x)
@@ -61,23 +61,26 @@ class Translate(decsPath: String) {
   }
 }
 
-object Translate extends App {
-  private val trans: Translate = new Translate("jetty-base/decs/decs")
-  private val terms: Seq[String] = Seq("Arcada Osseodentária", "Barosma crenulatum", "Bibliotecas", "Boca", "Cirurgia Bucal", "Comunicação", "Descritores", "Diagnóstico Precoce",
-    "Face", "Fatores de Risco", "Fibra de Lã", "Infecções", "Métodos", "Organização e Administração", "Pesos e Medidas", "Pesquisa", "Prevenção de Doenças",
-    "PubMed", "Revisão", "Segurança do Paciente", "Seio Maxilar", "Seleção de Sítio de Tratamento de Resíduos", "Sinais e Sintomas", "Terapêutica", "complicações", "Álcalis")
+object Translate {
+  def main(args: Array[String]): Unit = {
+    val trans: Translate = new Translate("jetty-base/decs/decs")
+    val terms: Seq[String] = Seq("Arcada Osseodentária", "Barosma crenulatum", "Bibliotecas", "Boca", "Cirurgia Bucal", "Comunicação", "Descritores", "Diagnóstico Precoce",
+      "Face", "Fatores de Risco", "Fibra de Lã", "Infecções", "Métodos", "Organização e Administração", "Pesos e Medidas", "Pesquisa", "Prevenção de Doenças",
+      "PubMed", "Revisão", "Segurança do Paciente", "Seio Maxilar", "Seleção de Sítio de Tratamento de Resíduos", "Sinais e Sintomas", "Terapêutica", "complicações", "Álcalis")
 
-  Seq("en", "es", "pt", "fr") foreach {
-    lang =>
-      terms.foreach {
-        term => trans.translate(term, lang) match {
-          case Right(translated) =>
-            println(s"\nlang=$lang")
-            println(s"terms     =$terms")
-            println(s"translated=$translated")
-          case Left(error) => System.err.println(s"ERROR: $error")
+    Seq("en", "es", "pt", "fr") foreach {
+      lang =>
+        terms.foreach {
+          term =>
+            trans.translate(term, lang) match {
+              case Right(translated) =>
+                println(s"\nlang=$lang")
+                println(s"terms     =$terms")
+                println(s"translated=$translated")
+              case Left(error) => System.err.println(s"ERROR: $error")
+            }
         }
-      }
+    }
+    trans.close()
   }
-  trans.close()
 }
