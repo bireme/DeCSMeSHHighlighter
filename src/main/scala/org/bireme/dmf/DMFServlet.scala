@@ -851,7 +851,7 @@ class DMFServlet extends HttpServlet {
       });
   </script>
 
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!--div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -863,7 +863,7 @@ class DMFServlet extends HttpServlet {
         <div class="modal-body">""" + warningMessage + """</div>
       </div>
     </div>
-  </div>
+  </div-->
 
   <script src="decsf/js/jquery-3.4.1.min.js"></script>
 	<script src="decsf/js/bootstrap.bundle.min.js"></script>
