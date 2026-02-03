@@ -126,9 +126,9 @@ object MainAreas {
         // Usando onchange do Scalatags e referenciando a função global
         onchange := "window.handleFChange(event);"
       ),
+      ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.importButton(language, i18n),
       //ButtonTags.internetButton(language, i18n),
-      //ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.clearButton(language, i18n),
       //ButtonTags.srButton(originalInputText, language, i18n),
       DialogBox.renderDialogBox()

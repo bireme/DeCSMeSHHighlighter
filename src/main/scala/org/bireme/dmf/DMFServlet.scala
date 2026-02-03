@@ -226,14 +226,27 @@ class DMFServlet extends HttpServlet {
         val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term._1, termLang = oLanguage, tipLang = language))
         println(s"annifSuggestions=$annifSuggestions\n\nannifTerms0=$annifTerms0\n\nannifTerms=$annifTerms\n\nannifTermsPrefSuf=$annifTermsPrefSuf\n\n")
         val annifZip: Seq[(String, Float)] =  annifTermsPrefSuf.zip(annifSuggestions.getOrElse(Seq[AnnifSuggestion]()).map(_.score))
-        val annifZip1: Seq[String] = annifZip.map {
+
+        /*val annifZip1: Seq[String] = annifZip.map {
           case (key, score) =>
              score match {
                case x if x >= 0.5  => s"🟢 $key"
                case x if x >= 0.09 => s"🟡 $key"
                case _              => s"⭕ $key"
              }
-        }
+        }*/
+
+        val annifZip1: Seq[String] =
+          annifZip.map { case (key, score) =>
+
+            val cls =
+              if score >= 0.13 then "dot-high" // verde escuro
+              else if score >= 0.05 then "dot-mid" // verde claro
+              else "dot-low" // amarelo
+
+            s"""<span class="likelihood"><span class="dot $cls"></span>$key</span>"""
+          }
+
         //val descr: Seq[String] = descriptors._3.map(_._1)
         val descr: Set[(String,String)] = descriptors._2.map(t => (t._3, t._5)).toSet
         val exportText: String = getExportTermsText(descr, annifTerms, language)
@@ -246,7 +259,7 @@ class DMFServlet extends HttpServlet {
         /*getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
           language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)*/
         getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
-          language, srText, annifZip1.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)
+          language, srText, annifZip1.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
       }
       //println(s"markedInputText=[${descriptors._1.replace(breakSignal, "<br/>")}]")
       val out: PrintWriter = response.getWriter
@@ -758,6 +771,34 @@ class DMFServlet extends HttpServlet {
       #barAccessibility {
         /* opcional: estilos de cor, padding etc */
       }
+
+      .likelihood {
+        display: inline-flex;
+        align-items: center; /* centraliza perfeito */
+        gap: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      /* Muito provável → verde escuro */
+      .dot-high {
+        background-color: #16a34a;
+      }
+
+      /* Provável → verde claro */
+      .dot-mid {
+        background-color: #4ade80;
+      }
+
+      /* Pouco provável → amarelo */
+      .dot-low {
+        background-color: #facc15;
+      }
+
     </style>
 
 </head>
@@ -782,7 +823,10 @@ class DMFServlet extends HttpServlet {
       """ + MainAreas.inputOutputAreas("Paste your text below", markedInputText.trim, originalInputText, srText, annifText, exportText, language, i18n) + """
   </div>
   <!-- FOOTER -->
-  """ + Footer.footer(language, i18n) + """
+  """
+      //+ Footer.footerX() + """
+  + Footer.footerX(language, i18n) + """
+
 
   <script>
         // Captura o evento de mudança no select
@@ -899,7 +943,7 @@ class DMFServlet extends HttpServlet {
         }
       });
 
-      el.addEventListener('paste', (e) => {
+     el.addEventListener('paste', (e) => {
         // extrai apenas o texto colado
         const pastedText = e.clipboardData.getData('text');
         //alert("Pasted text=" + pastedText);
@@ -908,10 +952,9 @@ class DMFServlet extends HttpServlet {
 
       function onPaste(el, text) {
         //alert('Texto colado:' + text);
-        // coloque aqui sua lógica
-        el.innerHTML = text;
-        document.body.style.cursor = "wait";
-        submitPage(`""" + originalInputText + """`, """" + language + """", "false");
+        //el.innerHTML = text;
+        //document.body.style.cursor = "wait";
+        //submitPage(`""" + originalInputText + """`, """" + language + """", "false");
       }
     </script>
 </body>

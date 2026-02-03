@@ -6,6 +6,7 @@
 Main Content|Main content|Contenido principal|Conteúdo principal|Contenu principal
 Menu|Menu|Menú|Menu|Menu
 Search|Search|Búsqueda|Pesquisa|Recherche
+Send text|Send text|Enviar texto|Enviar texto|Envoyer un texte
 Footer|Footer|Pie de página|Rodapé|Bas de page
 High Contrast|High contrast|Alto contraste|Alto contraste|Contraste élevé
 Accessibility|Accessibility|Accesibilidad|Acessibilidade|Accessibilité

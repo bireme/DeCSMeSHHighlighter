@@ -39,10 +39,11 @@ object ButtonTags {
       attr("type") := "button",
       cls  := "btn btn-success",
       style := "margin-top: 2px;",
-      title := i18n.translate(key="Search", language),
+      title := i18n.translate(key="Send text", language),
       attr("onclick") :=
         """document.body.style.cursor = "wait";submitPage(`""" + originalInputText + """`, """" + language + """", "false"); gtag("event", "button_click", { "event_category": "button", "event_label": "Search Button" });"""
-    )(i(cls := "fas fa-search"))
+    //)(i(cls := "fas fa-search"))
+    )(i(cls := "fas fa-check"))
   }
 
   def clearButton(language: String,
