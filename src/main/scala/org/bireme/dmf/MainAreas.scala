@@ -97,12 +97,22 @@ object MainAreas {
     )(raw(srText))
   }
 
-  private def annifArea(annifText: String): Text.TypedTag[String] = {
+  /*private def annifArea(annifText: String): Text.TypedTag[String] = {
     div(
       id := "textWithTooltipsAnnif",
       cls := "p-3 border rounded",
       style := "flex-grow: 1; resize: vertical; overflow-x: auto; white-space: pre;",
       attr("spellcheck")      := "false",
+      attr("contenteditable") := "false"
+    )(raw(annifText))
+  }*/
+
+  private def annifArea(annifText: String): Text.TypedTag[String] = {
+    div(
+      id := "textWithTooltipsAnnif",
+      cls := "p-3 border rounded",
+      style := "flex-grow: 1; resize: vertical; overflow-x: auto; white-space: normal;",
+      attr("spellcheck") := "false",
       attr("contenteditable") := "false"
     )(raw(annifText))
   }

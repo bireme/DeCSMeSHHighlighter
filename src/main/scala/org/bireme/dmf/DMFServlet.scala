@@ -225,7 +225,10 @@ class DMFServlet extends HttpServlet {
         }
         val annifTermsPrefSuf: Seq[String] = annifTerms.map(term => markPrefSuffix.prefSuffix1(term._1, termLang = oLanguage, tipLang = language))
         println(s"annifSuggestions=$annifSuggestions\n\nannifTerms0=$annifTerms0\n\nannifTerms=$annifTerms\n\nannifTermsPrefSuf=$annifTermsPrefSuf\n\n")
-        val annifZip: Seq[(String, Float)] =  annifTermsPrefSuf.zip(annifSuggestions.getOrElse(Seq[AnnifSuggestion]()).map(_.score))
+        val annifZip: Seq[(String, Int)] =  annifTermsPrefSuf.zip(annifSuggestions.getOrElse(Seq[AnnifSuggestion]()).map(sc => (sc.score * 100).toInt))
+
+        val annifTermScore: Seq[(String, Int)] = annifTermsPrefSuf.zip(annifZip.map(_._2))
+        val annifText: String = prepareAnnifText(annifTermScore)
 
         /*val annifZip1: Seq[String] = annifZip.map {
           case (key, score) =>
@@ -235,17 +238,6 @@ class DMFServlet extends HttpServlet {
                case _              => s"⭕ $key"
              }
         }*/
-
-        val annifZip1: Seq[String] =
-          annifZip.map { case (key, score) =>
-
-            val cls =
-              if score >= 0.13 then "dot-high" // verde escuro
-              else if score >= 0.05 then "dot-mid" // verde claro
-              else "dot-low" // amarelo
-
-            s"""<span class="likelihood"><span class="dot $cls"></span>$key</span>"""
-          }
 
         //val descr: Seq[String] = descriptors._3.map(_._1)
         val descr: Set[(String,String)] = descriptors._2.map(t => (t._3, t._5)).toSet
@@ -259,7 +251,7 @@ class DMFServlet extends HttpServlet {
         /*getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
           language, srText, annifTermsPrefSuf.mkString("<br>"), exportText, useFrequencySort, isFirstLoad)*/
         getHtml(inputLang, oLanguage, termTypes, descriptors._1.replace(breakSignal, "<br/>"), inputText.replace("\n", "<br/>"),
-          language, srText, annifZip1.mkString("<br/>"), exportText, useFrequencySort, isFirstLoad)
+          language, srText, annifText, exportText, useFrequencySort, isFirstLoad)
       }
       //println(s"markedInputText=[${descriptors._1.replace(breakSignal, "<br/>")}]")
       val out: PrintWriter = response.getWriter
@@ -279,6 +271,47 @@ class DMFServlet extends HttpServlet {
         out.flush()
         //response.sendError(500, errMess)
     }
+  }
+
+  private def prepareAnnifText(terms: Seq[(String, Int)]): String = {
+    def clampScore(v: Int): Int = math.max(0, math.min(100, v))
+
+    terms.map { case (linkHtml, score0) =>
+      val score = clampScore(score0)
+
+      /*s"""
+         |<div class="d-flex align-items-center" style="margin-bottom: 6px;">
+         |  <div class="progress"
+         |       style="width: 7mm; height: 0.8rem; flex: 0 0 auto; margin-top: 1px; margin-right: 14px;"
+         |       title="Score: $score">
+         |    <div class="progress-bar"
+         |         role="progressbar"
+         |         style="width: $score%; padding: 0; line-height: 0;">
+         |    </div>
+         |  </div>
+         |  <div style="flex: 1 1 auto; line-height: 1.1; margin: 0;">
+         |    $linkHtml
+         |  </div>
+         |</div>
+         |""".stripMargin.trim*/
+
+      s"""
+         |<div class="d-flex align-items-center" style="margin-bottom: 6px;">
+         |  <div class="progress"
+         |       style="width: 7mm; height: 0.8rem; flex: 0 0 auto; margin-top: 1px; margin-right: 14px;"
+         |       title="Score: $score">
+         |    <div class="progress-bar"
+         |         role="progressbar"
+         |         style="width: $score%; padding: 0; line-height: 0; background-color: #94BF27;">
+         |    </div>
+         |  </div>
+         |  <div style="flex: 1 1 auto; line-height: 1.1; margin: 0;">
+         |    $linkHtml
+         |  </div>
+         |</div>
+         |""".stripMargin.trim
+
+    }.mkString("\n")
   }
 
   private def getAnnifTerms(annifSuggestions: Either[String, Seq[AnnifSuggestion]],
@@ -931,17 +964,6 @@ class DMFServlet extends HttpServlet {
     <script>
       //alert("Entrando no script do textWithTooltips");
       const el = document.getElementById('textWithTooltips');
-
-      el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          event.preventDefault(); // evita quebra de linha
-          const text = el.innerText.trim();
-          if (text !== "") {
-            document.body.style.cursor = "wait";
-            submitPage(`""" + originalInputText + """`, """" + language + """", "false");
-          }
-        }
-      });
 
      el.addEventListener('paste', (e) => {
         // extrai apenas o texto colado
