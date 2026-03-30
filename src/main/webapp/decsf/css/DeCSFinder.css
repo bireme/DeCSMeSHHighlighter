@@ -1,0 +1,230 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#main_container {
+  flex: 1;
+}
+
+#modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+#modal-content {
+  background-color: #669966;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  color: white;
+  max-width: 100ch;
+}
+
+#close-btn {
+  margin-top: 10px;
+}
+
+#textWithTooltips,
+#textWithTooltipsAnnif,
+#superResumos {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  overflow-x: auto;
+}
+
+#textWithTooltips:focus-visible,
+#textWithTooltipsAnnif:focus-visible {
+  background-color: #fff;
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#textWithTooltips a,
+#textWithTooltipsAnnif a {
+  cursor: pointer;
+}
+
+#translateButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.no-sr-text #textWithTooltips {
+  height: calc(100vh - 406px);
+}
+
+.has-sr-text #textWithTooltips {
+  height: calc(100vh - 575px);
+}
+
+#textWithTooltipsAnnif {
+  height: calc(100vh - 406px);
+}
+
+#superResumos {
+  overflow-x: auto;
+}
+
+.tooltip-inner {
+  background-color: #1e491f !important;
+  color: #ffffff !important;
+  max-width: 600px;
+}
+
+.tooltip .arrow::before {
+  background-color: #f39c12 !important;
+}
+
+.dmf-custom-tooltip {
+  position: fixed;
+  z-index: 2000;
+  max-width: 600px;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.25rem;
+  background-color: #1e491f;
+  color: #ffffff;
+  line-height: 1.35;
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  word-break: break-word;
+}
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-box {
+  background: white;
+  padding: 1.5em;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-buttons {
+  margin-top: 1em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.likelihood {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot-high {
+  background-color: #16a34a;
+}
+
+.dot-mid {
+  background-color: #4ade80;
+}
+
+.dot-low {
+  background-color: #facc15;
+}
+
+#footer {
+  background-color: #426a5a;
+  color: #fff;
+  margin-top: 1px;
+  padding: 50px 0 20px 0;
+}
+
+#footer a {
+  color: #fff;
+}
+
+#footer a:hover {
+  color: #ddd;
+}
+
+#footer hr {
+  border-color: rgba(255, 255, 255, 0.35);
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+}
+
+#footer-logo-bir {
+  text-align: right;
+}
+
+#footer-logo-bir img {
+  height: 70px;
+  width: auto;
+}
+
+#powered {
+  background-color: #426a5a;
+  color: #fff;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 5px 0;
+}
+
+#powered img {
+  height: 20px;
+  margin-bottom: 10px;
+}
+
+#powered a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#powered a:hover {
+  color: #999;
+  text-decoration: none;
+}
+
+@media (max-width: 772px) {
+  #footer {
+    text-align: center;
+  }
+
+  #footer-logo-bir {
+    text-align: center;
+    margin-top: 20px;
+  }
+}

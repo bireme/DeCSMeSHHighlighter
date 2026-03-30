@@ -14,7 +14,7 @@ Disclaimer|Warning: This service uses a computer program to identify and suggest
 Language of your text|Language of your text|Idioma de su texto|Idioma do seu texto|Langue de votre texte
 Language of the terms|Language of the terms|Idioma de los término|Idioma dos termos|Langue des termes
 Types of terms|Types of terms|Tipos de términos|Tipos de termos|Types de termes
-I don't know|I don't know|No lo sé|Eu não sei|Je ne sais pas
+I don't know|I don't know, detect automatically|No lo sé, detectar automáticamente|Eu não sei, detectar automaticamente|Je ne sais pas, détecter automatiquement
 English|English|Inglés|Inglês|Anglais
 Spanish|Spanish|Español|Espanhol|Espagnol
 Portuguese|Portuguese|Portugués|Português|Portugais
@@ -32,6 +32,7 @@ Terms identified by AI|Terms identified by AI|Términos identificados por IA|Ter
 Import file|Import file|Importar archivo|Importar arquivo|Importer le fichier
 Search|Search|Buscar|Procurar|Chercher
 Clear|Clear|Limpiar|Limpar|Nettoyer
+Translate|Translate|Traducir|Traduzir|Traduire
 SR|SS|SR|SR|SR
 SuperAbstract|Super summaries|Súper resúmenes|Super resumos|Super résumés
 Numerical order|Numerical order|Orden numérica|Ordem numérica|Ordre numérique

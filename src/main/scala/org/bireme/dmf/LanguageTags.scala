@@ -10,12 +10,11 @@ object LanguageTags {
                    termTypes: Seq[String],
                    language: String,
                    i18n: I18N): Text.TypedTag[String] = {
-    section(id := "filter")(
+    section(id := "filter", cls := "header-inter")(
       div(cls := "container")(
         div(cls := "row")(
           textLangArea(inputLang, language, i18n),
-          textTermArea(outputLang, language, i18n),
-          typeOfTermArea(termTypes, language, i18n)
+          textTermArea(outputLang, language, i18n)
         )
       )
     )
@@ -24,14 +23,15 @@ object LanguageTags {
   private def textLangArea(inputLang: String,
                            language: String,
                            i18n: I18N): Text.TypedTag[String] = {
-    div(cls := "form-group col-md-4")(
+    div(cls := "form-group col-md-6")(
       label(`for` := "inputTextLanguage")(
         s"${i18n.translate("Language of your text", language)}:"
       ),
       select(
         name := "",                                 // -- deixe vazio como no HTML original
         id   := "inputTextLanguage",
-        cls  := "form-control"
+        cls  := "form-control",
+        onchange := """handleLanguageSelectionChange(this, "Language of your text");"""
       )(
         option(
           value := "All languages",
@@ -64,14 +64,15 @@ object LanguageTags {
   private def textTermArea(outputLang: String,
                            language: String,
                            i18n: I18N): Text.TypedTag[String] = {
-    div(cls := "form-group col-md-4")(
+    div(cls := "form-group col-md-6")(
       label(`for` := "outputTextLanguage")(
         s"${i18n.translate("Language of the terms", language)}:"
       ),
       select(
         name := "",
         id   := "outputTextLanguage",
-        cls  := "form-control"
+        cls  := "form-control",
+        onchange := """handleLanguageSelectionChange(this, "Language of the terms");"""
       )(
         option(
           value := "en",
@@ -96,34 +97,4 @@ object LanguageTags {
     )
   }
 
-  private def typeOfTermArea(termTypes: Seq[String],
-                             language: String,
-                             i18n: I18N): Text.TypedTag[String] = {
-    div(cls := "form-group col-md-4")(
-      /* rótulo */
-      label(`for` := "")(
-        s"${i18n.translate("Types of terms", language)}:"
-      ),
-
-      /* lista múltipla */
-      select(
-        multiple := "multiple",
-        cls  := "selectpicker form-control",
-        id   := "termTypes",
-        placeholder := ""
-      )(
-        /* “Descritores” */
-        option(
-          value := "Descriptors",
-          if (termTypes.contains("Descriptors")) selected := "" else ()
-        )(i18n.translate("Descriptors", language)),
-
-        /* “Qualificadores” */
-        option(
-          value := "Qualifiers",
-          if (termTypes.contains("Qualifiers")) selected := "" else ()
-        )(i18n.translate("Qualifiers", language))
-      )
-    )
-  }
 }

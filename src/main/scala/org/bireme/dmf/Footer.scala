@@ -43,60 +43,69 @@ object Footer {
 
   def footerX(language: String,
               i18n: I18N): Text.TypedTag[String] = {
-    tag("footer") (
-      id  := "footer",
-      cls := "padding1"
-    )(
-      div(cls := "container")(
-        div(cls := "row")(
-          leftFooter(language, i18n),
-          rightFooter(language)
+    div(
+      footer(id := "footer")(
+        div(cls := "container")(
+          div(cls := "row")(
+            leftFooter(language),
+            rightFooter(language)
+          ),
+          hr()
+        )
+      ),
+      div(id := "powered")(
+        div(cls := "container")(
+          img(
+            src := s"decsf/img/powered-${footerAssetLanguage(language)}.svg",
+            alt := "BIREME"
+          ),
+          br(),
+          small("© All rights are reserved'"),
+          br(),
+          small(
+            a(
+              href := s"https://politicas.bireme.org/terminos/${footerAssetLanguage(language)}",
+              target := "_blank"
+            )(i18n.translate("Terms and conditions of use", language)),
+            " | ",
+            a(
+              href := s"https://politicas.bireme.org/privacidad/${footerAssetLanguage(language)}",
+              target := "_blank"
+            )(i18n.translate("Privacy policy", language))
+          )
         )
       )
     )
   }
 
-  private def leftFooter(language: String,
-                         i18n: I18N): Text.TypedTag[String] = {
-    div(cls := "col-md-5")(
-      b("DeCS Finder IA"),
-      br(),
-
-      /* Termos de uso */
-      a(
-        href :=
-          s"http://politicas.bireme.org/terminos/${ if (language == "fr") "en" else language }",
-        target := "_blank"
-      )(i18n.translate("Terms and conditions of use", language)),
-
-      " ",  // espaço entre os links (pode usar "&nbsp;" ou CSS)
-
-      /* Política de privacidade */
-      a(
-        href :=
-          s"http://politicas.bireme.org/privacidad/${ if (language == "fr") "en" else language }",
-        target := "_blank"
-      )(i18n.translate("Privacy policy", language))
+  private def leftFooter(language: String): Text.TypedTag[String] = {
+    div(cls := "col-md-8")(
+      footerDescription(language)
     )
   }
 
   private def rightFooter(language: String): Text.TypedTag[String] = {
-    div(cls := "col-md-7 text-right")(
-      {
-        val homeUrl: String = language match {
-          case "es" => "https://www.bireme.org/es/home-espanol/"
-          case "pt" => "https://www.bireme.org/"
-          case _    => "https://www.bireme.org/en/home-english/"
-        }
-
-        a(href := homeUrl, target := "_blank")(
-          img(
-            src  := s"http://logos.bireme.org/img/$language/h_bir_white.svg",
-            alt  := "",
-            cls  := "img-fluid"
-          )
-        )
-      }
+    div(cls := "col-md-4", id := "footer-logo-bir")(
+      img(
+        src := s"https://logos.bireme.org/img/${footerAssetLanguage(language)}/v_bir_white.svg",
+        cls := "img-fluid",
+        alt := ""
+      )
     )
+  }
+
+  private def footerDescription(language: String): String = language match {
+    case "es" =>
+      "DeCS Finder IA es una herramienta desarrollada por BIREME/OPS/OMS para apoyar la organización y la recuperación de la información en salud, por medio del descubrimiento automático de descriptores del tesauro DeCS - Descriptores en Ciencias de la Salud."
+    case "en" | "fr" =>
+      "DeCS Finder IA is a tool developed by BIREME/PAHO/WHO to support the organization and retrieval of health information through the automatic discovery of descriptors from the DeCS - Health Sciences Descriptors thesaurus."
+    case _ =>
+      "DeCS Finder IA é uma ferramenta desenvolvida pela BIREME/OPAS/OMS para apoiar a organização e a recuperação da informação em saúde, por meio da descoberta automática de descritores do tesauro DeCS – Descritores em Ciências da Saúde."
+  }
+
+  private def footerAssetLanguage(language: String): String = language match {
+    case "es" => "es"
+    case "pt" => "pt"
+    case _ => "en"
   }
 }

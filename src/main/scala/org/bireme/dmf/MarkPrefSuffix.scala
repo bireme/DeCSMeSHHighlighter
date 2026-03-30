@@ -15,6 +15,13 @@ class MarkPrefSuffix(decsPath: String) {
   private val ireader: DirectoryReader = DirectoryReader.open(directory)
   private val isearcher: IndexSearcher = new IndexSearcher(ireader)
 
+  private def escapeHtml(value: String): String = Option(value).getOrElse("")
+    .replace("&", "&amp;")
+    .replace("<", "&lt;")
+    .replace(">", "&gt;")
+    .replace("\"", "&quot;")
+    .replace("'", "&#39;")
+
   def close(): Unit = {
     Try {
       ireader.close()
@@ -98,8 +105,13 @@ class MarkPrefSuffix(decsPath: String) {
                    decsId: String,
                    treeNumber: Option[Array[String]],
                    language: String): String = {
-    val treeNumberStr: String = treeNumber.map(arr => s"<br/><br/>${arr.mkString("<br/>")}").getOrElse("")
-    val content: String = s"<b>[$descriptor]</b><br/><br/>$scopeNote$treeNumberStr"
+    val safeDescriptor: String = escapeHtml(descriptor)
+    val tooltipText: String = List(
+      s"[$descriptor]",
+      scopeNote,
+      treeNumber.map(_.mkString("\n")).getOrElse("")
+    ).filter(_.trim.nonEmpty).mkString("\n\n")
+    val titleAttr: String = escapeHtml(tooltipText).replace("\n", "&#10;")
     val lang: String = language match {
       case "pt" => ""
       case _ => s"/$language"
@@ -107,9 +119,8 @@ class MarkPrefSuffix(decsPath: String) {
 
     val ret = s"""<a href="https://decs.bvsalud.org$lang/ths/resource/?id=$decsId&q=$descriptor&filter=ths_exact_term"
        class="tooltip-link"
-       data-bs-toggle="tooltip"
-       data-bs-html="true"
-       title="$content"
+       title="$titleAttr"
+       aria-label="$safeDescriptor"
        target="_blank">$term</a>"""
 
     //println(s"term=$term ret=$ret")

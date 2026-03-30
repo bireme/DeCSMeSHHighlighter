@@ -13,8 +13,10 @@ import scala.jdk.CollectionConverters._
 class OllamaClient(ollamaHost: String,
                    ollamaPort: Option[Int]) {
   private val url: String = s"http://$ollamaHost:${ollamaPort.getOrElse(11434)}"
+  private val requestTimeoutSeconds: Long = 120L
 
   private val ollamaAPI: Ollama = new Ollama(url)
+  ollamaAPI.setRequestTimeoutSeconds(requestTimeoutSeconds)
   if (!ollamaAPI.ping())  throw new Exception(s"It is not possible to connect with Ollama server at: $url")
 
   def getModelNames(): Try[Set[String]] = Try(ollamaAPI.listModels().asScala.map(model => model.getModelName).toSet)
@@ -28,16 +30,22 @@ class OllamaClient(ollamaHost: String,
             .withPrompt(input)
             .build(),
           null)
-      val chatResult: String = result.getResponse()
-      val parsed: JsValue = Json.parse(chatResult)
-      val result2: Option[String] = (parsed \ "response").asOpt[String]
-
-      result2.getOrElse(throw new Exception("Super Abstract generation error."))
+      OllamaClient.extractResponseContent(result.getResponse())
     }
   }
 }
 
 object OllamaClient {
+  private[dmf] def extractResponseContent(chatResult: String): String = {
+    val trimmed = Option(chatResult).map(_.trim).getOrElse("")
+
+    if (trimmed.isEmpty) throw new Exception("Super Abstract generation error.")
+
+    Try(Json.parse(trimmed)).toOption.flatMap { parsed =>
+      (parsed \ "response").asOpt[String]
+    }.map(_.trim).filter(_.nonEmpty).getOrElse(trimmed)
+  }
+
   private def usage(): Unit = {
     System.err.println("usage: OllamaClient <options>")
     System.err.println("options:")

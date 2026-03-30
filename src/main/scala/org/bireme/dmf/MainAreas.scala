@@ -1,15 +1,20 @@
 package org.bireme.dmf
 
+import org.jsoup.Jsoup
 import scalatags.Text
 import scalatags.Text.all.{label, _}
 
 object MainAreas {
+  private def hasVisibleText(content: String): Boolean =
+    Jsoup.parseBodyFragment(content).text().trim.nonEmpty
+
   def inputOutputAreas(labelx: String,
                        inputText: String,
                        originalInputText: String,
                        srText: String,
                        annifText: String,
                        exportText: String,
+                       translateButtonLocked: Boolean,
                        language: String,
                        i18n: I18N): Text.TypedTag[String] = {
     tag("main")(
@@ -19,7 +24,7 @@ object MainAreas {
       div(cls := "container")(
         div(cls := "row") (
           div(cls := "col-md-8")(
-            mainInputArea(labelx, inputText, originalInputText, srText, language, i18n)
+            mainInputArea(labelx, inputText, originalInputText, srText, annifText, translateButtonLocked, language, i18n)
           ),
           div(cls := "col-md-4")(
             mainOutputArea(annifText, exportText, language, i18n)
@@ -33,6 +38,8 @@ object MainAreas {
                             inputText: String,
                             originalInputText: String,
                             srText: String,
+                            annifText: String,
+                            translateButtonLocked: Boolean,
                             language: String,
                             i18n: I18N): Text.TypedTag[String] = {
     val srModifiers: Seq[Modifier] =
@@ -58,7 +65,7 @@ object MainAreas {
         ),
         div(style := "display: flex; align-items: flex-start;")(
           inputTextArea(inputText),
-          importButtonGroup(originalInputText, language, i18n)
+          importButtonGroup(originalInputText, hasVisibleText(inputText), translateButtonLocked, language, i18n)
         )
       ) ++ srModifiers: _*
     )
@@ -83,7 +90,12 @@ object MainAreas {
       cls := "p-3 border rounded",
       style := "flex-grow: 1; resize: vertical; overflow: auto;",
       attr("spellcheck")      := "false",
-      attr("contenteditable") := (if (inpText.trim.isEmpty) "true" else "false")
+      attr("contenteditable") := (if (inpText.trim.isEmpty) "true" else "false"),
+      attr("oninput") := "window.updateTranslateButtonState();",
+      attr("onkeyup") := "window.updateTranslateButtonState();",
+      attr("onpaste") := "window.setTimeout(window.updateTranslateButtonState, 0);",
+      attr("oncut") := "window.setTimeout(window.updateTranslateButtonState, 0);",
+      attr("ondrop") := "window.setTimeout(window.updateTranslateButtonState, 0);"
     )(raw(inpText))
   }
 
@@ -118,6 +130,8 @@ object MainAreas {
   }
 
   private def importButtonGroup(originalInputText: String,
+                                hasTextToTranslate: Boolean,
+                                translateButtonLocked: Boolean,
                                 language: String,
                                 i18n: I18N): Text.TypedTag[String] = {
     val fileInputId = "fileChooser"
@@ -133,13 +147,13 @@ object MainAreas {
         `type` := "file",
         hidden := "hidden",
         attr("accept") := ".txt,.pdf",
-        // Usando onchange do Scalatags e referenciando a função global
         onchange := "window.handleFChange(event);"
       ),
       ButtonTags.searchButton(originalInputText, language, i18n),
       ButtonTags.importButton(language, i18n),
       //ButtonTags.internetButton(language, i18n),
       ButtonTags.clearButton(language, i18n),
+      ButtonTags.translateButton(language, hasTextToTranslate, translateButtonLocked, i18n),
       //ButtonTags.srButton(originalInputText, language, i18n),
       DialogBox.renderDialogBox()
     )

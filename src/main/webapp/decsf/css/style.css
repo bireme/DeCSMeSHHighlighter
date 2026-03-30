@@ -1,3 +1,11 @@
+:root{
+	--white:#fff;
+	--green-dark:#426A5A;
+	--green-light:#b8e22d;
+	--red:#bd3131;
+	--orange:#eb5f08;
+}
+
 body{
 	/* background-image: url(../img/bg.png); */
 	background-repeat: repeat-x;
@@ -13,39 +21,68 @@ a{
 	position: relative;
 	padding-bottom: 20px;
 }
-#header img{
-	max-width: 200px;
+#brand img{
+	max-width: 300px;
 	margin-top: 20px;
 }
 #filter{
-	background: #426A5A; /*#669966;*/
-	border-bottom: 5px solid #93C01F;/*#4e7952;*/
-	color: #fff;
-	padding: 10px;
+	background: linear-gradient(
+		to bottom right,
+		var(--green-dark) 0%,
+		var(--green-light) 62%,
+		#d6df3d 72%,
+		var(--orange) 86%,
+		var(--red) 100%
+	);
+	margin: 0;
+	box-sizing: border-box;
+	background-position: 0% 50%;
+	background-size: 260% 100%;
+	animation: gradientShift 30s ease-in-out infinite;
+	will-change: background-position;
+	color: var(--white);
+}
+.header-inter{
+	box-sizing: border-box;
+	padding: 20px 0 10px 0 !important;
 }
 .padding1{
 	padding: 20px 0;
 }
 
-#language{
-	float: right;
+#lang{
+	text-align: right;
+	font-size: 14px;
 	margin-top: 0px;
 	position: absolute;
-	right: 16px;
-	z-index: 1;
+	top: 0;
+	right: 0;
+	z-index: 999;
+	width: 400px;
 }
-#language ul li{
+#lang ul{
+	margin: 0;
+	padding: 0;
+}
+#lang ul li{
 	list-style: none;
 	display: inline-block;
+	margin-top: 20px;
 }
-#language a{
-	background: #426A5A; /*#4e7952;*/
-	color: #fff;
-	font-size: 12px;
-	padding: 5px;
+#lang ul li a{
+	padding: 4px 6px;
+	text-decoration: none;
+	color: #426A5A;
 }
-#language a:hover{
-	background: #86b986;
+#lang ul li a:hover{
+	background: #ddd;
+	color: #5b6efd;
+	border-radius: 5px;
+}
+#lang .current-lang a{
+	background: #ddd;
+	border-radius: 5px;
+	color: #426A5A;
 }
 #disclaimer{
 	position: relative;
@@ -87,7 +124,7 @@ a{
 	background-color: #426A5A; /*#669966; */
 	color: #fff;
 	margin-top: 1px;
-	padding: 15px 0;
+	padding: 50px 0 20px 0;
 }
 #footer a{
 	color: #fff;
@@ -95,33 +132,68 @@ a{
 #footer a:hover{
 	color: #ddd;
 }
-#footer img{
-	max-width: 500px;
+#footer hr{
+	border-color: rgba(255, 255, 255, 0.35);
+	margin-top: 1.5rem;
+	margin-bottom: 0;
+}
+#footer-logo-bir{
+	text-align: right;
+}
+#footer-logo-bir img{
+	height: 70px;
+	width: auto;
+}
+#powered{
+	background-color: #426A5A;
+	color: #fff;
+	text-align: center;
+	font-size: .85rem;
+	padding: 5px 0;
+}
+#powered img{
+	height: 20px;
+	margin-bottom: 10px;
+}
+#powered a{
+	color: #fff;
+	text-decoration: none;
+}
+#powered a:hover{
+	color: #999;
+	text-decoration: none;
 }
 /************* Breakpoint *************/
 @media (max-width: 992px){
-	#footer img{
-		width: 80%;
-		text-align: center;
-		margin-top: 20px;
-	}
 }
 @media (max-width: 768px){
 	#header{
 		text-align: center;
 	}
-	#language{
+	#brand{
+		text-align: center;
+		margin-bottom: 15px;
+	}
+	#lang{
 		float: none;
-		margin-top: 0px;
-		position: sticky;
-		right: auto;
+		margin-bottom: 10px;
+		position: static;
+		text-align: center;
 		width: 100%;
 	}
 	#footer{
-		padding: 20px; 
 		text-align: center;
 	}
-	#footer img{width: 100%; height: auto; text-align: center;}
+	#footer-logo-bir{
+		text-align: center;
+		margin-top: 20px;
+	}
+	#footer img{
+		width: auto;
+		max-width: 100%;
+		height: auto;
+		text-align: center;
+	}
 }
 /*correções svg Internet Explorer Edge*/
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
@@ -132,10 +204,37 @@ a{
 
 /* Ajuste da cor dos botões */
 .btn-success {
-  background-color: #588a76 /*#426A5A*/ !important;
-  border-color: #588a76 /*#426A5A*/ !important;
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
 }
-.btn-success:hover{
-	background:#426A5A /*#588a76*/ !important;
+.btn-success:hover,
+.btn-success:focus,
+.btn-success.focus {
+	background: #218838 !important;
+	border-color: #1e7e34 !important;
+}
+.btn-success:focus,
+.btn-success.focus,
+.btn-success:active:focus,
+.btn-success.active:focus,
+.show > .btn-success.dropdown-toggle:focus {
+	box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
+}
+.btn-success:active,
+.btn-success.active,
+.show > .btn-success.dropdown-toggle {
+	background: #1e7e34 !important;
+	border-color: #1c7430 !important;
+}
 
+@keyframes gradientShift {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
