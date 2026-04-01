@@ -27,6 +27,7 @@ Publication types|Publication types|Tipos de publicación|Tipos de publicação|
 Check tags|Check tags|Precodificados|Pré-codificados|Précodifié
 Geographics|Geographics|Denominaciones geográficas|Denominações geográficas|Lieux géographiques
 Your text|Your text|Tu texto|Seu texto|Ton texte
+Paste your text below|Paste your text below|Pega tu texto a continuación|Cole abaixo o seu texto|Collez votre texte ci-dessous
 Extracted descriptors|Extracted terms|Términos extraídos|Termos extraídos|Termes extraits
 Terms suggested by AI|Terms suggested by AI|Términos sugeridos por IA|Termos sugeridos por IA|Termes suggérés par IA
 Import file|Import file|Importar archivo|Importar arquivo|Importer le fichier

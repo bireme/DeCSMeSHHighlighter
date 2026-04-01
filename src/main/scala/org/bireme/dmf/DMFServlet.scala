@@ -524,7 +524,7 @@ class DMFServlet extends HttpServlet {
           Header.headerArea(originalInputText, language),
           LanguageTags.languageArea(inputLang, outLang, termTypes, language, i18n),
           MainAreas.inputOutputAreas(
-            "Paste your text below",
+            i18n.translate("Paste your text below", language),
             markedInputText.trim,
             originalInputText,
             srText,
