@@ -153,7 +153,7 @@ object MainAreas {
       ButtonTags.importButton(language, i18n),
       //ButtonTags.internetButton(language, i18n),
       ButtonTags.clearButton(language, i18n),
-      ButtonTags.translateButton(language, hasTextToTranslate, translateButtonLocked, i18n),
+      //ButtonTags.translateButton(language, hasTextToTranslate, translateButtonLocked, i18n),
       //ButtonTags.srButton(originalInputText, language, i18n),
       DialogBox.renderDialogBox()
     )
