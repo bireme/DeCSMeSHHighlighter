@@ -76,7 +76,7 @@ object MainAreas {
                              language: String,
                              i18n: I18N): Text.TypedTag[String] = {
     div(cls := "form-group col-md-12")(
-      label(i18n.translate("Terms identified by AI", language) + ":" /*, style := "font-weight: bold;"*/),
+      label(i18n.translate("Terms suggested by AI", language) + ":" /*, style := "font-weight: bold;"*/),
       div(style := "display: flex; align-items: flex-start;")(
         annifArea(annifText),
         exportButtonGroup(exportText, language, i18n)

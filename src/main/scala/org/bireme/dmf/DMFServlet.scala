@@ -381,7 +381,7 @@ class DMFServlet extends HttpServlet {
     buffer.append(s"=== ${i18n.translate("Extracted descriptors", language)} ===")
     descriptors.foreach { case (id, descr) => buffer.append(s"\\n$descr [${id.toUpperCase()}]")}
 
-    buffer.append(s"\\n\\n=== ${i18n.translate("Terms identified by AI", language)} ===")
+    buffer.append(s"\\n\\n=== ${i18n.translate("Terms suggested by AI", language)} ===")
     annifTerms.foreach { case (descr, id) => buffer.append(s"\\n$descr [${id.getOrElse("").toUpperCase()}]")}
     buffer.toString()
   }
