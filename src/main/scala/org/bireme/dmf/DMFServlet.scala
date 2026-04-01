@@ -478,9 +478,9 @@ class DMFServlet extends HttpServlet {
         link(rel := "stylesheet", href := "decsf/css/bootstrap.min.css"),
         link(rel := "stylesheet", href := "decsf/css/fontawesome/css/all.css"),
         link(rel := "stylesheet", href := "decsf/css/bootstrap-select.css"),
-        link(rel := "stylesheet", href := "decsf/css/accessibility.css?v=20260323-bars2"),
-        link(rel := "stylesheet", href := "decsf/css/style.css?v=20260323-bars2"),
-        link(rel := "stylesheet", href := "decsf/css/DeCSFinder.css?v=20260323-bars2"),
+        link(rel := "stylesheet", href := "decsf/css/accessibility.css?v=20260401-import-fix-2"),
+        link(rel := "stylesheet", href := "decsf/css/style.css?v=20260401-import-fix-2"),
+        link(rel := "stylesheet", href := "decsf/css/DeCSFinder.css?v=20260401-import-fix-2"),
         link(rel := "stylesheet", href := "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"),
         link(rel := "shortcut icon", href := "decsf/img/favicon.png"),
         scalatags.Text.tags2.style(raw(
@@ -514,7 +514,7 @@ class DMFServlet extends HttpServlet {
         )),
         script(src := "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"),
         script(src := "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"),
-        script(src := "decsf/js/DeCSFinder.js?v=20260327-translate-flow-2")
+        script(src := "decsf/js/DeCSFinder.js?v=20260401-import-fix-2")
       ),
       body(
         cls := (if (srText.isEmpty) "no-sr-text" else "has-sr-text")

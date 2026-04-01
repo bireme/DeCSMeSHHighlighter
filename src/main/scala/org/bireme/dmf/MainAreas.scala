@@ -145,12 +145,12 @@ object MainAreas {
       input(
         id := fileInputId,
         `type` := "file",
-        hidden := "hidden",
         attr("accept") := ".txt,.pdf",
+        style := "position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;",
         onchange := "window.handleFChange(event);"
       ),
       ButtonTags.searchButton(originalInputText, language, i18n),
-      ButtonTags.importButton(language, i18n),
+      ButtonTags.importButton(fileInputId, language, i18n),
       //ButtonTags.internetButton(language, i18n),
       ButtonTags.clearButton(language, i18n),
       //ButtonTags.translateButton(language, hasTextToTranslate, translateButtonLocked, i18n),

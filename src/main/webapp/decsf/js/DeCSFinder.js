@@ -43,6 +43,108 @@ window.translateButtonObservers = window.translateButtonObservers || {
     outputAreaObserver: null
 };
 
+window.fileChooserState = window.fileChooserState || {
+    pickerOpen: false,
+    processingSelection: false,
+    focusListenerBound: false
+};
+
+function getFileChooserState() {
+    if (!window.fileChooserState) {
+        window.fileChooserState = {
+            pickerOpen: false,
+            processingSelection: false,
+            focusListenerBound: false
+        };
+    }
+
+    return window.fileChooserState;
+}
+
+function getFileChooserElement() {
+    return document.getElementById("fileChooser");
+}
+
+function getFileChooserButtonElement() {
+    return document.querySelector('label[for="fileChooser"]');
+}
+
+function setFileChooserCursor(cursor) {
+    var fileChooser = getFileChooserElement();
+    var fileChooserButton = getFileChooserButtonElement();
+
+    if (!fileChooser) {
+        if (fileChooserButton) {
+            fileChooserButton.style.cursor = cursor;
+        }
+        return;
+    }
+
+    fileChooser.style.cursor = cursor;
+
+    if (fileChooserButton) {
+        fileChooserButton.style.cursor = cursor;
+    }
+}
+
+function setFileChooserInteractive(isInteractive) {
+    var fileChooser = getFileChooserElement();
+
+    if (!fileChooser) {
+        return;
+    }
+
+    fileChooser.style.pointerEvents = isInteractive ? "auto" : "none";
+}
+
+function resetFileChooserState(resetCursor) {
+    var state = getFileChooserState();
+    state.pickerOpen = false;
+    state.processingSelection = false;
+    setFileChooserInteractive(true);
+    setFileChooserCursor("pointer");
+
+    if (resetCursor) {
+        document.body.style.cursor = "default";
+    }
+}
+
+function handleFileChooserDialogReturn() {
+    var state = getFileChooserState();
+
+    if (!state.pickerOpen) {
+        return;
+    }
+
+    window.setTimeout(function () {
+        var currentState = getFileChooserState();
+        var fileChooser = getFileChooserElement();
+        var hasSelectedFile = !!(fileChooser && fileChooser.files && fileChooser.files.length > 0);
+
+        if (!currentState.pickerOpen || currentState.processingSelection || hasSelectedFile) {
+            return;
+        }
+
+        resetFileChooserState(true);
+    }, 400);
+}
+
+window.prepareFileChooser = function (fileInputId) {
+    var fileInput = document.getElementById(fileInputId);
+
+    if (!fileInput) {
+        return;
+    }
+
+    var state = getFileChooserState();
+    state.pickerOpen = true;
+    state.processingSelection = false;
+    setFileChooserInteractive(true);
+    fileInput.value = "";
+    document.body.style.cursor = "wait";
+    setFileChooserCursor("wait");
+};
+
 function getNormalizedElementText(element) {
     if (!element) {
         return "";
@@ -409,11 +511,18 @@ function exportTerms(exportText) {
 window.handleFChange = async function (event) {
     var context = getPageContext();
     var input = event.target;
+    var fileChooserState = getFileChooserState();
 
     if (!input.files || input.files.length === 0) {
-        document.body.style.cursor = "default";
+        resetFileChooserState(true);
         return;
     }
+
+    fileChooserState.pickerOpen = false;
+    fileChooserState.processingSelection = true;
+    setFileChooserInteractive(false);
+    document.body.style.cursor = "wait";
+    setFileChooserCursor("wait");
 
     var file = input.files[0];
     var isPdf = /pdf$/i.test(file.type) || /\.pdf$/i.test(file.name);
@@ -433,7 +542,7 @@ window.handleFChange = async function (event) {
             }
         } catch (err) {
             alert("Error reading PDF: " + err);
-            document.body.style.cursor = "default";
+            resetFileChooserState(true);
             return;
         }
     } else if (isText) {
@@ -441,12 +550,12 @@ window.handleFChange = async function (event) {
             text = await file.text();
         } catch (errText) {
             alert("Error reading text: " + errText);
-            document.body.style.cursor = "default";
+            resetFileChooserState(true);
             return;
         }
     } else {
         alert("Only text and pdf files are allowed.");
-        document.body.style.cursor = "default";
+        resetFileChooserState(true);
         return;
     }
 
@@ -460,6 +569,7 @@ window.handleFChange = async function (event) {
         inputTextLanguage.value = "All languages";
     }
 
+    fileChooserState.processingSelection = false;
     submitCurrentPage("false");
 };
 
@@ -833,8 +943,16 @@ function initializeDialogActions() {
     var openButton = document.getElementById("open-btn");
     var cancelButton = document.getElementById("cancel-btn");
 
+    if (!getFileChooserState().focusListenerBound) {
+        window.addEventListener("focus", handleFileChooserDialogReturn);
+        getFileChooserState().focusListenerBound = true;
+    }
+
     if (fileChooser) {
         fileChooser.onchange = window.handleFChange;
+        fileChooser.oncancel = function () {
+            resetFileChooserState(true);
+        };
     }
     if (openButton) {
         openButton.onclick = handleOpen;

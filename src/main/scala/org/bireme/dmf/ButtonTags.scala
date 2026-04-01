@@ -17,22 +17,27 @@ object ButtonTags {
   private val buttonHoverOn = s"this.style.backgroundColor='$buttonHoverColor';this.style.borderColor='$buttonHoverBorderColor';"
   private val buttonHoverOff = s"this.style.backgroundColor='$buttonColor';this.style.borderColor='$buttonBorderColor';"
 
-  def importButton(language: String, i18n: I18N): Text.TypedTag[String] = {
-    val fileInputId = "fileChooser"
+  def importButton(fileInputId: String,
+                   language: String,
+                   i18n: I18N): Text.TypedTag[String] = {
+    val tooltip = i18n.translate(key="Import file", language)
 
-    button(
-      attr("type") := "button",
+    label(
       cls := "btn btn-success",
-      style := buttonStyle(),
-      title := i18n.translate(key="Import file", language),
-      onclick := s"""document.body.style.cursor = "wait"; document.getElementById('$fileInputId').click(); gtag("event", "button_click", { "event_category": "button", "event_label": "Import Button" });""",
+      attr("for") := fileInputId,
+      style := buttonStyle("cursor: pointer; margin-bottom: 0;"),
+      title := tooltip,
+      attr("aria-label") := tooltip,
+      attr("role") := "button",
+      tabindex := 0,
+      onclick := s"""window.prepareFileChooser('$fileInputId'); gtag("event", "button_click", { "event_category": "button", "event_label": "Import Button" });""",
       onmouseover := buttonHoverOn,
       onmouseout := buttonHoverOff,
-      onfocus := buttonHoverOn,
-      onblur := buttonHoverOff
-    //)(i(cls := "fas fa-archive"))
-    //)(i(cls := "fas fa-file-download"))
-    )(i(cls := "fas fa-file-upload"))
+      attr("onfocusin") := buttonHoverOn,
+      attr("onfocusout") := buttonHoverOff
+    )(
+      span(style := "pointer-events: none;")(i(cls := "fas fa-file-upload fa-fw"))
+    )
   }
 
   def internetButton(language: String,
@@ -49,7 +54,7 @@ object ButtonTags {
       onfocus := buttonHoverOn,
       onblur := buttonHoverOff
     //)(i(cls := "fa fa-globe"))
-    )(i(cls := "fas fa-download"))
+    )(i(cls := "fas fa-download fa-fw"))
   }
 
   def searchButton(originalInputText: String,
@@ -68,7 +73,7 @@ object ButtonTags {
       onfocus := buttonHoverOn,
       onblur := buttonHoverOff
     //)(i(cls := "fas fa-search"))
-    )(i(cls := "fas fa-check"))
+    )(i(cls := "fas fa-check fa-fw"))
   }
 
   def clearButton(language: String,
@@ -84,7 +89,7 @@ object ButtonTags {
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,
       onblur := buttonHoverOff
-    )(i(cls := "far fa-trash-alt"))
+    )(i(cls := "far fa-trash-alt fa-fw"))
   }
 
   def translateButton(language: String,
@@ -146,7 +151,7 @@ object ButtonTags {
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,
       onblur := buttonHoverOff
-    )(i(cls := "fas fa-file-export"))
+    )(i(cls := "fas fa-file-export fa-fw"))
   }
 
   def commentsButton(language: String,
@@ -165,6 +170,6 @@ object ButtonTags {
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,
       onblur := buttonHoverOff
-    )(i(cls := "fas fa-comment"))
+    )(i(cls := "fas fa-comment fa-fw"))
   }
 }
