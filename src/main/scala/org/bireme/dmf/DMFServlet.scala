@@ -226,11 +226,6 @@ class DMFServlet extends HttpServlet {
             val annif: AnnifClient = new AnnifClient(annifBaseUrl)
             //println(s"antes de chamar o getSuggestions. inputLang=[$inputLang]")
             val annifSuggestions: Either[String, Seq[AnnifSuggestion]] = inputLang match {
-              /*
-              case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(7), threshold=Some(0.13f))
-              case "es" => annif.getSuggestions(annifProjectId_es, inputText, limit = Some(7), threshold=Some(0.13f))
-              case "en" => annif.getSuggestions(annifProjectId_en, inputText, limit = Some(7), threshold=Some(0.13f))
-              */
               case "pt" => annif.getSuggestions(annifProjectId_pt, inputText, limit = Some(15))
               case "es" => annif.getSuggestions(annifProjectId_es, inputText, limit = Some(15))
               case "en" => annif.getSuggestions(annifProjectId_en, inputText, limit = Some(15))
@@ -311,22 +306,6 @@ class DMFServlet extends HttpServlet {
 
     terms.map { case (linkHtml, score0) =>
       val score = clampScore(score0)
-
-      /*s"""
-         |<div class="d-flex align-items-center" style="margin-bottom: 6px;">
-         |  <div class="progress"
-         |       style="width: 7mm; height: 0.8rem; flex: 0 0 auto; margin-top: 1px; margin-right: 14px;"
-         |       title="Score: $score">
-         |    <div class="progress-bar"
-         |         role="progressbar"
-         |         style="width: $score%; padding: 0; line-height: 0;">
-         |    </div>
-         |  </div>
-         |  <div style="flex: 1 1 auto; line-height: 1.1; margin: 0;">
-         |    $linkHtml
-         |  </div>
-         |</div>
-         |""".stripMargin.trim*/
 
       s"""
          |<div class="d-flex align-items-center" style="margin-bottom: 6px;">

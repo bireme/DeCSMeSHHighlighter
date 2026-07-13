@@ -21,9 +21,15 @@ object Footer {
       ),
       div(id := "powered")(
         div(cls := "container")(
-          img(
-            src := s"decsf/img/powered-${footerAssetLanguage(language)}.svg",
-            alt := "BIREME"
+          a(
+            href := biremeUrl(language),
+            target := "_blank",
+            rel := "noopener noreferrer"
+          )(
+            img(
+              src := s"decsf/img/powered-${footerAssetLanguage(language)}.svg",
+              alt := "BIREME"
+            )
           ),
           br(),
           small(s"© ${i18n.translate("All rights are reserved", language)}"),
@@ -51,15 +57,9 @@ object Footer {
   }
 
   private def rightFooter(language: String): Text.TypedTag[String] = {
-    val url = language match {
-      case "pt" => "https://www.bireme.org/"
-      case "es" => "https://www.bireme.org/es/home-espanol/"
-      case _ => "https://www.bireme.org/en/home-english/"
-    }
-    
     div(cls := "col-md-4", id := "footer-logo-bir")(
       a(
-        href := url,
+        href := biremeUrl(language),
         target := "_blank",
         rel := "noopener noreferrer"
       )(
@@ -70,6 +70,12 @@ object Footer {
         )
       )
     )
+  }
+
+  private def biremeUrl(language: String): String = language match {
+    case "pt" => "https://www.bireme.org/"
+    case "es" => "https://www.bireme.org/es/home-espanol/"
+    case _ => "https://www.bireme.org/en/home-english/"
   }
 
   private def footerDescription(language: String): String = language match {

@@ -385,13 +385,13 @@ function submitPage(originalInputText, language, showSR) {
         var textMess = "";
 
         if (language === "es") {
-            textMess = "El texto de entrada debe tener un máximo de 230000 caracteres.<br/>Intenta dividirlo en partes más pequeñas.";
+            textMess = "El texto de entrada debe tener un máximo de 230000 caracteres. Intenta dividirlo en partes más pequeñas.";
         } else if (language === "pt") {
-            textMess = "O texto de entrada deve ter no máximo 230000 caracteres.<br/>Experimente quebrar seu texto em textos menores.";
+            textMess = "O texto de entrada deve ter no máximo 230000 caracteres. Experimente quebrar seu texto em textos menores.";
         } else if (language === "fr") {
-            textMess = "Le texte saisi doit comporter au maximum 230000 caractères.<br/>Essayez de le diviser en sections plus courtes.";
+            textMess = "Le texte saisi doit comporter au maximum 230000 caractères. Essayez de le diviser en sections plus courtes.";
         } else {
-            textMess = "The input text must be a maximum of 230000 characters.<br/>Try breaking your text into smaller texts.";
+            textMess = "The input text must be a maximum of 230000 characters. Try breaking your text into smaller texts.";
         }
 
         textWithTooltips.textContent = textMess;
@@ -465,7 +465,7 @@ function appendHiddenField(form, name, value) {
 }
 
 function submitPageToSite(language) {
-    var siteLanguage = language === "fr" ? "en" : language;
+    var siteLanguage = language;
     var formS = document.createElement("form");
     formS.setAttribute("method", "post");
     formS.setAttribute("action", "https://decsfinderia.bvsalud.org/");
