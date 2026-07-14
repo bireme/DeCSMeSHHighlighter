@@ -8,19 +8,34 @@ fi
 PATH=$JAVA_HOME_25/bin:$PATH
 
 DMH_DIR=/home/javaapps/sbt-projects/DeCSMeSHHighlighter
+JETTY_HOME=$DMH_DIR/jetty-home-11.0.14
+APP_WAR=decsmeshfinder.war
+APP_CONTEXT="/${APP_WAR%.war}"
 
 cd $DMH_DIR/jetty-base || exit
 
-../jetty-home-11.0.14/bin/jetty.sh stop
+"$JETTY_HOME/bin/jetty.sh" stop
 
 cd $DMH_DIR || exit
 
-sbt clean package
+sbt clean
+sbt package
 
 cd $DMH_DIR/jetty-base || exit
 
-mv ../target/scala-3.3.7/decsmeshfinder.war ../jetty-base/webapps
+rm -f ../jetty-base/webapps/$APP_WAR
+cp -L ../target/out/jvm/scala-3.3.8/decsmeshfinder/$APP_WAR ../jetty-base/webapps/$APP_WAR
 
-../jetty-home-11.0.14/bin/jetty.sh start
+"$JETTY_HOME/bin/jetty.sh" start
 
-echo -e '\a'   # soar um bip
+JETTY_PORT=$(awk -F= '/^[[:space:]]*jetty\.http\.port[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' start.d/http.ini)
+[ -n "$JETTY_PORT" ] || JETTY_PORT=8080
+
+if grep -q "STARTED" jetty.state; then
+  echo "Aplicacao em execucao: http://localhost:${JETTY_PORT}${APP_CONTEXT}/"
+else
+  echo "Jetty nao iniciou corretamente. Verifique jetty-base/logs."
+  exit 1
+fi
+
+printf '\a'   # soar um bip

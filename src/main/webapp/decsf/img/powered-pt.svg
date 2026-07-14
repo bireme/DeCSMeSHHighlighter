@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 208.6 39" role="img" aria-label="desenvolvido por BIREME">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 229.1 39" role="img" aria-label="desenvolvido por BIREME">
   <g fill="#fff" font-family="Arial, Helvetica, sans-serif">
-    <text x="0" y="0" font-size="14" text-anchor="end" transform="translate(61.5 15.8) scale(0.68 1)">desenvolvido</text>
-    <text x="61.5" y="32.6" font-size="14" text-anchor="end">por</text>
-    <rect x="64.8" y="5.1" width="1.2" height="29.4"/>
-    <text x="72.5" y="28.5" font-size="31" font-weight="700" textLength="130" lengthAdjust="spacingAndGlyphs">BIREME</text>
+    <text x="0" y="0" font-size="18" text-anchor="end" transform="translate(82 15.8) scale(0.65 1)">desenvolvido</text>
+    <text x="82" y="32.6" font-size="18" text-anchor="end">por</text>
+    <rect x="85.3" y="5.1" width="1.2" height="29.4"/>
+    <text x="93" y="28.5" font-size="31" font-weight="700" textLength="130" lengthAdjust="spacingAndGlyphs">BIREME</text>
   </g>
 </svg>

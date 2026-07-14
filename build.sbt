@@ -2,19 +2,19 @@ name := "DeCSMeSHFinder"
 
 version := "1.0"
 
-scalaVersion := "3.3.7" //"2.13.18" //"2.13.13"
+scalaVersion := "3.3.8" //"2.13.18" //"2.13.13"
 
 val jakartaServletApiVersion = "6.1.0" //"6.0.0"
 val jakartaWsRsVersion= "4.0.0" //"3.1.0"
-val luceneVersion = "10.3.2" //"9.8.0"
+val luceneVersion = "10.5.0" //"9.8.0"
 val tikaVersion = "3.2.0"
-val sttpVersion = "4.0.13" //4.0.0-RC2"
+val sttpVersion = "4.0.26" //4.0.0-RC2"
 val scalaTagsVersion = "0.13.1"
 val scalaTestVersion = "3.3.0-SNAP4" //"3.2.0-M2"
-val circeVersion = "0.14.15"
-val jsoupVersion = "1.21.2"
+val circeVersion = "0.14.16"
+val jsoupVersion = "1.22.2"
 val linguaVersion = "1.2.2"
-val ollama4jVersion = "1.1.6"
+val ollama4jVersion = "1.1.7"
 val playJsonVersion = "2.10.8"
 
 libraryDependencies ++= Seq(
@@ -50,8 +50,15 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 //enablePlugins(WarPlugin)
 enablePlugins(SbtWar)
 
+exportJars := false
+
 assembly / assemblyMergeStrategy := {
+  case "" => MergeStrategy.discard
+  case "META-INF" => MergeStrategy.discard
+  case "META-INF/MANIFEST.MF" => MergeStrategy.discard
+  case x if x.endsWith("/") => MergeStrategy.discard
   case "module-info.class" => MergeStrategy.discard
+  case x if x.matches("""META-INF/versions/\d+/module-info\.class""") => MergeStrategy.discard
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -60,14 +67,3 @@ assembly / assemblyMergeStrategy := {
 artifactName := { (v: ScalaVersion, m: ModuleID, a: Artifact) =>
   "decsmeshfinder.war"
 }
-
-/*
-// Configura o nome do arquivo .jar de maneira explícita
-artifactName in (Compile, packageBin) := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-  "meu-jar-nome-" + version.value + ".jar"
-}
-
-// Configura o nome do arquivo .war de maneira explícita
-artifactName in (Compile, packageWar) := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-  "meu-war-nome-" + version.value + ".war"
-}*/
