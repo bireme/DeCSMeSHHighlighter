@@ -16,6 +16,7 @@ import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletRespons
 import com.github.pemistahl.lingua.api.{Language, LanguageDetector, LanguageDetectorBuilder}
 
 import java.io.{InputStream, PrintWriter}
+import java.util.Locale
 import org.bireme.dh.{Config, Highlighter}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -91,12 +92,12 @@ class DMFServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8")
     response.setContentType("text/html;charset=UTF-8")
 
-    val headerLang: String = Try(getHeaderLang(request)).getOrElse("pt")
+    val requestLang: String = Option(request.getParameter("lang")).map(_.trim).filter(_.nonEmpty)
+      .orElse(getUrlLang(request)).getOrElse("pt")
 
     Try {
 
-      val language: String = Option(request.getParameter("lang")).map(_.trim)
-        .map(l => if (l.isEmpty) headerLang else l).getOrElse(headerLang)
+      val language: String = requestLang
       val breakSignal: String = "!__break__!"
       val translateRequested: Boolean = Option(request.getParameter("translateRequested")).exists(_.toBoolean)
       val translateSourceLang: Option[String] = Option(request.getParameter("translateSourceLang")).map(_.trim).filter(_.nonEmpty)
@@ -107,7 +108,7 @@ class DMFServlet extends HttpServlet {
       val outLang: Option[String] = Option(request.getParameter("outLang")).map(_.trim)
         .flatMap(par => if (par.isEmpty) None else Some(par))
       val termTypes: Seq[String] = /*Option(request.getParameter("termTypes")).map(_.trim)
-        .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers")) */ Seq[String]("Descriptors", "Qualifiers") 
+        .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers")) */ Seq[String]("Descriptors", "Qualifiers")
       val inputText000: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
       //println(s"inputText000=$inputText000")
       val inputText00: String = inputText000.replaceAll("(\r?\n\r?|<br>|<div>|<section>|<article>|<header>|<footer>|<nav>|<aside>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<p>|<pre>|<blockquote>|<ul>|<ol>|<li>|" +
@@ -289,9 +290,9 @@ class DMFServlet extends HttpServlet {
       case Success(_) => ()
       case Failure(exception: Throwable) =>
         exception.printStackTrace()
-        val errMess: String = i18n.translate("SS Generation", headerLang)
-        val outputText: String = getHtml(inputLang=headerLang, outLang=headerLang, Seq[String]("Descriptors", "Qualifiers"), markedInputText=errMess,
-          originalInputText="", language=headerLang, srText="", annifText="", exportText="", useFrequencySort=true, isFirstLoad=false,
+        val errMess: String = i18n.translate("SS Generation", requestLang)
+        val outputText: String = getHtml(inputLang=requestLang, outLang=requestLang, Seq[String]("Descriptors", "Qualifiers"), markedInputText=errMess,
+          originalInputText="", language=requestLang, srText="", annifText="", exportText="", useFrequencySort=true, isFirstLoad=false,
           translateButtonLocked=false)
         //println(s"===> outputText = [$outputText]")
         val out: PrintWriter = response.getWriter
@@ -368,17 +369,11 @@ class DMFServlet extends HttpServlet {
   /**
    *
    * @param request HttpServletRequest object
-   * @return the desired input/output language according to the request header Accept-Language
+   * @return the language indicated by the final URL path segment, when supported
    */
-  private def getHeaderLang(request: HttpServletRequest): String = {
-    //println(s"Accept-Language=${request.getHeader("Accept-Language")}")
-    val header = Option(request.getHeader("Accept-Language")).map(_.toLowerCase).getOrElse("pt")
-    val langs: Array[String] = header.split(",|;")
-
-    langs.find {
-      lang => lang.equals("fr") || lang.equals("en") || lang.equals("pt") || lang.equals("es")
-    }.getOrElse("pt")
-  }
+  private def getUrlLang(request: HttpServletRequest): Option[String] =
+    Option(request.getRequestURI).map(_.stripSuffix("/").split('/').lastOption.map(_.toLowerCase(Locale.ROOT)))
+      .flatten.filter(lang => Set("pt", "es", "en", "fr").contains(lang))
 
   private def translateText(ollamaClient: OllamaClient,
                             text: String,
