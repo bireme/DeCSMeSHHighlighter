@@ -22,7 +22,7 @@ object MainAreas {
       cls := "padding1"
     )(
       div(cls := "container")(
-        div(cls := "row") (
+        div(cls := "row main-areas-row") (
           div(cls := "col-md-8")(
             mainInputArea(labelx, inputText, originalInputText, srText, annifText, translateButtonLocked, language, i18n)
           ),
@@ -58,7 +58,7 @@ object MainAreas {
       }
 
     div(cls := "form-group col-md-12")(
-      Seq[Modifier](
+      (Seq[Modifier](
         label(
           i18n.translate(labelx, language) + ":",
           //style := "font-weight: bold;"
@@ -67,7 +67,7 @@ object MainAreas {
           inputTextArea(inputText),
           importButtonGroup(originalInputText, hasVisibleText(inputText), translateButtonLocked, language, i18n)
         )
-      ) ++ srModifiers: _*
+      ) ++ srModifiers)*
     )
   }
 

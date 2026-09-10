@@ -142,11 +142,19 @@ object ButtonTags {
                    i18n: I18N): Text.TypedTag[String] = {
     button(
       attr("type") := "button",
+      id := "exportTermsButton",
       cls  := "btn btn-success",
       style := buttonStyle(),
+      attr("data-export-text") := exportTerms,
+      attr("data-extracted-heading") := s"=== ${i18n.translate("Extracted descriptors", language)} ===",
+      attr("data-suggested-heading") := s"=== ${i18n.translate("Terms suggested by AI", language)} ===",
+      attr("data-input-heading") := s"=== ${i18n.translate("Input text summary", language)} ===",
+      attr("data-summary-error") := i18n.translate("Summary generation error", language),
       title := i18n.translate(key="Export to file", language),
+      attr("aria-disabled") := "true",
+      attr("disabled") := "disabled",
       attr("onclick") :=
-        """exportTerms("""" + exportTerms + """"); gtag("event", "button_click", { "event_category": "button", "event_label": "Export Button"});""",
+        """window.exportSelectedTerms(); gtag("event", "button_click", { "event_category": "button", "event_label": "Export Button"});""",
       onmouseover := buttonHoverOn,
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,

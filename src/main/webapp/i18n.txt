@@ -27,8 +27,11 @@ Publication types|Publication types|Tipos de publicación|Tipos de publicação|
 Check tags|Check tags|Precodificados|Pré-codificados|Précodifié
 Geographics|Geographics|Denominaciones geográficas|Denominações geográficas|Lieux géographiques
 Your text|Your text|Tu texto|Seu texto|Ton texte
+Input text|Input text|Texto de entrada|Texto de entrada|Texte d'entrée
+Input text summary|Summary of input text|Resumen del texto de entrada|Resumo do texto de entrada|Résumé du texte d'entrée
+Summary generation error|Unable to generate the input text summary. The file was not exported.|No se pudo generar el resumen del texto de entrada. El archivo no fue exportado.|Não foi possível gerar o resumo do texto de entrada. O arquivo não foi exportado.|Impossible de générer le résumé du texte d'entrée. Le fichier n'a pas été exporté.
 Paste your text below|Paste your text below|Pega tu texto a continuación|Cole abaixo o seu texto|Collez votre texte ci-dessous
-Extracted descriptors|Extracted terms|Términos extraídos|Termos extraídos|Termes extraits
+Extracted descriptors|Terms extracted from the text|Términos extraídos del texto|Termos extraídos do texto|Termes extraits du texte
 Terms suggested by AI|Terms suggested by AI|Términos sugeridos por IA|Termos sugeridos por IA|Termes suggérés par IA
 Import file|Import file|Importar archivo|Importar arquivo|Importer le fichier
 Search|Search|Buscar|Procurar|Chercher
@@ -38,7 +41,7 @@ SR|SS|SR|SR|SR
 SuperAbstract|Super summaries|Súper resúmenes|Super resumos|Super résumés
 Numerical order|Numerical order|Orden numérica|Ordem numérica|Ordre numérique
 Alphabetical order|Alphabetical order|Orden alfabética|Ordem alfabética|Ordre alphabétique
-Export to file|Export to file|Exportar a archivo|Exportar para arquivo|Exporter vers un fichier
+Export to file|Export selected terms to file|Exportar términos seleccionados a archivo|Exportar termos selecionados para arquivo|Exporter les termes sélectionnés vers un fichier
 Send your comments|Send your comments|Envíe sus comentarios|Envie seus comentários|Envoyez vos commentaires
 SS Generation|Super summaries are only available for texts between 300 and 2300 characters.|Los superresúmenes están disponibles solo para textos entre 300 y 2300 caracteres.|O super resumos está disponível apenas para textos entre 300 e 2300 caracteres.|Les super résumés sont disponibles uniquement pour les textes entre 300 et 2300 caractères.
 Warning|Warning|Advertencia|Aviso|Avertissement

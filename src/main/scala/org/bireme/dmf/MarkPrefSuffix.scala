@@ -22,6 +22,14 @@ class MarkPrefSuffix(decsPath: String) {
     .replace("\"", "&quot;")
     .replace("'", "&#39;")
 
+  private def descriptorField(language: String): String = language.trim.toLowerCase() match {
+    case "en" => "descriptor_en"
+    case "es" => "descriptor_es"
+    case "pt" => "descriptor_pt"
+    case "fr" => "descriptor_fr"
+    case _ => "descriptor_en"
+  }
+
   def close(): Unit = {
     Try {
       ireader.close()
@@ -37,25 +45,21 @@ class MarkPrefSuffix(decsPath: String) {
     topDocs.scoreDocs.headOption match {
       case Some(sd) =>
         val doc: Document = isearcher.storedFields.document(sd.doc)
-        val descriptorField: String = tipLang.trim.toLowerCase() match {
-          case "en" => "descriptor_en"
-          case "es" => "descriptor_es"
-          case "pt" => "descriptor_pt"
-          case "fr" => "descriptor_fr"
-          case _ => "descriptor_en"
-        }
+        val tooltipDescriptorField: String = descriptorField(tipLang)
+        val exportDescriptorField: String = descriptorField(termLang)
         val scopeNoteField: String = tipLang.trim.toLowerCase() match {
           case "en" => "scopeNote_en"
           case "es" => "scopeNote_es"
           case "pt" => "scopeNote_pt"
           case _ => "scopeNote_en"
         }
-        val descriptor: String = Option(doc.get(descriptorField)).getOrElse("")
+        val descriptor: String = Option(doc.get(tooltipDescriptorField)).getOrElse("")
+        val exportDescriptor: String = Option(doc.get(exportDescriptorField)).filter(_.nonEmpty).getOrElse(descriptor)
         val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("").replace('"', '\'')
         val decsId: String = Option(doc.get("decs_id")).getOrElse("")
         val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
 
-        mark(term, descriptor, scopeNote, decsId, treeNumber, tipLang)
+        mark(term, descriptor, exportDescriptor, uniqueId, scopeNote, decsId, treeNumber, tipLang)
       case None => term
     }
   }
@@ -63,20 +67,8 @@ class MarkPrefSuffix(decsPath: String) {
   def prefSuffix1(term: String,
                   termLang: String,
                   tipLang:  String): String = {
-    val inDescriptorField: String = termLang.trim.toLowerCase() match {
-      case "en" => "descriptor_en"
-      case "es" => "descriptor_es"
-      case "pt" => "descriptor_pt"
-      case "fr" => "descriptor_fr"
-      case _ => "descriptor_en"
-    }
-    val outDescriptorField: String = tipLang.trim.toLowerCase() match {
-      case "en" => "descriptor_en"
-      case "es" => "descriptor_es"
-      case "pt" => "descriptor_pt"
-      case "fr" => "descriptor_fr"
-      case _ => "descriptor_en"
-    }
+    val inDescriptorField: String = descriptorField(termLang)
+    val outDescriptorField: String = descriptorField(tipLang)
     val topDocs: TopDocs = isearcher.search(new TermQuery(new Term(inDescriptorField, term)), 1)
     topDocs.scoreDocs.headOption match {
       case Some(sd) =>
@@ -91,8 +83,9 @@ class MarkPrefSuffix(decsPath: String) {
         val scopeNote: String = Option(doc.get(scopeNoteField)).getOrElse("").replace('"', '\'')
         val treeNumber: Option[Array[String]] = Option(doc.getValues("tree_number"))
         val decsId: String = Option(doc.get("decs_id")).getOrElse("")
+        val uniqueId: String = Option(doc.get("unique_id")).getOrElse("")
 
-        mark(term, descriptor, scopeNote, decsId, treeNumber, tipLang)
+        mark(term, descriptor, term, uniqueId, scopeNote, decsId, treeNumber, tipLang)
       case None =>
         println(s"Nao achou o termo:[$term] termLang:$termLang tipLang:$tipLang")
         term
@@ -101,11 +94,15 @@ class MarkPrefSuffix(decsPath: String) {
 
   private def mark(term: String,
                    descriptor: String,
+                   exportDescriptor: String,
+                   exportIdentifier: String,
                    scopeNote: String,
                    decsId: String,
                    treeNumber: Option[Array[String]],
                    language: String): String = {
     val safeDescriptor: String = escapeHtml(descriptor)
+    val safeExportDescriptor: String = escapeHtml(exportDescriptor)
+    val safeExportIdentifier: String = escapeHtml(exportIdentifier)
     val tooltipText: String = List(
       s"[$descriptor]",
       scopeNote,
@@ -121,6 +118,8 @@ class MarkPrefSuffix(decsPath: String) {
        class="tooltip-link"
        title="$titleAttr"
        aria-label="$safeDescriptor"
+       data-export-term="$safeExportDescriptor"
+       data-export-id="$safeExportIdentifier"
        target="_blank">$term</a>"""
 
     //println(s"term=$term ret=$ret")

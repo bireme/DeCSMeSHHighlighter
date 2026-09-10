@@ -330,8 +330,8 @@ function bindTranslateButtonInputEvents() {
     });
 }
 
-function submitCurrentPage(showSR) {
-    submitPage(null, getInterfaceLanguage(), showSR);
+function submitCurrentPage(showSR, preserveSelectedTerms) {
+    submitPage(null, getInterfaceLanguage(), showSR, preserveSelectedTerms);
 }
 
 function clearTextAreas(language) {
@@ -361,7 +361,7 @@ function clearTextAreas(language) {
     submitPage("", language, "false");
 }
 
-function submitPage(originalInputText, language, showSR) {
+function submitPage(originalInputText, language, showSR, preserveSelectedTerms) {
     var textWithTooltips = document.getElementById("textWithTooltips");
     var translateRequest = window.decsFinderPage && window.decsFinderPage.pendingTranslateRequest
         ? window.decsFinderPage.pendingTranslateRequest
@@ -447,6 +447,16 @@ function submitPage(originalInputText, language, showSR) {
     appendHiddenField(form, "lang", language);
     appendHiddenField(form, "isFirstLoad", "false");
     appendHiddenField(form, "showSR", showSR === "true" ? "true" : "false");
+    if (preserveSelectedTerms) {
+        var selectedAnnifIds = getSelectedSuggestedExportTerms()
+            .map(function (item) {
+                return item.id;
+            })
+            .filter(function (id) {
+                return !!id;
+            });
+        appendHiddenField(form, "selectedAnnifIds", selectedAnnifIds.join("|"));
+    }
     if (translateRequest && translateRequest.requested) {
         appendHiddenField(form, "translateRequested", "true");
         appendHiddenField(form, "translateSourceLang", translateRequest.sourceLanguage || "All languages");
@@ -493,7 +503,7 @@ window.handleLanguageSelectionChange = function (selectEl, eventLabel) {
         console.error("Google Analytics não está disponível.");
     }
 
-    submitCurrentPage("false");
+    submitCurrentPage("false", selectEl.id === "outputTextLanguage");
 };
 
 function exportTerms(exportText) {
@@ -504,9 +514,229 @@ function exportTerms(exportText) {
         var seconds = now.getSeconds().toString().padStart(2, "0");
         var fileName = "DeCSFinder_" + hours + ":" + minutes + ":" + seconds;
         var blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
-        saveAs(blob, fileName + ".txt");
+        var downloadName = fileName + ".txt";
+
+        if (typeof window.saveAs === "function") {
+            window.saveAs(blob, downloadName);
+            return;
+        }
+
+        var downloadUrl = URL.createObjectURL(blob);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = downloadUrl;
+        downloadLink.download = downloadName;
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        window.setTimeout(function () {
+            URL.revokeObjectURL(downloadUrl);
+        }, 0);
     }
 }
+
+function getExportTermId(anchor) {
+    if (!anchor) {
+        return "";
+    }
+
+    var href = anchor.getAttribute("href") || "";
+    try {
+        return new URL(href, window.location.href).searchParams.get("id") || "";
+    } catch (error) {
+        var match = href.match(/[?&]id=([^&]+)/);
+        return match ? decodeURIComponent(match[1]) : "";
+    }
+}
+
+function getExtractedExportTerms() {
+    var uniqueTerms = {};
+    var links = document.querySelectorAll("#textWithTooltips a.tooltip-link");
+
+    links.forEach(function (anchor) {
+        var term = (
+            anchor.getAttribute("data-export-term")
+            || anchor.getAttribute("aria-label")
+            || ""
+        ).trim();
+        var id = (
+            anchor.getAttribute("data-export-id")
+            || getExportTermId(anchor)
+        ).trim();
+        if (!term) {
+            return;
+        }
+
+        var key = id ? "id:" + id.toUpperCase() : "term:" + term.toLocaleLowerCase();
+        if (!uniqueTerms[key]) {
+            uniqueTerms[key] = {
+                term: term,
+                id: id
+            };
+        }
+    });
+
+    return Object.keys(uniqueTerms)
+        .map(function (key) {
+            return uniqueTerms[key];
+        })
+        .sort(function (first, second) {
+            return first.term.localeCompare(second.term);
+        });
+}
+
+function getSelectedSuggestedExportTerms() {
+    var selected = [];
+    var rows = document.querySelectorAll("#textWithTooltipsAnnif .ai-term-row");
+
+    rows.forEach(function (row) {
+        var checkbox = row.querySelector('input[type="checkbox"]');
+        if (!checkbox || !checkbox.checked) {
+            return;
+        }
+
+        var anchor = row.querySelector("a.tooltip-link");
+        var term = anchor ? (anchor.textContent || "").trim() : "";
+
+        if (!term) {
+            return;
+        }
+
+        selected.push({
+            term: term,
+            id: checkbox.getAttribute("data-notation") || getExportTermId(anchor)
+        });
+    });
+
+    return selected;
+}
+
+function formatSelectedExportTerms(items) {
+    return items.map(function (item) {
+        return item.term + (item.id ? " [" + item.id.toUpperCase() + "]" : "");
+    });
+}
+
+function getInputTextForSummary() {
+    var inputArea = document.getElementById("textWithTooltips");
+    if (!inputArea) {
+        return "";
+    }
+
+    var inputText = typeof inputArea.innerText === "string"
+        ? inputArea.innerText
+        : (inputArea.textContent || "");
+    return inputText.replace(/\u00A0/g, " ").trim();
+}
+
+async function requestInputTextSummary(inputText, inputLanguage) {
+    var parameters = new URLSearchParams();
+    parameters.set("action", "summarizeForExport");
+    parameters.set("inputText", inputText);
+    parameters.set("inputLang", inputLanguage || "");
+
+    var response = await fetch(window.location.pathname, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body: parameters.toString()
+    });
+    var summary = (await response.text()).trim();
+
+    if (!response.ok || !summary) {
+        throw new Error("Super summary request failed with status " + response.status + ".");
+    }
+
+    return summary;
+}
+
+function updateExportButtonState() {
+    var exportButton = document.getElementById("exportTermsButton");
+    if (!exportButton) {
+        return;
+    }
+
+    var hasSelectedTerm = !!document.querySelector(
+        "#textWithTooltipsAnnif .ai-term-checkbox:checked"
+    );
+    var exportInProgress = exportButton.dataset.exportInProgress === "true";
+    var exportEnabled = hasSelectedTerm && !exportInProgress;
+    exportButton.disabled = !exportEnabled;
+    exportButton.setAttribute("aria-disabled", exportEnabled ? "false" : "true");
+    exportButton.setAttribute("aria-busy", exportInProgress ? "true" : "false");
+}
+
+function initializeExportButtonState() {
+    var exportButton = document.getElementById("exportTermsButton");
+    if (!exportButton || exportButton.dataset.selectionStateBound === "true") {
+        updateExportButtonState();
+        return;
+    }
+
+    exportButton.dataset.selectionStateBound = "true";
+    document.addEventListener("change", function (event) {
+        if (event.target && event.target.matches(
+            ".ai-term-checkbox"
+        )) {
+            updateExportButtonState();
+        }
+    });
+    updateExportButtonState();
+}
+
+window.exportSelectedTerms = async function () {
+    var exportButton = document.getElementById("exportTermsButton");
+    var extractedTerms = formatSelectedExportTerms(getExtractedExportTerms());
+    var selectedSuggested = formatSelectedExportTerms(getSelectedSuggestedExportTerms());
+
+    if (extractedTerms.length === 0 && selectedSuggested.length === 0) {
+        return;
+    }
+
+    if (!exportButton) {
+        return;
+    }
+
+    var extractedHeading = exportButton.getAttribute("data-extracted-heading") || "";
+    var suggestedHeading = exportButton.getAttribute("data-suggested-heading") || "";
+    var inputHeading = exportButton.getAttribute("data-input-heading") || "";
+    var summaryError = exportButton.getAttribute("data-summary-error") || "";
+    if (!extractedHeading || !suggestedHeading || !inputHeading) {
+        return;
+    }
+
+    var inputText = getInputTextForSummary();
+    if (!inputText) {
+        return;
+    }
+
+    exportButton.dataset.exportInProgress = "true";
+    document.body.style.cursor = "wait";
+    updateExportButtonState();
+
+    try {
+        var inputSummary = await requestInputTextSummary(inputText, getPageContext().inputLang);
+        var exportSections = [];
+        if (selectedSuggested.length > 0) {
+            exportSections.push(suggestedHeading + "\n" + selectedSuggested.join("\n"));
+        }
+        if (extractedTerms.length > 0) {
+            exportSections.push(extractedHeading + "\n" + extractedTerms.join("\n"));
+        }
+        exportSections.push(inputHeading + "\n" + inputSummary);
+
+        var selectedExportText = exportSections.join("\n\n");
+        exportTerms(selectedExportText);
+    } catch (error) {
+        console.error(error);
+        alert(summaryError || "Unable to generate the input text summary.");
+    } finally {
+        exportButton.dataset.exportInProgress = "false";
+        document.body.style.cursor = "default";
+        updateExportButtonState();
+    }
+};
 
 window.handleFChange = async function (event) {
     var context = getPageContext();
@@ -988,6 +1218,7 @@ function initializeDeCSFinderPageRuntime() {
     initializePasteHandler();
     initializeFirstLoadModal();
     initializeTranslateButtonState();
+    initializeExportButtonState();
 }
 
 window.initializeDeCSFinderPage = function (config) {

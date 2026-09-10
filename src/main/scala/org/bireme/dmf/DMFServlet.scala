@@ -23,21 +23,22 @@ import org.jsoup.nodes.Document
 import scalatags.Text
 import scalatags.Text.all._
 
+import scala.compiletime.uninitialized
 import scala.util.{Failure, Success, Try}
 
 /**
  * DeCSMeshHighlighter Servlet
  */
 class DMFServlet extends HttpServlet {
-  private var highlighter: Highlighter = _
-  private var markPrefSuffix: MarkPrefSuffix = _
-  private var translate: Translate = _
-  private var i18n: I18N = _
-  private var ollamaHost: String = _
-  private var annifBaseUrl: String = _
-  private var annifProjectId_pt: String = _
-  private var annifProjectId_es: String = _
-  private var annifProjectId_en: String = _
+  private var highlighter: Highlighter = uninitialized
+  private var markPrefSuffix: MarkPrefSuffix = uninitialized
+  private var translate: Translate = uninitialized
+  private var i18n: I18N = uninitialized
+  private var ollamaHost: String = uninitialized
+  private var annifBaseUrl: String = uninitialized
+  private var annifProjectId_pt: String = uninitialized
+  private var annifProjectId_es: String = uninitialized
+  private var annifProjectId_en: String = uninitialized
 
   /**
    * Do initial web app configuration
@@ -90,6 +91,12 @@ class DMFServlet extends HttpServlet {
                              response: HttpServletResponse): Unit = {
     request.setCharacterEncoding("UTF-8")
     response.setCharacterEncoding("UTF-8")
+
+    if (Option(request.getParameter("action")).contains("summarizeForExport")) {
+      processExportSummaryRequest(request, response)
+      return
+    }
+
     response.setContentType("text/html;charset=UTF-8")
 
     val requestLang: String = Option(request.getParameter("lang")).map(_.trim).filter(_.nonEmpty)
@@ -107,6 +114,12 @@ class DMFServlet extends HttpServlet {
       }
       val outLang: Option[String] = Option(request.getParameter("outLang")).map(_.trim)
         .flatMap(par => if (par.isEmpty) None else Some(par))
+      val selectedAnnifIds: Set[String] = Option(request.getParameter("selectedAnnifIds"))
+        .toSeq
+        .flatMap(_.split("\\|"))
+        .map(_.trim.toUpperCase(Locale.ROOT))
+        .filter(_.nonEmpty)
+        .toSet
       val termTypes: Seq[String] = /*Option(request.getParameter("termTypes")).map(_.trim)
         .map(_.split(" *\\| *").toSeq).getOrElse(Seq[String]("Descriptors", "Qualifiers")) */ Seq[String]("Descriptors", "Qualifiers")
       val inputText000: String = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
@@ -259,8 +272,12 @@ class DMFServlet extends HttpServlet {
             //println(s"annifSuggestions=$annifSuggestions\n\nannifTerms0=$annifTerms0\n\nannifTerms=$annifTerms\n\nannifTermsPrefSuf=$annifTermsPrefSuf\n\n")
             val annifZip: Seq[(String, Int)] = annifTermsPrefSuf.zip(annifSuggestions.getOrElse(Seq[AnnifSuggestion]()).map(sc => (sc.score * 100).toInt))
 
-            val annifTermScore: Seq[(String, Int)] = annifTermsPrefSuf.zip(annifZip.map(_._2))
-            val annifText: String = prepareAnnifText(annifTermScore)
+            val annifTermScore: Seq[(String, Int, String)] =
+              annifTermsPrefSuf.zip(annifZip.map(_._2)).zip(annifTerms).map {
+                case ((linkHtml, score), (_, notation)) =>
+                  (linkHtml, score, notation.getOrElse(""))
+              }
+            val annifText: String = prepareAnnifText(annifTermScore, selectedAnnifIds)
             val descr: Set[(String, String)] = descriptors._2.map(t => (t._3, t._5)).toSet
             //println(s"descr=$descr")
             val exportText: String = getExportTermsText(descr, annifTerms, language)
@@ -302,14 +319,23 @@ class DMFServlet extends HttpServlet {
     }
   }
 
-  private def prepareAnnifText(terms: Seq[(String, Int)]): String = {
+  private def prepareAnnifText(terms: Seq[(String, Int, String)],
+                               selectedAnnifIds: Set[String]): String = {
     def clampScore(v: Int): Int = math.max(0, math.min(100, v))
 
-    terms.map { case (linkHtml, score0) =>
+    terms.map { case (linkHtml, score0, decsId) =>
       val score = clampScore(score0)
+      val checkedAttr =
+        if (selectedAnnifIds.contains(decsId.toUpperCase(Locale.ROOT))) """ checked="checked""""
+        else ""
 
       s"""
-         |<div class="d-flex align-items-center" style="margin-bottom: 6px;">
+         |<div class="d-flex align-items-center ai-term-row" style="margin-bottom: 6px;">
+         |  <input type="checkbox"
+         |         class="ai-term-checkbox"$checkedAttr
+         |         data-notation="$decsId"
+         |         aria-label="Selecionar termo sugerido por IA"
+         |         style="margin-right: 8px;">
          |  <div class="progress"
          |       style="width: 7mm; height: 0.8rem; flex: 0 0 auto; margin-top: 1px; margin-right: 14px;"
          |       title="Score: $score">
@@ -415,6 +441,58 @@ class DMFServlet extends HttpServlet {
     }.toEither.left.map(_.getMessage)
   }
 
+  private def processExportSummaryRequest(request: HttpServletRequest,
+                                          response: HttpServletResponse): Unit = {
+    response.setContentType("text/plain;charset=UTF-8")
+    response.setHeader("Cache-Control", "no-store")
+
+    val inputText = Option(request.getParameter("inputText")).map(_.trim).getOrElse("")
+    if (inputText.isEmpty) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Input text is empty.")
+      return
+    }
+
+    val requestedLanguage = Option(request.getParameter("inputLang")).map(_.trim.toLowerCase(Locale.ROOT)).getOrElse("")
+    val inputLanguage =
+      if (Set("pt", "es", "en", "fr").contains(requestedLanguage)) requestedLanguage
+      else detectInputLanguage(inputText)
+
+    val summaryInputText = DMFServlet.limitTextByWords(inputText, maximumWords = 1000)
+
+    generateSuperSummary(summaryInputText, inputLanguage) match {
+      case Success(summary) =>
+        val out = response.getWriter
+        out.print(summary.trim)
+        out.flush()
+      case Failure(exception) =>
+        exception.printStackTrace()
+        response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Super summary generation failed.")
+    }
+  }
+
+  private def generateSuperSummary(inputText: String,
+                                   inputLanguage: String): Try[String] = {
+    Try(new OllamaClient(ollamaHost, None)).flatMap { ollamaClient =>
+      inputLanguage match {
+        case "pt" => ollamaClient.chat(inputText, "sr-v1-pt")
+        case "es" => ollamaClient.chat(inputText, "sr-v1-es")
+        case "en" => ollamaClient.chat(inputText, "sr-v1-en")
+        case "fr" =>
+          translateTextEither(ollamaClient, inputText, "fr", "en") match {
+            case Left(error) => Failure(new Exception(error))
+            case Right(englishText) =>
+              ollamaClient.chat(englishText, "sr-v1-en").flatMap { englishSummary =>
+                translateTextEither(ollamaClient, englishSummary, "en", "fr") match {
+                  case Left(error) => Failure(new Exception(error))
+                  case Right(frenchSummary) => Success(frenchSummary)
+                }
+              }
+          }
+        case _ => Failure(new IllegalArgumentException(s"Unsupported summary language: $inputLanguage"))
+      }
+    }
+  }
+
   private def detectInputLanguage(text: String): String = {
     val detector: LanguageDetector = LanguageDetectorBuilder.fromAllLanguages().build()
     val detectedLanguage: Language = detector.detectLanguageOf(text)
@@ -454,8 +532,8 @@ class DMFServlet extends HttpServlet {
         link(rel := "stylesheet", href := "decsf/css/bootstrap-select.css"),
         link(rel := "stylesheet", href := "decsf/css/accessibility.css?v=20260401-import-fix-2"),
         link(rel := "stylesheet", href := "decsf/css/style.css?v=20260401-import-fix-2"),
-        link(rel := "stylesheet", href := "decsf/css/DeCSFinder.css?v=20260401-import-fix-2"),
-        link(rel := "stylesheet", href := "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"),
+        link(rel := "stylesheet", href := "decsf/css/DeCSFinder.css?v=20260910-remove-middle-1"),
+        link(rel := "stylesheet", href := "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"),
         link(rel := "shortcut icon", href := "decsf/img/favicon.png"),
         scalatags.Text.tags2.style(raw(
           """
@@ -488,7 +566,7 @@ class DMFServlet extends HttpServlet {
         )),
         script(src := "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"),
         script(src := "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"),
-        script(src := "decsf/js/DeCSFinder.js?v=20260401-import-fix-2")
+        script(src := "decsf/js/DeCSFinder.js?v=20260910-export-summary-1")
       ),
       body(
         cls := (if (srText.isEmpty) "no-sr-text" else "has-sr-text")
@@ -579,4 +657,18 @@ class DMFServlet extends HttpServlet {
       handler.toString()
     }
   } */
+}
+
+object DMFServlet {
+  private val WordPattern = "\\S+".r
+
+  private[dmf] def limitTextByWords(text: String, maximumWords: Int): String = {
+    require(maximumWords > 0, "maximumWords must be positive")
+
+    val normalizedText = Option(text).getOrElse("").trim
+    val words = WordPattern.findAllMatchIn(normalizedText).take(maximumWords + 1).toVector
+
+    if (words.length <= maximumWords) normalizedText
+    else normalizedText.substring(0, words(maximumWords - 1).end).trim + " ..."
+  }
 }

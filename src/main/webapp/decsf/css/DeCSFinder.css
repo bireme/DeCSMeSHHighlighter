@@ -69,7 +69,29 @@ body {
   cursor: pointer;
 }
 
-#translateButton:disabled {
+.main-areas-row > [class*="col-"] {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.ai-term-row {
+  min-height: 1.25rem;
+}
+
+.ai-term-checkbox {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.ai-term-checkbox:focus-visible {
+  outline: 2px solid #80bdff;
+  outline-offset: 2px;
+}
+
+#translateButton:disabled,
+#exportTermsButton:disabled {
   cursor: not-allowed;
   opacity: 0.65;
 }
