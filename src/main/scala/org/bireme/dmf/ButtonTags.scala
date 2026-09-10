@@ -67,7 +67,7 @@ object ButtonTags {
       style := buttonStyle(),
       title := i18n.translate(key="Send text", language),
       attr("onclick") :=
-        s"""document.body.style.cursor = "wait";submitPage(null, "$language", "false"); gtag("event", "button_click", { "event_category": "button", "event_label": "Search Button" });""",
+        s"""setInterfaceBusy(true);submitPage(null, "$language", "false"); gtag("event", "button_click", { "event_category": "button", "event_label": "Search Button" });""",
       onmouseover := buttonHoverOn,
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,
@@ -128,7 +128,7 @@ object ButtonTags {
       attr("aria-pressed") := "false",
       title := i18n.translate(key="SuperAbstract", language),
       attr("onclick") :=
-        s"""document.body.style.cursor = "wait";submitPage(null, "$language", "true"); gtag("event", "button_click", { "event_category": "button", "event_label": "SR Button"});""",
+        s"""setInterfaceBusy(true);submitPage(null, "$language", "true"); gtag("event", "button_click", { "event_category": "button", "event_label": "SR Button"});""",
       onmouseover := buttonHoverOn,
       onmouseout := buttonHoverOff,
       onfocus := buttonHoverOn,

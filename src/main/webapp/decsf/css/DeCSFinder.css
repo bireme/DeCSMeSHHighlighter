@@ -9,6 +9,11 @@ body {
   flex-direction: column;
 }
 
+html.interface-busy,
+html.interface-busy * {
+  cursor: wait !important;
+}
+
 #main_container {
   flex: 1;
 }

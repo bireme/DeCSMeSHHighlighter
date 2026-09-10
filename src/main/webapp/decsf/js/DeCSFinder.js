@@ -5,6 +5,14 @@ window.gtag = window.gtag || function () {
 gtag("js", new Date());
 gtag("config", "G-DBPY4Q6HT8");
 
+function setInterfaceBusy(isBusy) {
+    if (document.documentElement) {
+        document.documentElement.classList.toggle("interface-busy", !!isBusy);
+    }
+}
+
+window.setInterfaceBusy = setInterfaceBusy;
+
 function getDocumentLanguage() {
     var lang = (document.documentElement && document.documentElement.lang) || "";
     lang = (lang || "").trim().toLowerCase();
@@ -105,7 +113,7 @@ function resetFileChooserState(resetCursor) {
     setFileChooserCursor("pointer");
 
     if (resetCursor) {
-        document.body.style.cursor = "default";
+        setInterfaceBusy(false);
     }
 }
 
@@ -141,8 +149,7 @@ window.prepareFileChooser = function (fileInputId) {
     state.processingSelection = false;
     setFileChooserInteractive(true);
     fileInput.value = "";
-    document.body.style.cursor = "wait";
-    setFileChooserCursor("wait");
+    setInterfaceBusy(true);
 };
 
 function getNormalizedElementText(element) {
@@ -254,7 +261,7 @@ window.handleTranslateButtonClick = function () {
         outputTextLanguage.value = interfaceLanguage;
     }
 
-    document.body.style.cursor = "wait";
+    setInterfaceBusy(true);
 
     if (sendButton && typeof sendButton.click === "function") {
         sendButton.click();
@@ -362,6 +369,8 @@ function clearTextAreas(language) {
 }
 
 function submitPage(originalInputText, language, showSR, preserveSelectedTerms) {
+    setInterfaceBusy(true);
+
     var textWithTooltips = document.getElementById("textWithTooltips");
     var translateRequest = window.decsFinderPage && window.decsFinderPage.pendingTranslateRequest
         ? window.decsFinderPage.pendingTranslateRequest
@@ -372,6 +381,7 @@ function submitPage(originalInputText, language, showSR, preserveSelectedTerms) 
     }
 
     if (!textWithTooltips) {
+        setInterfaceBusy(false);
         setTranslateButtonLocked(false);
         setTranslateSubmissionInProgress(false);
         return;
@@ -400,7 +410,7 @@ function submitPage(originalInputText, language, showSR, preserveSelectedTerms) 
             textWithTooltipsAnnif.setAttribute("contenteditable", "false");
         }
         textWithTooltips.setAttribute("contenteditable", "false");
-        document.body.style.cursor = "default";
+        resetFileChooserState(true);
         setTranslateButtonLocked(false);
         setTranslateSubmissionInProgress(false);
         updateTranslateButtonState();
@@ -491,7 +501,7 @@ window.handleLanguageSelectionChange = function (selectEl, eventLabel) {
         return;
     }
 
-    document.body.style.cursor = "wait";
+    setInterfaceBusy(true);
 
     if (typeof gtag === "function") {
         gtag("event", "language_selection", {
@@ -712,7 +722,7 @@ window.exportSelectedTerms = async function () {
     }
 
     exportButton.dataset.exportInProgress = "true";
-    document.body.style.cursor = "wait";
+    setInterfaceBusy(true);
     updateExportButtonState();
 
     try {
@@ -733,7 +743,7 @@ window.exportSelectedTerms = async function () {
         alert(summaryError || "Unable to generate the input text summary.");
     } finally {
         exportButton.dataset.exportInProgress = "false";
-        document.body.style.cursor = "default";
+        setInterfaceBusy(false);
         updateExportButtonState();
     }
 };
@@ -751,8 +761,7 @@ window.handleFChange = async function (event) {
     fileChooserState.pickerOpen = false;
     fileChooserState.processingSelection = true;
     setFileChooserInteractive(false);
-    document.body.style.cursor = "wait";
-    setFileChooserCursor("wait");
+    setInterfaceBusy(true);
 
     var file = input.files[0];
     var isPdf = /pdf$/i.test(file.type) || /\.pdf$/i.test(file.name);
@@ -825,6 +834,8 @@ async function handleOpen() {
         return;
     }
 
+    setInterfaceBusy(true);
+
     try {
         var conteudo = await fetchTextOrPDFContent(url);
         var textWithTooltips = document.getElementById("textWithTooltips");
@@ -835,6 +846,7 @@ async function handleOpen() {
 
         submitCurrentPage("false");
     } catch (err) {
+        setInterfaceBusy(false);
         alert("Download error: " + err);
     }
 }
