@@ -35,6 +35,7 @@ class DMFServlet extends HttpServlet {
   private var translate: Translate = uninitialized
   private var i18n: I18N = uninitialized
   private var ollamaHost: String = uninitialized
+  private var ollamaPort: Option[Int] = None
   private var annifBaseUrl: String = uninitialized
   private var annifProjectId_pt: String = uninitialized
   private var annifProjectId_es: String = uninitialized
@@ -57,6 +58,7 @@ class DMFServlet extends HttpServlet {
     translate = new Translate(decsPath)
     i18n = new I18N(i18nIS)
     ollamaHost = context.getInitParameter("OLLAMA_HOST")
+    ollamaPort = Option(context.getInitParameter("OLLAMA_PORT")).map(_.toInt)
     annifBaseUrl = context.getInitParameter("ANNIF_BASE_URL")
     //annifProjectId = context.getInitParameter("ANNIF_PROJECT_ID")
     annifProjectId_pt = context.getInitParameter("ANNIF_PROJECT_PT_ID")
@@ -170,7 +172,7 @@ class DMFServlet extends HttpServlet {
             translateRequested = translateRequested,
             translateSourceLang = translateSourceResolved,
             translateFn = (text: String, sourceLang: String, targetLang: String) => {
-              val ollamaClient = new OllamaClient(ollamaHost, None)
+              val ollamaClient = new OllamaClient(ollamaHost, ollamaPort)
               translateTextEither(
                 ollamaClient = ollamaClient,
                 text = text.replace(breakSignal, "\n"),

@@ -24,7 +24,7 @@ sbt package
 cd $DMH_DIR/jetty-base || exit
 
 rm -f ../jetty-base/webapps/$APP_WAR
-cp -L ../target/out/jvm/scala-3.3.8/decsmeshfinder/$APP_WAR ../jetty-base/webapps/$APP_WAR
+cp -L ../target/out/jvm/scala-3.9.0/decsmeshfinder/$APP_WAR ../jetty-base/webapps/$APP_WAR
 
 "$JETTY_HOME/bin/jetty.sh" start
 

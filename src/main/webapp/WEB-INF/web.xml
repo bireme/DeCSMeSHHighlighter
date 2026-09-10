@@ -44,6 +44,12 @@
         <param-value>186.209.156.70</param-value>
     </context-param>
 
+    <context-param>
+        <description>Ollama Client Port</description>
+        <param-name>OLLAMA_PORT</param-name>
+        <param-value>30401</param-value>
+    </context-param>
+
     <servlet>
         <servlet-name>DMFServlet</servlet-name>
         <servlet-class>org.bireme.dmf.DMFServlet</servlet-class>
